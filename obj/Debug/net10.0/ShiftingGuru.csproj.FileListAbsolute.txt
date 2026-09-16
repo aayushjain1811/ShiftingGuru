@@ -194,3 +194,4 @@
 /home/aayushjain1811/ShiftingGuru/ShiftingGuru/obj/Debug/net10.0/ShiftingGuru.genruntimeconfig.cache
 /home/aayushjain1811/ShiftingGuru/ShiftingGuru/obj/Debug/net10.0/ref/ShiftingGuru.dll
 /home/aayushjain1811/ShiftingGuru/ShiftingGuru/obj/Debug/net10.0/compressed/gmeguebci3-{0}-1n41wwcs1o-1n41wwcs1o.gz
+/home/aayushjain1811/ShiftingGuru/ShiftingGuru/obj/Debug/net10.0/ShiftingGuru.sourcelink.json

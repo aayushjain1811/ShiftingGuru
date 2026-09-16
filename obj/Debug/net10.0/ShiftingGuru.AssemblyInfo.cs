@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShiftingGuru")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d96e193c1f10584265db5a4902e1dd641f2752aa")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShiftingGuru")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShiftingGuru")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,47 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Production configuration
+appsettings.Production.json
+
+# Logs
+logs/
+*.log
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test results
+TestResults/
+coverage/
+
+# Publish output
+publish/
+
+# Local uploads
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
