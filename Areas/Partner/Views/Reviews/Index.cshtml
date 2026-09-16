@@ -1,0 +1,106 @@
+@model VendorReviewListViewModel
+@using ShiftingGuru.Areas.Admin
+@{
+    var summary = Model.Summary;
+}
+
+<div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+        <h1 class="text-xl font-bold tracking-tight text-ink-900">My reviews</h1>
+        <p class="mt-1 text-sm text-ink-500">What customers have said about your business.</p>
+    </div>
+</div>
+
+<div class="mt-6 grid gap-4 lg:grid-cols-3">
+
+    <section class="border border-ink-200 bg-white p-6 rounded-card" aria-labelledby="rating-heading">
+        <h2 id="rating-heading" class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Your rating</h2>
+
+        @if (!summary.HasReviews)
+        {
+            @* No approved reviews means no rating. Not 5.0, not 0 - nothing. *@
+            <p class="mt-4 text-sm leading-relaxed text-ink-500">
+                No reviews yet. Customers can review you once a move is marked complete.
+            </p>
+        }
+        else
+        {
+            <p class="mt-4 flex items-baseline gap-2">
+                <span class="font-display text-4xl font-bold tracking-tight text-ink-900">@summary.DisplayRating</span>
+                <span class="text-lg text-amber-400" aria-hidden="true">&#9733;</span>
+            </p>
+            <p class="mt-1 text-sm text-ink-500">
+                from @summary.ApprovedCount published review@(summary.ApprovedCount == 1 ? "" : "s")
+            </p>
+
+            <ul class="mt-5 space-y-2">
+                @for (var stars = 5; stars >= 1; stars--)
+                {
+                    var percent = summary.PercentFor(stars);
+                    <li class="flex items-center gap-3">
+                        <span class="w-10 shrink-0 text-xs text-ink-500">@stars star</span>
+                        <span class="h-2 flex-1 bg-ink-100" role="presentation">
+                            <span class="block h-2 bg-amber-400" style="width:@percent%"></span>
+                        </span>
+                        <span class="w-10 shrink-0 text-right text-xs text-ink-500">@summary.CountFor(stars)</span>
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (Model.PendingCount > 0)
+        {
+            <p class="mt-5 border-t border-ink-100 pt-4 text-xs leading-relaxed text-ink-400">
+                @Model.PendingCount review@(Model.PendingCount == 1 ? " is" : "s are") awaiting moderation
+                and not yet counted in your rating.
+            </p>
+        }
+    </section>
+
+    <div class="lg:col-span-2">
+        @if (Model.Reviews.Count == 0)
+        {
+            <div class="border border-ink-200 bg-white p-10 text-center rounded-card">
+                <h2 class="text-[15px] font-semibold text-ink-900">No reviews yet</h2>
+                <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-500">
+                    When a customer reviews a completed move, it'll appear here once our team has checked it.
+                </p>
+            </div>
+        }
+        else
+        {
+            <ul class="space-y-3">
+                @foreach (var review in Model.Reviews)
+                {
+                    <li class="border border-ink-200 bg-white p-5 rounded-card">
+                        <div class="flex flex-wrap items-start justify-between gap-3">
+                            <p class="text-base text-amber-400" role="img" aria-label="@review.Rating out of 5 stars">
+                                @ReviewBadge.Stars(review.Rating)
+                            </p>
+
+                            @if (review.Status == ReviewStatus.Pending)
+                            {
+                                <span class="@ReviewBadge.Classes(review.Status) inline-flex items-center border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                                    Awaiting moderation
+                                </span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(review.Title))
+                        {
+                            <h3 class="mt-3 font-display text-base font-bold tracking-[-0.02em] text-ink-900">@review.Title</h3>
+                        }
+
+                        <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-700">@review.Comment</p>
+
+                        @* First name and last initial only. No email, no phone. *@
+                        <p class="mt-4 text-xs text-ink-400">
+                            &mdash; @review.CustomerNameSnapshot,
+                            @(review.PublishedAt ?? review.CreatedAt).ToLocalTime().ToString("MMMM yyyy")
+                        </p>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>

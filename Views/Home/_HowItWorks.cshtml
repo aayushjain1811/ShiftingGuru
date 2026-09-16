@@ -1,0 +1,37 @@
+@{
+    var steps = new (string Number, string Title, string Body)[]
+    {
+        ("01", "Tell us what you need", "Service, both cities, approximate date. Four fields, no account."),
+        ("02", "Compare your options", "Relevant professionals respond with what they'd charge and include."),
+        ("03", "Choose confidently", "Weigh scope, timing and price, then deal directly with your pick.")
+    };
+}
+
+<section id="how-it-works" class="scroll-mt-24 bg-ink-950" aria-labelledby="how-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="how-heading"
+            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white">
+            Three steps, start to finish
+        </h2>
+
+        <div class="relative mt-16">
+            <div class="pointer-events-none absolute inset-x-0 top-7 hidden h-px bg-white/12 lg:block" aria-hidden="true">
+                <div class="progress-line h-px bg-jade-500"></div>
+            </div>
+
+            <ol class="relative grid gap-12 lg:grid-cols-3 lg:gap-10">
+                @foreach (var step in steps)
+                {
+                    <li class="reveal">
+                        <span class="grid h-14 w-14 place-items-center border border-white/15 bg-ink-950 font-display text-sm font-bold text-jade-400 rounded-card">
+                            @step.Number
+                        </span>
+                        <h3 class="mt-7 font-display text-xl font-bold tracking-[-0.03em] text-white">@step.Title</h3>
+                        <p class="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-ink-400">@step.Body</p>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+</section>

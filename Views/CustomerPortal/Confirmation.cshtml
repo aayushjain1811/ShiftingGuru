@@ -1,0 +1,59 @@
+@model CustomerConfirmationViewModel
+@{
+    var lead = Model.Lead;
+    var quote = Model.Quote;
+}
+
+<section class="relative overflow-hidden bg-ink-950 pb-20 pt-28 lg:pb-28 lg:pt-40">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-5xl px-5 sm:px-8">
+        <div class="max-w-2xl">
+
+            <span class="grid h-14 w-14 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
+                <svg class="h-7 w-7 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+
+            <h1 class="mt-9 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+                Provider selected
+            </h1>
+
+            <p class="mt-7 text-lg leading-relaxed text-ink-200">
+                You've chosen <span class="text-white">@quote.VendorName</span> for your move.
+            </p>
+
+            <div class="mt-8 grid gap-px overflow-hidden bg-white/10 sm:grid-cols-3 rounded-panel">
+                <div class="bg-ink-950 p-5">
+                    <p class="text-[13px] text-ink-400">Amount</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@Money.Format(quote.TotalAmount)</p>
+                </div>
+                <div class="bg-ink-950 p-5">
+                    <p class="text-[13px] text-ink-400">Quote</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@quote.QuoteNumber</p>
+                </div>
+                <div class="bg-ink-950 p-5">
+                    <p class="text-[13px] text-ink-400">Your request</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@lead.LeadNumber</p>
+                </div>
+            </div>
+
+            <p class="mt-8 max-w-xl text-base leading-relaxed text-ink-400">
+                Your chosen provider has your requirement and your contact details, and can now
+                get in touch to arrange the details of your move.
+            </p>
+
+            <div class="mt-10 flex flex-wrap gap-4">
+                <a href="/my-request" class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                    Back to your request
+                </a>
+                <a href="/" class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                    ShiftingGuru home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

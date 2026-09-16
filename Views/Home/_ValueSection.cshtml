@@ -1,0 +1,66 @@
+<section class="bg-white" aria-labelledby="value-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="grid items-center gap-14 lg:grid-cols-12 lg:gap-16">
+
+            <div class="reveal lg:col-span-5">
+                <h2 id="value-heading"
+                    class="font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                    Moving across the city or across the country?
+                </h2>
+                <p class="mt-6 text-xl leading-snug text-ink-700">
+                    One platform. Multiple options. Better decisions.
+                </p>
+                <p class="mt-5 max-w-md text-base leading-relaxed text-ink-500">
+                    Local shifts and long-distance relocations need different kinds of
+                    providers. Describe your move once and see who is genuinely set up
+                    to handle it.
+                </p>
+
+                <a href="#services"
+                   class="group mt-9 inline-flex h-13 items-center gap-2 border border-ink-900 px-7 text-base font-semibold text-ink-900 rounded-card transition-colors hover:bg-ink-900 hover:text-white">
+                    Explore moving services
+                    <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                         viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+            </div>
+
+            @* Drawn panel instead of a photograph: two pins, one route, a
+               distance readout. Scales to any screen, no image request. *@
+            <div class="lg:col-span-7">
+                <div class="relative overflow-hidden bg-ink-950 grid-veil rounded-panel">
+                    <svg class="block w-full" viewBox="0 0 760 480" fill="none" role="img"
+                         aria-label="Illustration of a transport route between two cities">
+                        <path d="M110 360 C 240 360, 250 190, 400 180 S 600 140, 660 120"
+                              stroke="rgb(34 197 138 / 0.55)" stroke-width="2" stroke-dasharray="8 12" stroke-linecap="round" />
+                        <circle cx="110" cy="360" r="7" fill="#22C58A" />
+                        <circle cx="110" cy="360" r="18" fill="none" stroke="rgb(34 197 138 / 0.3)" />
+                        <circle cx="660" cy="120" r="7" fill="#FAFAF8" />
+                        <circle cx="660" cy="120" r="18" fill="none" stroke="rgb(255 255 255 / 0.25)" />
+                        <text x="110" y="404" text-anchor="middle" fill="#7E8FA1"
+                              font-family="Inter, sans-serif" font-size="15">Pickup</text>
+                        <text x="660" y="168" text-anchor="middle" fill="#7E8FA1"
+                              font-family="Inter, sans-serif" font-size="15">Delivery</text>
+                    </svg>
+
+                    <div class="grid grid-cols-3 gap-px border-t border-white/10 bg-white/10">
+                        <div class="bg-ink-950 p-5">
+                            <p class="font-display text-2xl font-bold tracking-[-0.03em] text-white">8</p>
+                            <p class="mt-1 text-xs text-ink-400">Services</p>
+                        </div>
+                        <div class="bg-ink-950 p-5">
+                            <p class="font-display text-2xl font-bold tracking-[-0.03em] text-white">1</p>
+                            <p class="mt-1 text-xs text-ink-400">Form to fill</p>
+                        </div>
+                        <div class="bg-ink-950 p-5">
+                            <p class="font-display text-2xl font-bold tracking-[-0.03em] text-white">0</p>
+                            <p class="mt-1 text-xs text-ink-400">Booking fee</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

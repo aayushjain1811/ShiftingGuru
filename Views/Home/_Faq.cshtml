@@ -1,0 +1,56 @@
+@{
+    var faqs = new (string Question, string Answer)[]
+    {
+        ("How does ShiftingGuru work?",
+            "You tell us what you're moving, from where and to where. We pass that requirement to service providers who handle that kind of work, and they get in touch with their offers. You compare and choose."),
+        ("How do I get quotes?",
+            "Fill in the short form at the top of this page. It asks for the service, both cities and your approximate date. There's no account to create."),
+        ("Are service providers verified?",
+            "Partners go through a check on their business details before they can receive customer requirements. We'd still recommend confirming scope and terms directly with whoever you choose."),
+        ("How much does home shifting cost?",
+            "It depends on distance, volume of goods, floor access and whether packing is included. That's exactly why comparing a few offers beats one headline price."),
+        ("Can I transport my car separately?",
+            "Yes. Car and bike transportation are separate services, so you can arrange vehicle transport on its own or alongside a household move."),
+        ("How quickly will I receive quotes?",
+            "Usually within a few hours during business hours, depending on the route and how many providers cover it.")
+    };
+}
+
+<section id="faq" class="scroll-mt-24 bg-white" aria-labelledby="faq-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="grid gap-10 lg:grid-cols-12">
+
+            <h2 id="faq-heading"
+                class="lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                Common questions
+            </h2>
+
+            <div id="faq-list" class="lg:col-span-7 lg:col-start-6 divide-y divide-ink-200 border-y border-ink-200">
+                @for (var i = 0; i < faqs.Length; i++)
+                {
+                    var panelId = "faq-panel-" + i;
+                    var buttonId = "faq-button-" + i;
+
+                    <div>
+                        <h3>
+                            <button type="button" id="@buttonId" data-faq-question
+                                    aria-expanded="false" aria-controls="@panelId"
+                                    class="flex w-full items-center justify-between gap-6 py-6 text-left">
+                                <span class="font-display text-lg font-semibold tracking-[-0.02em] text-ink-900">@faqs[i].Question</span>
+                                <svg class="faq-icon h-5 w-5 shrink-0 text-ink-400" viewBox="0 0 20 20" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path d="M10 4v12M4 10h12" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </h3>
+
+                        <div id="@panelId" class="faq-panel pb-6" role="region" aria-labelledby="@buttonId">
+                            <p class="max-w-[62ch] text-[15px] leading-relaxed text-ink-500">@faqs[i].Answer</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,208 @@
+@model ShiftingGuru.ViewModels.Partner.PartnerRegistrationViewModel
+
+@{
+    var benefits = new (string Title, string Body)[]
+    {
+        ("Relevant enquiries", "Customers tell us what they're moving and where. You hear about the ones that match your services and routes."),
+        ("No listing fee to apply", "Registering your business and being reviewed costs nothing."),
+        ("You set your own price", "ShiftingGuru passes on the requirement. What you charge is between you and the customer."),
+        ("Verified marketplace", "Every partner is checked before joining, which is what makes customers trust the platform.")
+    };
+}
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 pb-16 lg:pt-40 lg:pb-20">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
+                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-ink-200" aria-current="page">Join as Partner</span></li>
+            </ol>
+        </nav>
+
+        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
+            <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+            For moving &amp; logistics businesses
+        </p>
+
+        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            Grow your business with ShiftingGuru
+        </h1>
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">
+            Verified moving and logistics businesses receive relevant customer enquiries
+            through the platform. Tell us about your business and our team will review it.
+        </p>
+    </div>
+</section>
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+
+            <div class="lg:col-span-4">
+                <div class="lg:sticky lg:top-28">
+                    <h2 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">Why partner with us</h2>
+
+                    <ul class="mt-7 space-y-6">
+                        @foreach (var benefit in benefits)
+                        {
+                            <li class="border-t border-ink-200 pt-5">
+                                <h3 class="font-display text-base font-bold tracking-[-0.02em] text-ink-900">@benefit.Title</h3>
+                                <p class="mt-2 max-w-sm text-sm leading-relaxed text-ink-500">@benefit.Body</p>
+                            </li>
+                        }
+                    </ul>
+
+                    <p class="mt-8 text-sm text-ink-500">
+                        Already registered?
+                        <a href="/partner/login" class="font-semibold text-jade-600 hover:text-jade-500">Partner login</a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <form method="post" class="border border-ink-200 bg-white">
+
+                    <div asp-validation-summary="ModelOnly"
+                         class="border-b border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700 empty:hidden"></div>
+
+                    <div class="space-y-8 p-6 sm:p-9">
+
+                        <fieldset>
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Your business</legend>
+
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label asp-for="BusinessName" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="BusinessName" placeholder="e.g. Sharma Packers &amp; Movers"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="BusinessName" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="ContactPerson" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="ContactPerson" autocomplete="name"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="ContactPerson" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="9876543210"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Phone" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="City" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="City" placeholder="Gurgaon"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="City" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="YearsOfExperience" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="YearsOfExperience" type="number" min="0" max="80"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="YearsOfExperience" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div class="sm:col-span-2">
+                                    <label asp-for="Address" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="Address"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Address" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="GstNumber" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="GstNumber"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="GstNumber" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="border-t border-ink-100 pt-8">
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Services you offer</legend>
+                            <p class="mt-1.5 text-sm text-ink-500">Select everything your business actually handles.</p>
+
+                            <div class="mt-5 grid gap-2 sm:grid-cols-2">
+                                @foreach (var service in Model.AvailableServices)
+                                {
+                                    var isChecked = Model.ServicesOffered.Contains(service.Slug);
+                                    <label class="cursor-pointer">
+                                        <input type="checkbox" name="ServicesOffered" value="@service.Slug"
+                                               checked="@isChecked" class="peer sr-only" />
+<span class="flex h-full items-center rounded-card border border-ink-200 bg-white p-4 text-[15px] font-semibold text-ink-900 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
+    @service.Name
+</span>
+                                    </label>
+                                }
+                            </div>
+                            <span asp-validation-for="ServicesOffered" class="mt-2 block text-sm text-red-600"></span>
+
+                            <div class="mt-5">
+                                <label asp-for="OperatingLocations" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="OperatingLocations" placeholder="e.g. Delhi NCR, Jaipur, Chandigarh"
+                                       class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                <span asp-validation-for="OperatingLocations" class="mt-1 block text-sm text-red-600"></span>
+                            </div>
+
+                            <div class="mt-5">
+                                <label asp-for="AdditionalInformation" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <textarea asp-for="AdditionalInformation" rows="3" placeholder="Fleet size, warehouse capacity, anything that helps us understand your business"
+                                          class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500"></textarea>
+                                <span asp-validation-for="AdditionalInformation" class="mt-1 block text-sm text-red-600"></span>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="border-t border-ink-100 pt-8">
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Sign-in details</legend>
+                            <p class="mt-1.5 text-sm text-ink-500">You'll use these to access your partner account once approved.</p>
+
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                                <div class="sm:col-span-2">
+                                    <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="Email" type="email" autocomplete="email"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="Password" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="Password" type="password" autocomplete="new-password"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Password" class="mt-1 block text-sm text-red-600"></span>
+                                    <p class="mt-1.5 text-xs text-ink-400">At least 12 characters, with a capital, a number and a symbol.</p>
+                                </div>
+
+                                <div>
+                                    <label asp-for="ConfirmPassword" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="ConfirmPassword" type="password" autocomplete="new-password"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="ConfirmPassword" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="flex flex-col gap-3 border-t border-ink-200 bg-paper p-6 sm:flex-row sm:items-center sm:justify-between sm:p-9">
+                        <p class="max-w-sm text-xs leading-relaxed text-ink-500">
+                            Submitting an application doesn't create an active account. Our team reviews
+                            every business before approving it.
+                        </p>
+                        <button type="submit"
+                                class="h-13 shrink-0 bg-jade-500 px-8 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                            Submit application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

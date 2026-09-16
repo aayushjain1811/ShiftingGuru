@@ -1,0 +1,44 @@
+@model Vendor
+@{
+    Layout = "_PartnerPlainLayout";
+
+    var (heading, message) = Model.Status switch
+    {
+        VendorStatus.Pending => ("Application under review",
+            "Your partner application is still under review. We'll let you know as soon as your business has been verified."),
+        VendorStatus.Rejected => ("Application not approved",
+            "Your partner application has not been approved. If you think this is a mistake, get in touch and we'll take another look."),
+        VendorStatus.Suspended => ("Account suspended",
+            "Your partner account is currently suspended. Contact our team to discuss reactivating it."),
+        _ => ("Account status", "Your account isn't active at the moment.")
+    };
+}
+
+<div class="w-full max-w-md text-center">
+
+    <span class="mx-auto grid h-12 w-12 place-items-center border border-white/15 rounded-card" aria-hidden="true">
+        <svg class="h-5 w-5 text-jade-400" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="10" cy="10" r="7.5" />
+            <path d="M10 6v4.5l2.5 1.5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    </span>
+
+    <h1 class="mt-6 text-2xl font-bold tracking-tight text-white">@heading</h1>
+    <p class="mt-4 text-[15px] leading-relaxed text-ink-400">@message</p>
+
+    <p class="mt-6 text-sm text-ink-500">
+        Reference <span class="font-semibold text-ink-200">@Model.VendorNumber</span>
+    </p>
+
+    <div class="mt-8 flex flex-col gap-3">
+        <a href="/" class="grid h-11 place-items-center bg-jade-500 text-[15px] font-semibold text-ink-950 rounded-card">
+            Back to ShiftingGuru
+        </a>
+        <form method="post" action="/partner/logout">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="h-11 w-full border border-white/20 text-[15px] font-medium text-white rounded-card">
+                Sign out
+            </button>
+        </form>
+    </div>
+</div>

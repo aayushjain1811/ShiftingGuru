@@ -1,0 +1,58 @@
+@{
+    // SAMPLE CONTENT - not real customer reviews. Replace with genuine,
+    // consented testimonials before launch, and drop the "Sample" tag.
+    var reviews = new (int Stars, string Body, string Name, string Route)[]
+    {
+        (5, "Sample review text, used to show how a customer comment sits in this layout. Replace before launch.",
+            "Placeholder name", "Delhi to Bangalore"),
+        (5, "Sample review text, used to show how a customer comment sits in this layout. Replace before launch.",
+            "Placeholder name", "Mumbai to Pune"),
+        (4, "Sample review text, used to show how a customer comment sits in this layout. Replace before launch.",
+            "Placeholder name", "Gurgaon to Hyderabad")
+    };
+}
+
+<section class="border-y border-ink-100 bg-paper" aria-labelledby="reviews-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <h2 id="reviews-heading"
+                class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                What customers say
+            </h2>
+            <p class="text-sm text-ink-500">Placeholder content while real reviews are collected</p>
+        </div>
+
+        @* Scroll-snap rail on mobile, plain grid on desktop. No JS, and
+           nothing moves on its own. *@
+        <ul class="no-scrollbar mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0">
+            @foreach (var review in reviews)
+            {
+                <li class="w-[86%] shrink-0 snap-start lg:w-auto">
+                    <figure class="flex h-full flex-col border border-ink-200 bg-white p-7">
+
+                        <div class="flex items-center gap-1.5" role="img" aria-label="@review.Stars out of 5 stars">
+                            @for (var i = 1; i <= 5; i++)
+                            {
+                                <svg class="h-4 w-4 @(i <= review.Stars ? "text-amber-400" : "text-ink-200")"
+                                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path d="M10 2.5l2.2 4.7 5 .7-3.6 3.6.9 5.1-4.5-2.5-4.5 2.5.9-5.1L2.8 7.9l5-.7z" />
+                                </svg>
+                            }
+                            <span class="ml-2 border border-ink-200 px-2 py-0.5 text-[11px] font-medium text-ink-500">Sample</span>
+                        </div>
+
+                        <blockquote class="mt-6 flex-1 font-display text-lg font-medium leading-snug tracking-[-0.02em] text-ink-900">
+                            @review.Body
+                        </blockquote>
+
+                        <figcaption class="mt-7 border-t border-ink-100 pt-5">
+                            <p class="text-sm font-semibold text-ink-900">@review.Name</p>
+                            <p class="mt-0.5 text-sm text-ink-500">@review.Route</p>
+                        </figcaption>
+                    </figure>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

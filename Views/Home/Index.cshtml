@@ -1,0 +1,30 @@
+@section Head {
+    @* Structured data placeholder. Replace the URL, logo and contact details
+       with real values before launch. In Razor, "@" must be written as "@@". *@
+    <script type="application/ld+json">
+        {
+          "@@context": "https://schema.org",
+          "@@type": "Organization",
+          "name": "ShiftingGuru",
+          "url": "https://www.shiftingguru.com/",
+          "logo": "https://www.shiftingguru.com/images/logo.png",
+          "description": "A marketplace that connects customers with verified moving and logistics service providers across India."
+        }
+    </script>
+}
+
+@* Each section lives in its own partial. Adding, removing or reordering a
+   section on the homepage is a one-line change in this file. *@
+
+<partial name="_Hero" />
+<partial name="_TrustStrip" />
+<partial name="_Stats" />
+<partial name="_Services" />
+<partial name="_HowItWorks" />
+<partial name="_ValueSection" />
+<partial name="_WhyUs" />
+<partial name="_Locations" />
+<partial name="_Routes" />
+<partial name="_Reviews" />
+<partial name="_Faq" />
+<partial name="_FinalCta" />

@@ -1,0 +1,134 @@
+@model AdminFaqFormViewModel
+@{
+    var action = Model.IsEdit ? $"/admin/faqs/{Model.Id}/edit" : "/admin/faqs/create";
+}
+
+<a href="/admin/faqs" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900">
+    <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+        <path d="M16 10H5M9 6l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    All FAQs
+</a>
+
+<div asp-validation-summary="ModelOnly"
+     class="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card empty:hidden"></div>
+
+<form method="post" action="@action" class="mt-4 grid gap-4 lg:grid-cols-3">
+    @Html.AntiForgeryToken()
+
+    <div class="space-y-4 lg:col-span-2">
+
+        <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">The question</h2>
+
+            <div class="mt-4 space-y-4">
+                <div>
+                    <label asp-for="Question" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <input asp-for="Question" placeholder="How much does moving in Gurgaon cost?"
+                           class="mt-2 block h-11 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                    <span asp-validation-for="Question" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Answer" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <textarea asp-for="Answer" rows="7"
+                              class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] leading-relaxed text-ink-900 rounded-card focus:border-jade-500"></textarea>
+                    <span asp-validation-for="Answer" class="mt-1 block text-sm text-red-600"></span>
+                    <p class="mt-1.5 text-xs text-ink-400">
+                        Answer it properly. This text goes into the page's FAQ structured data, and
+                        search engines compare it against what's visible.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Where it appears</h2>
+            <p class="mt-1.5 text-sm text-ink-500">An FAQ belongs to exactly one page.</p>
+
+            <fieldset class="mt-4">
+                <legend class="sr-only">Attach to</legend>
+                <div class="flex flex-wrap gap-2">
+                    @foreach (var (value, label) in new[] { ("location", "A location"), ("route", "A route"), ("service", "A service") })
+                    {
+                        <label class="cursor-pointer">
+                            <input type="radio" asp-for="OwnerType" value="@value" class="peer sr-only" />
+                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@label</span>
+                        </label>
+                    }
+                </div>
+                <span asp-validation-for="OwnerType" class="mt-2 block text-sm text-red-600"></span>
+            </fieldset>
+
+            @* All three selectors render; the server keeps only the one matching
+               OwnerType and nulls the rest, so a stale value can't leak through. *@
+            <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                <div>
+                    <label asp-for="LocationId" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <select asp-for="LocationId" class="mt-2 block h-11 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                        <option value="">None</option>
+                        @foreach (var location in Model.Locations)
+                        {
+                            <option value="@location.Id" selected="@(Model.LocationId == location.Id)">@location.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="LocationId" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="RouteId" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <select asp-for="RouteId" class="mt-2 block h-11 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                        <option value="">None</option>
+                        @foreach (var route in Model.Routes)
+                        {
+                            <option value="@route.Id" selected="@(Model.RouteId == route.Id)">
+                                @route.FromLocation?.Name to @route.ToLocation?.Name
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="RouteId" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+
+                <div>
+                    <label asp-for="ServiceSlug" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <select asp-for="ServiceSlug" class="mt-2 block h-11 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                        <option value="">None</option>
+                        @foreach (var service in Model.Services)
+                        {
+                            <option value="@service.Slug" selected="@(Model.ServiceSlug == service.Slug)">@service.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ServiceSlug" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="lg:col-span-1">
+        <section class="border border-ink-200 bg-white p-5 rounded-card lg:sticky lg:top-20">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Display</h2>
+
+            <div class="mt-4">
+                <label asp-for="DisplayOrder" class="block text-[13px] font-semibold text-ink-800"></label>
+                <input asp-for="DisplayOrder" type="number" min="0" max="999"
+                       class="mt-2 block h-11 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                <span asp-validation-for="DisplayOrder" class="mt-1 block text-sm text-red-600"></span>
+                <p class="mt-1.5 text-xs text-ink-400">Lower numbers appear first.</p>
+            </div>
+
+            <label class="mt-5 flex items-start gap-3">
+                <input asp-for="IsPublished" type="checkbox" class="mt-0.5 h-4 w-4 accent-jade-500" />
+                <span>
+                    <span class="block text-sm font-medium text-ink-800">Published</span>
+                    <span class="mt-0.5 block text-xs leading-relaxed text-ink-400">
+                        Shows on the page and in its FAQ structured data.
+                    </span>
+                </span>
+            </label>
+
+            <button type="submit" class="mt-5 h-11 w-full bg-ink-900 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                @(Model.IsEdit ? "Save changes" : "Create FAQ")
+            </button>
+        </section>
+    </div>
+</form>

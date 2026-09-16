@@ -1,0 +1,149 @@
+@{
+    var email = User.Identity?.Name ?? "Admin";
+    var initial = email.Length > 0 ? email[..1].ToUpperInvariant() : "A";
+    var path = Context.Request.Path.Value ?? "";
+
+    // Grouped, because a flat list stops being scannable past about eight items.
+    var navGroups = new (string Group, (string Label, string Href, bool Enabled)[] Items)[]
+    {
+        ("Overview", new[]
+        {
+            ("Dashboard", "/admin", true)
+        }),
+        ("Operations", new[]
+        {
+            ("Leads", "/admin/leads", true),
+            ("Vendors", "/admin/vendors", true),
+            ("Quotes", "/admin/quotes", true),
+            ("Reviews", "/admin/reviews", true)
+        }),
+        ("Content", new[]
+        {
+            ("Locations", "/admin/locations", true),
+            ("Routes", "/admin/routes", true),
+            ("FAQs", "/admin/faqs", true)
+        }),
+        ("System", new[]
+        {
+            ("Notifications", "/admin/notifications", true),
+            ("Audit log", "/admin/audit", true),
+            ("Settings", "#", false)
+        })
+    };
+}
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@ViewData["Title"] | ShiftingGuru Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="bg-ink-50 font-sans text-ink-800">
+
+<div class="flex min-h-dvh">
+
+    <!-- Sidebar: fixed drawer on mobile, static column on desktop -->
+    <div id="admin-overlay" hidden class="fixed inset-0 z-40 bg-ink-950/50 lg:hidden"></div>
+
+    <aside id="admin-sidebar" hidden
+           class="admin-drawer fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-ink-950 lg:static lg:z-auto">
+
+        <div class="flex h-14 items-center gap-2.5 border-b border-white/10 px-5">
+            <span class="grid h-7 w-7 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
+                <svg class="h-3.5 w-3.5 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 15h3.2L10 5l3.8 10H17" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+            <span class="text-[15px] font-bold tracking-tight text-white">ShiftingGuru</span>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto p-3" aria-label="Admin">
+            @foreach (var group in navGroups)
+            {
+                <p class="px-3 pb-1.5 pt-4 text-[11px] font-semibold uppercase tracking-wider text-ink-600 first:pt-1">
+                    @group.Group
+                </p>
+
+                <ul class="space-y-0.5">
+                    @foreach (var item in group.Items)
+                    {
+                        var active = item.Enabled &&
+                            (item.Href == "/admin" ? path == "/admin" : path.StartsWith(item.Href));
+
+                        <li>
+                            @if (item.Enabled)
+                            {
+                                <a href="@item.Href"
+                                   class="@(active ? "bg-white/10 text-white" : "text-ink-400 hover:bg-white/5 hover:text-white") flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-card transition-colors">
+                                    @item.Label
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="flex items-center justify-between px-3 py-2.5 text-sm font-medium text-ink-600">
+                                    @item.Label
+                                    <span class="text-[10px] uppercase tracking-wide text-ink-600">Soon</span>
+                                </span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </nav>
+
+        <div class="border-t border-white/10 p-3">
+            <form method="post" action="/admin/logout">
+                @Html.AntiForgeryToken()
+                <button type="submit"
+                        class="w-full px-3 py-2.5 text-left text-sm font-medium text-ink-400 rounded-card transition-colors hover:bg-white/5 hover:text-white">
+                    Sign out
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main column -->
+    <div class="flex min-w-0 flex-1 flex-col">
+
+        <header class="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-ink-200 bg-white px-4 sm:px-6">
+            <button id="admin-menu-toggle" type="button"
+                    class="grid h-9 w-9 place-items-center border border-ink-200 rounded-card lg:hidden"
+                    aria-expanded="false" aria-controls="admin-sidebar" aria-label="Open menu">
+                <svg class="h-4 w-4 text-ink-800" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M3 6h14M3 10h14M3 14h14" stroke-linecap="round" />
+                </svg>
+            </button>
+
+            <h1 class="truncate text-[15px] font-semibold text-ink-900">@ViewData["Title"]</h1>
+
+            <div class="flex items-center gap-3">
+                <span class="hidden truncate text-sm text-ink-500 sm:block">@email</span>
+                <span class="grid h-8 w-8 shrink-0 place-items-center bg-ink-900 text-sm font-semibold text-white rounded-card" aria-hidden="true">@initial</span>
+            </div>
+        </header>
+
+        <main class="min-w-0 flex-1 p-4 sm:p-6">
+
+            @if (TempData["AdminMessage"] is string ok)
+            {
+                <div class="mb-5 border border-jade-500/30 bg-jade-100 px-4 py-3 text-sm text-jade-600 rounded-card" role="status">@ok</div>
+            }
+            @if (TempData["AdminError"] is string bad)
+            {
+                <div class="mb-5 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card" role="alert">@bad</div>
+            }
+
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+<script src="~/js/admin.js" asp-append-version="true" defer></script>
+</body>
+</html>

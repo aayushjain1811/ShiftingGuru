@@ -1,0 +1,61 @@
+@model CustomerVendorSelectionViewModel
+@{
+    var quote = Model.Quote;
+}
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-xl px-5 pb-16 pt-28 sm:px-8 lg:pt-36">
+
+        <a href="/my-request/quotes" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <path d="M16 10H5M9 6l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Back to quotes
+        </a>
+
+        <div class="mt-5 border border-ink-200 bg-white p-7 rounded-panel">
+
+            <h1 class="font-display text-2xl font-bold leading-tight tracking-[-0.03em] text-ink-900">
+                Choose @quote.VendorName?
+            </h1>
+
+            <dl class="mt-7 divide-y divide-ink-100 border-y border-ink-100">
+                <div class="flex items-center justify-between py-4">
+                    <dt class="text-sm text-ink-600">Quoted amount</dt>
+                    <dd class="font-display text-xl font-bold tracking-tight text-ink-900">@Money.Format(quote.TotalAmount)</dd>
+                </div>
+                <div class="flex items-center justify-between py-4">
+                    <dt class="text-sm text-ink-600">Estimated delivery</dt>
+                    <dd class="text-sm font-semibold text-ink-900">
+                        @(quote.EstimatedDeliveryDays.HasValue ? $"{quote.EstimatedDeliveryDays} day(s)" : "To confirm")
+                    </dd>
+                </div>
+                <div class="flex items-center justify-between py-4">
+                    <dt class="text-sm text-ink-600">Quote reference</dt>
+                    <dd class="text-sm text-ink-900">@quote.QuoteNumber</dd>
+                </div>
+            </dl>
+
+            <p class="mt-6 text-sm leading-relaxed text-ink-600">
+                Once you confirm, this provider will be selected for your moving request and the
+                other quotes will close. This can't be undone from here.
+            </p>
+
+            @* POST only. Nothing about this page changes state until the form
+               is submitted with its anti-forgery token. *@
+            <form method="post" action="/my-request/choose/@quote.QuoteId" class="mt-7 flex flex-col gap-3 sm:flex-row-reverse">
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="h-12 flex-1 bg-jade-500 text-sm font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                    Confirm provider
+                </button>
+
+                <a href="/my-request/quotes"
+                   class="grid h-12 flex-1 place-items-center border border-ink-200 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,133 @@
+@inject IServiceCatalog Catalog
+
+@{
+    var heroPoints = new[] { "Verified professionals", "Multiple quotes", "Easy comparison", "Pan-India network" };
+}
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 lg:pt-36">
+
+    @* The signature visual: an abstract route network. Drawn once, then
+       static. No photography needed and it weighs about 2 KB. *@
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-32 h-[620px] w-[620px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+        <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
+            <path class="route-path" d="M-60 690 C 240 690, 320 470, 620 470 S 1020 250, 1500 190"
+                  stroke="rgb(34 197 138 / 0.5)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
+            <path class="route-path" d="M-60 780 C 320 780, 460 620, 780 600 S 1180 520, 1500 420"
+                  stroke="rgb(255 255 255 / 0.12)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
+            <circle class="node-pop" cx="620" cy="470" r="4.5" fill="#22C58A" />
+            <circle class="node-pop" cx="1180" cy="255" r="4.5" fill="#22C58A" />
+        </svg>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-10">
+
+            <!-- Message -->
+            <div class="lg:col-span-7 lg:pb-28 xl:col-span-7">
+
+                <p class="flex items-center gap-3 text-[13px] font-medium tracking-wide text-jade-400">
+                    <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+                    Moving &amp; logistics marketplace
+                </p>
+
+                @* Three lines, each rising in turn on load. This is the only
+                   page-load animation on the site. *@
+                <h1 class="line-rise mt-7 font-display text-[clamp(2.75rem,8vw,5.5rem)] font-extrabold leading-[0.95] tracking-[-0.045em] text-white">
+                    <span>Your move.</span>
+                    <span>Our network.</span>
+                    <span class="text-jade-400">Zero hassle.</span>
+                </h1>
+
+                <p class="mt-8 max-w-md text-lg leading-relaxed text-ink-200">
+                    Find trusted moving and logistics professionals, compare your options,
+                    and move with confidence.
+                </p>
+
+                <a href="#get-quotes"
+                   class="mt-8 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400 lg:hidden">
+                    Get Free Quotes
+                </a>
+
+                <ul class="mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-white/10 pt-8">
+                    @foreach (var point in heroPoints)
+                    {
+                        <li class="flex items-start gap-2.5">
+                            <svg class="mt-1 h-3.5 w-3.5 shrink-0 text-jade-400" viewBox="0 0 20 20" fill="none"
+                                 stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+                                <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="text-sm text-ink-200">@point</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            @* The form card drops below the hero's bottom edge on desktop.
+               That overlap is what gives the page depth without an image. *@
+            <div class="lg:col-span-5 lg:-mb-24 lg:pt-4">
+                <div id="get-quotes"
+                     class="scroll-mt-28 border border-ink-100 bg-white p-6 shadow-[0_28px_70px_-24px_rgb(6_10_15/0.55)] rounded-panel sm:p-8">
+
+                    <div class="flex items-baseline justify-between">
+                        <h2 class="font-display text-[22px] font-bold tracking-[-0.03em] text-ink-900">Get Free Quotes</h2>
+                        <span class="text-xs font-medium text-ink-400">Takes a minute</span>
+                    </div>
+                    <p class="mt-2 text-[15px] leading-relaxed text-ink-500">
+                        Tell us the basics. We'll match you with relevant professionals.
+                    </p>
+
+                    @* A GET hand-off, not a post. Whatever is filled in here arrives
+                       at /quote as query parameters and pre-fills the first two
+                       steps. One conversion path, nothing submitted from here. *@
+                    <form action="/quote" method="get" class="mt-7 space-y-5">
+
+                        <div>
+                            <label for="hero-service" class="block text-[13px] font-semibold tracking-wide text-ink-800">What service do you need?</label>
+                            <select id="hero-service" name="service"
+                                    class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0">
+                                <option value="">Select a service</option>
+                                @foreach (var service in Catalog.GetAll())
+                                {
+                                    <option value="@service.Slug">@service.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label for="hero-from" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving from</label>
+                                <input id="hero-from" name="from" type="text" autocomplete="address-level2" placeholder="Gurgaon"
+                                       class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
+                            </div>
+
+                            <div>
+                                <label for="hero-to" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving to</label>
+                                <input id="hero-to" name="to" type="text" autocomplete="address-level2" placeholder="Bangalore"
+                                       class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="hero-date" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving date</label>
+                            <input id="hero-date" name="date" type="date" data-min-today="true"
+                                   class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0" />
+                        </div>
+
+                        <button type="submit"
+                                class="group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-ink-900 px-6 text-base font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                            Get Free Quotes
+                            <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+
+                        <p class="text-center text-xs text-ink-400">Free to use. No obligation to book.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

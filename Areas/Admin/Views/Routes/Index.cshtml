@@ -1,0 +1,146 @@
+@model AdminRouteListViewModel
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <div>
+        <h1 class="text-[15px] font-semibold text-ink-900">Route landing pages</h1>
+        <p class="mt-1 text-sm text-ink-500">City-to-city corridors. The URL is built from both city slugs.</p>
+    </div>
+    <a href="/admin/routes/create" class="inline-flex h-10 items-center bg-ink-900 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+        New route
+    </a>
+</div>
+
+@if (Model.DraftCount > 0)
+{
+    <div class="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 rounded-card">
+        @Model.DraftCount route@(Model.DraftCount == 1 ? " is" : "s are") still a draft.
+    </div>
+}
+
+<form method="get" action="/admin/routes" class="mt-4 border border-ink-200 bg-white p-4 rounded-card">
+    <div class="grid gap-3 sm:grid-cols-3">
+        <div class="sm:col-span-2">
+            <label for="search" class="block text-[12px] font-semibold text-ink-700">Search</label>
+            <input id="search" name="search" type="search" value="@Model.Search" placeholder="Slug or city name"
+                   class="mt-1.5 block h-10 w-full border border-ink-200 px-3 text-sm text-ink-900 rounded-card focus:border-jade-500" />
+        </div>
+        <div>
+            <label for="published" class="block text-[12px] font-semibold text-ink-700">Status</label>
+            <select id="published" name="published" class="mt-1.5 block h-10 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                <option value="">All</option>
+                <option value="true" selected="@(Model.Published == true)">Published</option>
+                <option value="false" selected="@(Model.Published == false)">Drafts</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mt-3 flex flex-wrap gap-2">
+        <button type="submit" class="h-10 bg-ink-900 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">Apply</button>
+        <a href="/admin/routes" class="h-10 border border-ink-200 px-5 text-sm font-medium leading-10 text-ink-700 rounded-card hover:border-ink-900">Clear</a>
+    </div>
+</form>
+
+@if (Model.TotalCount == 0)
+{
+    <p class="mt-6 border border-ink-200 bg-white p-8 text-center text-sm text-ink-500 rounded-card">
+        No routes match these filters.
+    </p>
+}
+else
+{
+    <div class="mt-4 overflow-hidden border border-ink-200 bg-white rounded-card">
+        <div class="hidden overflow-x-auto lg:block">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-ink-200 bg-ink-50 text-[12px] uppercase tracking-wide text-ink-500">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 font-semibold">Route</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">URL</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Cities live?</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Updated</th>
+                        <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                    @foreach (var route in Model.Routes)
+                    {
+                        var citiesLive = route.FromLocation?.IsPublished == true && route.ToLocation?.IsPublished == true;
+
+                        <tr class="hover:bg-ink-50">
+                            <td class="px-4 py-3 font-medium text-ink-900">
+                                @route.FromLocation?.Name to @route.ToLocation?.Name
+                            </td>
+                            <td class="px-4 py-3 text-ink-500">
+                                @if (route.IsPublished)
+                                {
+                                    <a href="/@route.Slug" target="_blank" rel="noopener" class="text-jade-600 hover:text-jade-500">/@route.Slug</a>
+                                }
+                                else
+                                {
+                                    <span>/@route.Slug</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3">
+                                @if (citiesLive)
+                                {
+                                    <span class="text-ink-500">Both live</span>
+                                }
+                                else
+                                {
+                                    @* A route page links to both city pages. If either is a
+                                       draft, publishing this would create an orphan. *@
+                                    <span class="text-amber-700">City draft</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="@(route.IsPublished ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200") inline-flex items-center border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                                    @(route.IsPublished ? "Published" : "Draft")
+                                </span>
+                            </td>
+                            <td class="whitespace-nowrap px-4 py-3 text-ink-500">
+                                @((route.UpdatedAt ?? route.CreatedAt).ToLocalTime().ToString("d MMM"))
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="/admin/routes/@route.Id/edit" class="font-medium text-jade-600 hover:text-jade-500">Edit</a>
+                                    <form method="post" action="/admin/routes/@route.Id/publish">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-sm font-medium text-ink-600 hover:text-ink-900">
+                                            @(route.IsPublished ? "Unpublish" : "Publish")
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <ul class="divide-y divide-ink-100 lg:hidden">
+            @foreach (var route in Model.Routes)
+            {
+                <li class="p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="text-sm font-semibold text-ink-900">@route.FromLocation?.Name to @route.ToLocation?.Name</p>
+                        <span class="@(route.IsPublished ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200") shrink-0 border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                            @(route.IsPublished ? "Published" : "Draft")
+                        </span>
+                    </div>
+                    <p class="mt-1 truncate text-sm text-ink-500">/@route.Slug</p>
+                    <div class="mt-3 flex items-center gap-3">
+                        <a href="/admin/routes/@route.Id/edit" class="h-10 border border-ink-200 px-4 text-sm font-medium leading-10 text-ink-800 rounded-card">Edit</a>
+                        <form method="post" action="/admin/routes/@route.Id/publish">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="h-10 border border-ink-200 px-4 text-sm font-medium text-ink-800 rounded-card">
+                                @(route.IsPublished ? "Unpublish" : "Publish")
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <partial name="_CmsPager" model="@(("/admin/routes", (AdminCmsListViewModel)Model))" />
+}

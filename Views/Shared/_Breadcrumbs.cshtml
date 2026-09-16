@@ -1,0 +1,32 @@
+@model IReadOnlyList<ShiftingGuru.ViewModels.Seo.BreadcrumbViewModel>
+
+@* Visible trail. The matching BreadcrumbList JSON-LD is emitted by _SeoMeta,
+   so the markup and the structured data can't disagree. *@
+@if (Model.Count > 0)
+{
+    <nav aria-label="Breadcrumb">
+        <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
+            @for (var i = 0; i < Model.Count; i++)
+            {
+                var crumb = Model[i];
+                var isLast = i == Model.Count - 1;
+
+                <li>
+                    @if (!isLast && !string.IsNullOrEmpty(crumb.Url))
+                    {
+                        <a href="@crumb.Url" class="transition-colors hover:text-white">@crumb.Label</a>
+                    }
+                    else
+                    {
+                        <span class="text-ink-200" aria-current="page">@crumb.Label</span>
+                    }
+                </li>
+
+                @if (!isLast)
+                {
+                    <li aria-hidden="true">/</li>
+                }
+            }
+        </ol>
+    </nav>
+}

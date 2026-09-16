@@ -1,0 +1,73 @@
+@model RequestAccessViewModel
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-xl px-5 pb-16 pt-28 sm:px-8 lg:pt-36">
+
+        <h1 class="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold leading-tight tracking-[-0.04em] text-ink-900">
+            Access your request
+        </h1>
+        <p class="mt-3 text-base leading-relaxed text-ink-600">
+            Enter the email address or mobile number you used when you submitted your requirement,
+            and we'll send you a secure link.
+        </p>
+
+        @if (Model.Submitted)
+        {
+            @* Identical message whether or not anything matched, so this form
+               can't be used to find out who's a customer. *@
+            <div class="mt-7 border border-jade-500/30 bg-jade-100 p-6 rounded-panel">
+                <p class="text-sm leading-relaxed text-jade-600">
+                    If your request matches our records, we'll send you a secure access link.
+                </p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.DevelopmentLink))
+            {
+                <div class="mt-4 border border-amber-200 bg-amber-50 p-5 rounded-panel">
+                    <p class="text-[13px] font-semibold uppercase tracking-wide text-amber-700">Development only</p>
+                    <p class="mt-2 text-sm leading-relaxed text-amber-800">
+                        No email or SMS provider is configured, so nothing has actually been sent.
+                        This link is shown here so you can test the flow.
+                    </p>
+                    <a href="@Model.DevelopmentLink" class="mt-3 block break-all text-sm font-medium text-amber-900 underline">
+                        @Model.DevelopmentLink
+                    </a>
+                </div>
+            }
+
+            <a href="/" class="mt-7 inline-flex h-12 items-center border border-ink-200 px-6 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                Back to home
+            </a>
+        }
+        else
+        {
+            <div asp-validation-summary="ModelOnly"
+                 class="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card empty:hidden"></div>
+
+            <form method="post" class="mt-7 border border-ink-200 bg-white p-6 space-y-5 rounded-panel">
+                @Html.AntiForgeryToken()
+
+                <div>
+                    <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <input asp-for="Email" type="email" autocomplete="email"
+                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                    <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+
+                <p class="text-center text-sm text-ink-400">or</p>
+
+                <div>
+                    <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
+                    <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="9876543210"
+                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                    <span asp-validation-for="Phone" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+
+                <button type="submit"
+                        class="h-12 w-full bg-ink-900 text-[15px] font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                    Send me a link
+                </button>
+            </form>
+        }
+    </div>
+</section>

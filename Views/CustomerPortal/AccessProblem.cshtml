@@ -1,0 +1,30 @@
+@{
+    ViewData["Title"] = "Link no longer valid";
+}
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-xl px-5 pb-16 pt-28 text-center sm:px-8 lg:pt-36">
+
+        <h1 class="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold leading-tight tracking-[-0.04em] text-ink-900">
+            This link is no longer valid
+        </h1>
+
+        @* Deliberately vague: expired, revoked and never-existed all land here,
+           so nothing can be learned by trying tokens. *@
+        <p class="mt-4 text-base leading-relaxed text-ink-600">
+            Your access link may have expired, or it may have been replaced by a newer one.
+            You can request a fresh link below.
+        </p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a href="/my-request/request-access"
+               class="inline-flex h-12 items-center justify-center bg-jade-500 px-6 text-sm font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                Request a new link
+            </a>
+            <a href="/"
+               class="inline-flex h-12 items-center justify-center border border-ink-200 px-6 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                Back to home
+            </a>
+        </div>
+    </div>
+</section>

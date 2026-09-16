@@ -1,0 +1,337 @@
+@model ServiceDetailsViewModel
+
+@{
+    var service = Model.Service;
+
+    var steps = new (string Number, string Title, string Body)[]
+    {
+        ("01", "Tell us what you need", $"Share your {service.Name.ToLowerInvariant()} requirement, both locations and an approximate date."),
+        ("02", "Compare your options", "Providers who handle this service respond with what they'd charge and what's included."),
+        ("03", "Choose confidently", "Weigh scope, timing and price, then deal directly with the provider you pick.")
+    };
+
+    var reasons = new (string Title, string Body)[]
+    {
+        ("Verified professionals", "Partner details are checked before they can receive your requirement."),
+        ("Multiple quotes", "One enquiry reaches several providers, so you're not stuck with a single price."),
+        ("Transparent scope", "Offers state what's included, which is where cheap quotes usually differ."),
+        ("No booking fee", "Collecting quotes through ShiftingGuru costs you nothing.")
+    };
+}
+
+<!-- ============ 1 + 2. Breadcrumb and hero ============ -->
+<section class="relative overflow-hidden bg-ink-950 pt-28 lg:pt-40">
+
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+        <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" fill="none">
+            <path class="route-path" d="M-60 540 C 280 540, 360 340, 680 330 S 1100 200, 1500 150"
+                  stroke="rgb(34 197 138 / 0.4)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
+        </svg>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 pb-20 sm:px-8 lg:pb-28">
+
+        @* Breadcrumb wraps instead of overflowing on narrow screens. *@
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
+                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
+                <li aria-hidden="true">/</li>
+                <li><a href="/services" class="transition-colors hover:text-white">Services</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-ink-200" aria-current="page">@service.Name</span></li>
+            </ol>
+        </nav>
+
+        <div class="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-10">
+
+            <div class="lg:col-span-7">
+                <p class="flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
+                    <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+                    @service.Name
+                </p>
+
+                <h1 class="mt-7 max-w-[16ch] font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+                    @service.HeroTitle
+                </h1>
+
+                <p class="mt-8 max-w-xl text-lg leading-relaxed text-ink-200">
+                    @service.HeroDescription
+                </p>
+
+                <div class="mt-10 flex flex-wrap gap-4">
+                    <a href="/quote"
+                       class="group inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                        Get Free Quotes
+                        <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                             viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                            <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                    <a href="#how-it-works"
+                       class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                        How It Works
+                    </a>
+                </div>
+            </div>
+
+            @* Compact scope summary instead of a stock photo. Same drawn-panel
+               language as the homepage value section. *@
+            <div class="lg:col-span-4 lg:col-start-9">
+                <div class="border border-white/12 bg-white/[0.03] p-7 rounded-panel">
+                    <svg class="h-7 w-7 text-jade-400" viewBox="0 0 20 20" fill="none"
+                         stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                        <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="mt-6 text-[13px] font-semibold uppercase tracking-[0.14em] text-ink-400">
+                        This service covers
+                    </p>
+                    <ul class="mt-4 space-y-3">
+                        @foreach (var feature in service.Features.Take(4))
+                        {
+                            <li class="flex items-start gap-2.5">
+                                <svg class="mt-1.5 h-3 w-3 shrink-0 text-jade-400" viewBox="0 0 20 20" fill="none"
+                                     stroke="currentColor" stroke-width="3" aria-hidden="true">
+                                    <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="text-[15px] text-ink-200">@feature.Title</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 3. Quote strip ============ -->
+<section class="border-b border-ink-100 bg-paper" aria-label="Get free quotes">
+    <div class="mx-auto flex max-w-[1400px] flex-col gap-5 px-5 py-8 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+        <p class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">
+            Ready to compare @service.Name.ToLowerInvariant() quotes?
+        </p>
+        <a href="/quote"
+           class="inline-flex h-12 shrink-0 items-center justify-center bg-ink-900 px-6 text-[15px] font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+            Get Free Quotes
+        </a>
+    </div>
+</section>
+
+<!-- ============ 4. Overview ============ -->
+<section class="bg-white" aria-labelledby="overview-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+        <div class="grid gap-10 lg:grid-cols-12">
+
+            <h2 id="overview-heading"
+                class="lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                About this service
+            </h2>
+
+            <div class="lg:col-span-7 lg:col-start-6">
+                @foreach (var paragraph in service.Overview)
+                {
+                    <p class="mb-6 max-w-[62ch] text-lg leading-relaxed text-ink-700 last:mb-0">@paragraph</p>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 5. What's included ============ -->
+<section class="border-y border-ink-100 bg-paper" aria-labelledby="includes-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="includes-heading"
+            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+            What @service.Name.ToLowerInvariant() includes
+        </h2>
+
+        <ol class="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            @for (var i = 0; i < service.Features.Count; i++)
+            {
+                <li class="reveal border-t border-ink-200 pt-6">
+                    <span class="font-display text-sm font-bold text-jade-600">@((i + 1).ToString("00"))</span>
+                    <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@service.Features[i].Title</h3>
+                    <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">@service.Features[i].Body</p>
+                </li>
+            }
+        </ol>
+    </div>
+</section>
+
+<!-- ============ 6. Why choose ShiftingGuru ============ -->
+<section class="bg-white" aria-labelledby="why-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <h2 id="why-heading"
+                class="lg:col-span-6 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                Why choose ShiftingGuru
+            </h2>
+            <p class="lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
+                We're not a moving company. We're the layer that helps you find the right one.
+            </p>
+        </div>
+
+        <ul class="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach (var reason in reasons)
+            {
+                <li class="reveal border-t border-ink-200 pt-6">
+                    <h3 class="font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@reason.Title</h3>
+                    <p class="mt-2.5 text-[15px] leading-relaxed text-ink-500">@reason.Body</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+<!-- ============ 7. How it works ============ -->
+<section id="how-it-works" class="scroll-mt-24 bg-ink-950" aria-labelledby="how-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="how-heading"
+            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white">
+            How it works
+        </h2>
+
+        <div class="relative mt-16">
+            <div class="pointer-events-none absolute inset-x-0 top-7 hidden h-px bg-white/12 lg:block" aria-hidden="true">
+                <div class="progress-line h-px bg-jade-500"></div>
+            </div>
+
+            <ol class="relative grid gap-12 lg:grid-cols-3 lg:gap-10">
+                @foreach (var step in steps)
+                {
+                    <li class="reveal">
+                        <span class="grid h-14 w-14 place-items-center border border-white/15 bg-ink-950 font-display text-sm font-bold text-jade-400 rounded-card">
+                            @step.Number
+                        </span>
+                        <h3 class="mt-7 font-display text-xl font-bold tracking-[-0.03em] text-white">@step.Title</h3>
+                        <p class="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-ink-400">@step.Body</p>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 8. Service-specific benefits ============ -->
+<section class="border-b border-ink-100 bg-paper" aria-labelledby="benefits-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="benefits-heading"
+            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+            Why this works well for @service.Name.ToLowerInvariant()
+        </h2>
+
+        <ul class="mt-14 grid gap-px bg-ink-200 sm:grid-cols-2">
+            @foreach (var benefit in service.Benefits)
+            {
+                <li class="bg-paper p-7 lg:p-9">
+                    <h3 class="font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@benefit.Title</h3>
+                    <p class="mt-2.5 max-w-[40ch] text-[15px] leading-relaxed text-ink-500">@benefit.Body</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+<!-- ============ 9. FAQ ============ -->
+<section id="faq" class="scroll-mt-24 bg-white" aria-labelledby="faq-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+        <div class="grid gap-10 lg:grid-cols-12">
+
+            <h2 id="faq-heading"
+                class="lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                @service.Name questions
+            </h2>
+
+            @* Same id and data attributes the homepage accordion uses, so the
+               existing site.js drives this with no extra JavaScript. *@
+            <div id="faq-list" class="lg:col-span-7 lg:col-start-6 divide-y divide-ink-200 border-y border-ink-200">
+                @for (var i = 0; i < service.Faqs.Count; i++)
+                {
+                    var panelId = "faq-panel-" + i;
+                    var buttonId = "faq-button-" + i;
+
+                    <div>
+                        <h3>
+                            <button type="button" id="@buttonId" data-faq-question
+                                    aria-expanded="false" aria-controls="@panelId"
+                                    class="flex w-full items-center justify-between gap-6 py-6 text-left">
+                                <span class="font-display text-lg font-semibold tracking-[-0.02em] text-ink-900">@service.Faqs[i].Question</span>
+                                <svg class="faq-icon h-5 w-5 shrink-0 text-ink-400" viewBox="0 0 20 20" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path d="M10 4v12M4 10h12" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                        </h3>
+
+                        <div id="@panelId" class="faq-panel pb-6" role="region" aria-labelledby="@buttonId">
+                            <p class="max-w-[62ch] text-[15px] leading-relaxed text-ink-500">@service.Faqs[i].Answer</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ Related services ============ -->
+@if (Model.RelatedServices.Count > 0)
+{
+    <section class="border-t border-ink-100 bg-paper" aria-labelledby="related-heading">
+        <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-20">
+
+            <h2 id="related-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                Other services
+            </h2>
+
+            <ul class="mt-8 border-t border-ink-200">
+                @foreach (var related in Model.RelatedServices)
+                {
+                    <li class="border-b border-ink-200">
+                        <a href="/services/@related.Slug" class="fill-row group flex items-center justify-between gap-4 px-4 py-5">
+                            <span class="font-display text-lg font-semibold tracking-[-0.02em] text-ink-900 transition-colors group-hover:text-white">
+                                @related.Name
+                            </span>
+                            <svg class="h-4 w-4 shrink-0 text-ink-200 transition-all duration-200 group-hover:translate-x-1.5 group-hover:text-jade-400"
+                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+}
+
+<!-- ============ Service FAQs ============ -->
+<partial name="_Faqs" model="Model.Faqs" />
+
+<!-- ============ Cities ============ -->
+@if (Model.Locations.Count > 0)
+{
+    <section class="border-t border-ink-100 bg-paper" aria-labelledby="cities-heading">
+        <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
+            <h2 id="cities-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                @service.Name by city
+            </h2>
+
+            <ul class="mt-6 flex flex-wrap gap-3">
+                @foreach (var location in Model.Locations)
+                {
+                    <li>
+                        <a href="@location.Url" class="inline-flex min-h-11 items-center border border-ink-200 px-4 text-[15px] font-medium text-ink-800 rounded-card transition-colors hover:border-ink-900 hover:bg-ink-900 hover:text-white">
+                            @location.Name
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </section>
+}
+
+<!-- ============ 10. Final CTA ============ -->
+<partial name="_QuoteCta" />

@@ -1,0 +1,52 @@
+@{
+    var metaDescription = ViewData["MetaDescription"] as string
+        ?? "Compare moving and logistics quotes from verified professionals across India.";
+    var canonical = ViewData["Canonical"] as string ?? "https://www.shiftingguru.com/";
+}
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    @* Every page supplies a SeoViewModel. Pages written before the SEO
+       system fall back to their ViewData values, so nothing broke. *@
+    @{
+        var seo = ViewData["Seo"] as ShiftingGuru.ViewModels.Seo.SeoViewModel
+            ?? new ShiftingGuru.ViewModels.Seo.SeoViewModel
+            {
+                Title = ViewData["Title"] as string ?? "Moving & Logistics Marketplace",
+                Description = metaDescription,
+                Canonical = canonical
+            };
+    }
+    <partial name="_SeoMeta" model="seo" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@@500;600;700;800&family=Inter:wght@@400;500;600&display=swap"
+          rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="bg-paper font-sans text-ink-700">
+
+    <a href="#main"
+       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink-900 focus:px-4 focus:py-2 focus:text-white">
+        Skip to main content
+    </a>
+
+    <partial name="_Navbar" />
+
+    <main id="main">
+        @RenderBody()
+    </main>
+
+    <partial name="_Footer" />
+
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

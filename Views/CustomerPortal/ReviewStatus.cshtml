@@ -1,0 +1,64 @@
+@model CustomerReviewViewModel
+@using ShiftingGuru.Areas.Admin
+@{
+    var review = Model.Review;
+}
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-xl px-5 pb-16 pt-28 sm:px-8 lg:pt-36">
+
+        <a href="/my-request" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <path d="M16 10H5M9 6l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Back to your request
+        </a>
+
+        @if (TempData["CustomerMessage"] is string note)
+        {
+            <div class="mt-5 border border-jade-500/30 bg-jade-100 px-4 py-3 text-sm text-jade-600 rounded-card" role="status">@note</div>
+        }
+
+        <h1 class="mt-5 font-display text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold leading-tight tracking-[-0.04em] text-ink-900">
+            Your review
+        </h1>
+        <p class="mt-2 text-sm text-ink-500">of @Model.VendorName</p>
+
+        <div class="mt-6 border border-ink-200 bg-white p-6 rounded-panel">
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-xl text-amber-400" role="img" aria-label="@review.Rating out of 5 stars">
+                    @ReviewBadge.Stars(review.Rating)
+                </p>
+                <span class="@ReviewBadge.Classes(review.Status) inline-flex items-center border px-3 py-1 text-sm font-medium rounded-card">
+                    @Model.StatusLabel
+                </span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(review.Title))
+            {
+                <h2 class="mt-5 font-display text-lg font-bold tracking-[-0.02em] text-ink-900">@review.Title</h2>
+            }
+
+            <p class="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink-700">@review.Comment</p>
+
+            <p class="mt-5 border-t border-ink-100 pt-4 text-xs text-ink-400">
+                Submitted @review.CreatedAt.ToLocalTime().ToString("d MMMM yyyy")
+                @if (review.PublishedAt.HasValue)
+                {
+                    <text> &middot; published @review.PublishedAt.Value.ToLocalTime().ToString("d MMMM yyyy")</text>
+                }
+            </p>
+
+            @* Editing stops once an admin has ruled on it - the public version
+               has already been through moderation. *@
+            @if (review.IsEditableByCustomer)
+            {
+                <a href="/my-request/review/edit"
+                   class="mt-5 inline-flex h-11 items-center border border-ink-200 px-5 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                    Edit my review
+                </a>
+            }
+        </div>
+    </div>
+</section>

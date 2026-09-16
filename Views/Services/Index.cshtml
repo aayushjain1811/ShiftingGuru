@@ -1,0 +1,50 @@
+@model ServicesIndexViewModel
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 pb-20 lg:pt-40 lg:pb-28">
+
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-2 text-sm text-ink-400">
+                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-ink-200" aria-current="page">Services</span></li>
+            </ol>
+        </nav>
+
+        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            Moving &amp; Logistics Services
+        </h1>
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">
+            Whatever you're moving, ShiftingGuru helps you find the right professionals.
+        </p>
+
+        <a href="/quote"
+           class="group mt-9 inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+            Get Free Quotes
+            <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </a>
+    </div>
+</section>
+
+<section class="bg-white" aria-labelledby="all-services-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
+
+        <h2 id="all-services-heading" class="sr-only">All services</h2>
+
+        <ul class="grid grid-cols-2 gap-px bg-ink-100 lg:grid-cols-4">
+            @foreach (var service in Model.Services)
+            {
+                <partial name="_ServiceCard" model="service" />
+            }
+        </ul>
+    </div>
+</section>
+
+<partial name="_QuoteCta" />

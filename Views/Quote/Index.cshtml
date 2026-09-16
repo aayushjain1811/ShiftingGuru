@@ -1,0 +1,431 @@
+@model QuoteRequestViewModel
+
+@{
+    var stepLabels = new[] { "Service", "Location", "Details", "Contact" };
+
+    var propertyTypes = new[] { "1 BHK", "2 BHK", "3 BHK", "4 BHK+", "Other" };
+    var officeSizes = new[] { "Small office", "Medium office", "Large office", "Multi-floor" };
+    var carTypes = new[] { "Hatchback", "Sedan", "SUV", "Luxury", "Other" };
+    var bikeTypes = new[] { "Scooter", "Commuter bike", "Sports bike", "Cruiser", "Other" };
+    var goodsTypes = new[] { "Retail stock", "Raw material", "Machinery", "Furniture", "Other" };
+    var storageTypes = new[] { "Household storage", "Business storage", "Warehouse space" };
+    var durations = new[] { "Under 1 month", "1-3 months", "3-6 months", "6+ months" };
+}
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 pb-16 lg:pt-40 lg:pb-20">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
+                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-ink-200" aria-current="page">Get Free Quotes</span></li>
+            </ol>
+        </nav>
+
+        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            Tell us about your move
+        </h1>
+        <p class="mt-6 max-w-lg text-lg leading-relaxed text-ink-200">
+            Four short steps. We'll pass your requirement to professionals who handle
+            this kind of work, and they'll come back to you.
+        </p>
+    </div>
+</section>
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+
+            <!-- ---------- Left rail: progress and context ---------- -->
+            <div class="lg:col-span-4">
+                <div class="lg:sticky lg:top-28">
+
+                    @* Compact numeric readout on mobile, full list on desktop. *@
+                    <p class="text-[13px] font-semibold uppercase tracking-[0.14em] text-ink-500 lg:hidden">
+                        Step <span data-step-current>1</span> of 4
+                    </p>
+
+                    <ol class="mt-4 hidden lg:mt-0 lg:block" aria-label="Progress">
+                        @for (var i = 0; i < stepLabels.Length; i++)
+                        {
+                            <li data-step-marker="@(i + 1)" class="flex items-center gap-4 border-l-2 border-ink-200 py-4 pl-5 transition-colors">
+                                <span class="font-display text-sm font-bold text-ink-400">@((i + 1).ToString("00"))</span>
+                                <span class="font-display text-base font-semibold tracking-[-0.02em] text-ink-500">@stepLabels[i]</span>
+                            </li>
+                        }
+                    </ol>
+
+                    @* Mobile progress bar. Width is the one exception to the
+                       transform-only rule; it animates once per step. *@
+                    <div class="mt-3 h-1 w-full bg-ink-200 lg:hidden" role="presentation">
+                        <div data-step-bar class="h-1 w-1/4 bg-jade-500 transition-all duration-300"></div>
+                    </div>
+
+                    <p class="mt-8 hidden max-w-xs text-sm leading-relaxed text-ink-500 lg:block">
+                        Your details go only to providers relevant to your requirement.
+                        Sending an enquiry costs nothing and doesn't commit you to anything.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ---------- Right: the form ---------- -->
+            <div class="lg:col-span-8">
+
+                @* Without JavaScript every step is visible and this behaves as one
+                   long form. quote.js adds .js-steps to switch on step mode. *@
+                <form id="quote-form" method="post" asp-action="Index" novalidate
+                      class="border border-ink-200 bg-white">
+
+                    <div asp-validation-summary="ModelOnly" class="border-b border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700 empty:hidden"></div>
+
+                    <!-- ===== Step 1: service ===== -->
+                    <section data-step="1" class="step-panel p-6 sm:p-9" aria-labelledby="step1-heading" tabindex="-1">
+                        <h2 id="step1-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                            What do you need help with?
+                        </h2>
+
+                        <span asp-validation-for="ServiceSlug" class="mt-2 block text-sm text-red-600"></span>
+
+                        <div class="mt-7 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-labelledby="step1-heading">
+                            @foreach (var service in Model.Services)
+                            {
+                                <label class="group relative block cursor-pointer">
+                                    <input type="radio" asp-for="ServiceSlug" value="@service.Slug" data-service-option
+                                           class="peer sr-only" />
+                                    <span class="flex h-full flex-col border border-ink-200 bg-white p-5 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
+                                        <svg class="h-5 w-5 text-ink-900 group-has-[:checked]:text-jade-400" viewBox="0 0 20 20"
+                                             fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                            <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <span class="mt-5 font-display text-base font-bold tracking-[-0.02em] text-ink-900 group-has-[:checked]:text-white">
+                                            @service.Name
+                                        </span>
+                                        <span class="mt-1.5 text-sm leading-relaxed text-ink-500 group-has-[:checked]:text-ink-200">
+                                            @service.ShortDescription
+                                        </span>
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                    </section>
+
+                    <!-- ===== Step 2: location ===== -->
+                    <section data-step="2" class="step-panel p-6 sm:p-9" aria-labelledby="step2-heading" tabindex="-1">
+                        <h2 id="step2-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                            Where are you moving?
+                        </h2>
+
+                        @* Route layout: everything except storage. *@
+                        <div data-location-group="route" class="mt-7 space-y-5">
+                            <div class="grid gap-5 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+                                <div>
+                                    <label asp-for="MovingFrom" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="MovingFrom" type="text" autocomplete="address-level2" placeholder="Gurgaon"
+                                           class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="MovingFrom" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <button type="button" data-swap-locations
+                                        class="mb-1 grid h-12 w-12 shrink-0 place-items-center border border-ink-200 bg-white rounded-card transition-colors hover:border-ink-900 sm:mb-7"
+                                        aria-label="Swap moving from and moving to">
+                                    <svg class="h-4 w-4 text-ink-700" viewBox="0 0 20 20" fill="none"
+                                         stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                        <path d="M6 4L3 7l3 3M3 7h11M14 16l3-3-3-3M17 13H6" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+
+                                <div>
+                                    <label asp-for="MovingTo" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="MovingTo" type="text" autocomplete="address-level2" placeholder="Bangalore"
+                                           class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="MovingTo" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @* Storage layout. *@
+                        <div data-location-group="storage" class="mt-7 space-y-5">
+                            <div>
+                                <label asp-for="StorageLocation" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="StorageLocation" type="text" autocomplete="address-level2" placeholder="Gurgaon"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                <span asp-validation-for="StorageLocation" class="mt-1 block text-sm text-red-600"></span>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 max-w-xs">
+                            <label asp-for="MovingDate" data-date-label class="block text-[13px] font-semibold text-ink-800"></label>
+                            <input asp-for="MovingDate" type="date" data-min-today="true"
+                                   class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                            <span asp-validation-for="MovingDate" class="mt-1 block text-sm text-red-600"></span>
+                        </div>
+                    </section>
+
+                    <!-- ===== Step 3: requirements (one group per service) ===== -->
+                    <section data-step="3" class="step-panel p-6 sm:p-9" aria-labelledby="step3-heading" tabindex="-1">
+                        <h2 id="step3-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                            Tell us a bit more
+                        </h2>
+
+                        <div data-requirements-group="home-shifting" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Property type</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var type in propertyTypes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="PropertyType" value="@type" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="PropertyType" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <div>
+                                <label asp-for="MoveSize" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="MoveSize" type="text" placeholder="e.g. 20 cartons, 1 bed, 1 fridge"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+                        </div>
+
+                        <div data-requirements-group="office-shifting" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Office size</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var size in officeSizes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="OfficeSize" value="@size" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@size</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="OfficeSize" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <div class="max-w-xs">
+                                <label asp-for="DeskCount" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="DeskCount" type="text" inputmode="numeric" placeholder="e.g. 25"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+                        </div>
+
+                        <div data-requirements-group="car-transportation" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Car type</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var type in carTypes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="VehicleType" value="@type" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="VehicleType" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <div>
+                                <label asp-for="VehicleModel" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="VehicleModel" type="text" placeholder="e.g. Maruti Swift 2019"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Vehicle condition</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var condition in new[] { "Running", "Non-running" })
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="VehicleCondition" value="@condition" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@condition</span>
+                                        </label>
+                                    }
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div data-requirements-group="bike-transportation" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Bike type</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var type in bikeTypes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="VehicleType" value="@type" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                        </label>
+                                    }
+                                </div>
+                            </fieldset>
+
+                            <div>
+                                <label asp-for="VehicleModel" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="VehicleModel" type="text" placeholder="e.g. Honda Activa 2021"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+                        </div>
+
+                        <div data-requirements-group="goods-transportation" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Type of goods</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var type in goodsTypes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="GoodsType" value="@type" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="GoodsType" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <div>
+                                <label asp-for="LoadDetails" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="LoadDetails" type="text" placeholder="e.g. 4 pallets, around 2 tonnes"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+
+                            <div class="max-w-xs">
+                                <label asp-for="VehicleRequirement" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="VehicleRequirement" type="text" placeholder="e.g. closed container"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+                        </div>
+
+                        <div data-requirements-group="warehouse-storage" class="mt-7 space-y-5">
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Storage type</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var type in storageTypes)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="StorageType" value="@type" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="StorageType" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Expected duration</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var duration in durations)
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="StorageDuration" value="@duration" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@duration</span>
+                                        </label>
+                                    }
+                                </div>
+                                <span asp-validation-for="StorageDuration" class="mt-2 block text-sm text-red-600"></span>
+                            </fieldset>
+
+                            <div>
+                                <label asp-for="StorageSize" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="StorageSize" type="text" placeholder="e.g. contents of a 2 BHK"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                            </div>
+                        </div>
+
+                        @* Shown for every service, so it lives outside the groups. *@
+                        <div class="mt-7">
+                            <label asp-for="AdditionalRequirements" class="block text-[13px] font-semibold text-ink-800"></label>
+                            <textarea asp-for="AdditionalRequirements" rows="3" placeholder="Floor number, lift access, fragile items, anything else"
+                                      class="mt-2 block w-full border border-ink-200 bg-white px-3 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500"></textarea>
+                            <span asp-validation-for="AdditionalRequirements" class="mt-1 block text-sm text-red-600"></span>
+                        </div>
+                    </section>
+
+                    <!-- ===== Step 4: contact ===== -->
+                    <section data-step="4" class="step-panel p-6 sm:p-9" aria-labelledby="step4-heading" tabindex="-1">
+                        <h2 id="step4-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                            How can we contact you?
+                        </h2>
+
+                        <div class="mt-7 space-y-5">
+                            <div>
+                                <label asp-for="CustomerName" class="block text-[13px] font-semibold text-ink-800"></label>
+                                <input asp-for="CustomerName" type="text" autocomplete="name" placeholder="Your name"
+                                       class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                <span asp-validation-for="CustomerName" class="mt-1 block text-sm text-red-600"></span>
+                            </div>
+
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div>
+                                    <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="9876543210"
+                                           class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Phone" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800">Email address <span class="font-normal text-ink-400">(optional)</span></label>
+                                    <input asp-for="Email" type="email" autocomplete="email" placeholder="you@@example.com"
+                                           class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+                            </div>
+
+                            <fieldset>
+                                <legend class="text-[13px] font-semibold text-ink-800">Preferred contact method</legend>
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    @foreach (var method in new[] { "Call", "WhatsApp", "Email" })
+                                    {
+                                        <label class="cursor-pointer">
+                                            <input type="radio" asp-for="PreferredContactMethod" value="@method" class="peer sr-only" />
+                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@method</span>
+                                        </label>
+                                    }
+                                </div>
+                            </fieldset>
+                        </div>
+                    </section>
+
+                    <!-- ===== Step 5: review (JS only) ===== -->
+                    <section data-step="5" class="step-panel p-6 sm:p-9" aria-labelledby="step5-heading" tabindex="-1" hidden>
+                        <h2 id="step5-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
+                            Check your details
+                        </h2>
+                        <p class="mt-2 text-[15px] text-ink-500">Go back to change anything before you send it.</p>
+
+                        <dl data-summary class="mt-7 divide-y divide-ink-100 border-y border-ink-200"></dl>
+                    </section>
+
+                    <!-- ===== Navigation ===== -->
+                    <div class="flex flex-col-reverse gap-3 border-t border-ink-200 bg-paper p-6 sm:flex-row sm:items-center sm:justify-between sm:p-9">
+                        <button type="button" data-nav-back
+                                class="inline-flex h-12 items-center justify-center border border-ink-200 bg-white px-6 text-[15px] font-semibold text-ink-800 rounded-card transition-colors hover:border-ink-900">
+                            Back
+                        </button>
+
+                        <button type="button" data-nav-next
+                                class="group inline-flex h-13 items-center justify-center gap-2 bg-ink-900 px-7 text-base font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                            Continue
+                            <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </button>
+
+                        <button type="submit" data-nav-submit
+                                class="inline-flex h-13 items-center justify-center bg-jade-500 px-8 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                            Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/quote.js" asp-append-version="true" defer></script>
+}

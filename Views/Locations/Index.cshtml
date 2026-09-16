@@ -1,0 +1,69 @@
+@model LocationIndexViewModel
+@{
+    var seo = ViewData["Seo"] as ShiftingGuru.ViewModels.Seo.SeoViewModel;
+}
+
+<section class="relative overflow-hidden bg-ink-950 pb-16 pt-28 lg:pb-20 lg:pt-40">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <partial name="_Breadcrumbs" model="seo!.Breadcrumbs" />
+
+        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            Moving services by city
+        </h1>
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">
+            Pick your city to see the services available there and the routes we cover most often.
+        </p>
+    </div>
+</section>
+
+<section class="bg-white">
+    <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
+
+        @if (Model.Locations.Count == 0)
+        {
+            <p class="text-base text-ink-500">No city pages are published yet.</p>
+        }
+        else
+        {
+            <ul class="grid grid-cols-2 gap-px bg-ink-100 lg:grid-cols-4">
+                @foreach (var location in Model.Locations)
+                {
+                    <li>
+                        <a href="@location.Url" class="group flex h-full flex-col bg-white p-6 transition-colors hover:bg-ink-900 lg:p-8">
+                            <h2 class="font-display text-lg font-bold tracking-[-0.03em] text-ink-900 transition-colors group-hover:text-white">
+                                @location.Name
+                            </h2>
+                            @if (!string.IsNullOrWhiteSpace(location.State))
+                            {
+                                <p class="mt-1.5 text-sm text-ink-500 transition-colors group-hover:text-ink-200">@location.State</p>
+                            }
+                            <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink-900 transition-colors group-hover:text-jade-400">
+                                View services
+                                <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1.5"
+                                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+
+        <div class="mt-12">
+            <a href="/routes" class="group inline-flex items-center gap-2 text-base font-semibold text-ink-900">
+                Browse popular routes
+                <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>
+
+<partial name="_QuoteCta" />

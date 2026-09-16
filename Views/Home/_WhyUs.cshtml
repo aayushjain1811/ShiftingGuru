@@ -1,0 +1,36 @@
+@{
+    var features = new (string Title, string Body)[]
+    {
+        ("Verified professionals", "Partner details are checked before they can receive your requirement."),
+        ("Multiple quotes", "One requirement reaches several providers, so you are not stuck with one price."),
+        ("Better value", "Comparing offers side by side is the simplest way to avoid overpaying."),
+        ("Pan-India network", "Metro cities, tier-two cities and the long-distance routes between them."),
+        ("Simple process", "Four fields, no account, no long form to work through."),
+        ("Customer-first support", "A real point of contact if something about your move needs sorting out.")
+    };
+}
+
+<section class="border-y border-ink-100 bg-paper" aria-labelledby="why-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <h2 id="why-heading"
+                class="lg:col-span-6 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                Why people use ShiftingGuru
+            </h2>
+            <p class="lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
+                We're not a moving company. We're the layer that helps you find the right one.
+            </p>
+        </div>
+
+        <ul class="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var feature in features)
+            {
+                <li class="reveal border-t border-ink-200 pt-6">
+                    <h3 class="font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@feature.Title</h3>
+                    <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">@feature.Body</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

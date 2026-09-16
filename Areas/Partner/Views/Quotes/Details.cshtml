@@ -1,0 +1,142 @@
+@model PartnerQuoteDetailsViewModel
+@using ShiftingGuru.Areas.Admin
+@{
+    var quote = Model.Quote;
+    var lead = Model.Lead;
+
+    var lines = new (string Label, decimal Value)[]
+    {
+        ("Base price", quote.BasePrice),
+        ("Packing charges", quote.PackingCharges),
+        ("Transportation charges", quote.TransportationCharges),
+        ("Loading / unloading", quote.LoadingUnloadingCharges),
+        ("Additional charges", quote.AdditionalCharges)
+    };
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+    <a href="/partner/quotes" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900">
+        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <path d="M16 10H5M9 6l-4 4 4 4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        My quotes
+    </a>
+
+    <span class="@QuoteBadge.Classes(quote.Status) inline-flex items-center border px-3 py-1 text-sm font-medium rounded-card">
+        @QuoteBadge.Label(quote.Status)
+    </span>
+</div>
+
+<div class="mt-5 grid gap-4 lg:grid-cols-3">
+
+    <div class="space-y-4 lg:col-span-2">
+
+        <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Quote</h2>
+            <dl class="mt-4 grid gap-4 sm:grid-cols-2">
+                <div>
+                    <dt class="text-[13px] text-ink-500">Quote number</dt>
+                    <dd class="mt-0.5 text-sm font-semibold text-ink-900">@quote.QuoteNumber</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Submitted</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@quote.CreatedAt.ToLocalTime().ToString("d MMMM yyyy, HH:mm")</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Last updated</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@(quote.UpdatedAt?.ToLocalTime().ToString("d MMMM yyyy, HH:mm") ?? "Not updated")</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Pricing</h2>
+            <dl class="mt-4 divide-y divide-ink-100 border-y border-ink-100">
+                @foreach (var line in lines)
+                {
+                    <div class="flex items-center justify-between py-2.5">
+                        <dt class="text-sm text-ink-600">@line.Label</dt>
+                        <dd class="text-sm text-ink-900">@Money.Format(line.Value)</dd>
+                    </div>
+                }
+            </dl>
+            <div class="mt-4 flex items-center justify-between">
+                <span class="text-sm font-semibold text-ink-900">Total</span>
+                <span class="text-xl font-bold tracking-tight text-ink-900">@Money.Format(quote.TotalAmount)</span>
+            </div>
+        </section>
+
+        <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Timing</h2>
+            <dl class="mt-4 grid gap-4 sm:grid-cols-3">
+                <div>
+                    <dt class="text-[13px] text-ink-500">Pickup</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@(quote.EstimatedPickupDate?.ToString("d MMM yyyy") ?? "Not given")</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Delivery</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@(quote.EstimatedDeliveryDate?.ToString("d MMM yyyy") ?? "Not given")</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Days in transit</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@(quote.EstimatedDeliveryDays?.ToString() ?? "Not given")</dd>
+                </div>
+            </dl>
+        </section>
+
+        @if (!string.IsNullOrWhiteSpace(quote.VendorNotes))
+        {
+            <section class="border border-ink-200 bg-white p-5 rounded-card">
+                <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Your notes</h2>
+                <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-800">@quote.VendorNotes</p>
+            </section>
+        }
+    </div>
+
+    <div class="lg:col-span-1">
+        <section class="border border-ink-200 bg-white p-5 rounded-card lg:sticky lg:top-6">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">The lead</h2>
+            <dl class="mt-4 space-y-3">
+                <div>
+                    <dt class="text-[13px] text-ink-500">Lead number</dt>
+                    <dd class="mt-0.5 text-sm font-semibold text-ink-900">@lead.LeadNumber</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Service</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@lead.ServiceName</dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Route</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">
+                        @(lead.MovingFrom is null ? lead.StorageLocation ?? "-" : $"{lead.MovingFrom} to {lead.MovingTo}")
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-[13px] text-ink-500">Moving date</dt>
+                    <dd class="mt-0.5 text-sm text-ink-800">@(lead.MovingDate?.ToString("d MMM yyyy") ?? "Not given")</dd>
+                </div>
+            </dl>
+
+            <div class="mt-5 space-y-2.5 border-t border-ink-100 pt-4">
+                <a href="/partner/leads/@lead.Id"
+                   class="grid h-11 place-items-center border border-ink-200 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                    View the lead
+                </a>
+
+                @if (quote.IsEditableByVendor)
+                {
+                    <a href="/partner/quotes/@quote.Id/edit"
+                       class="grid h-11 place-items-center bg-ink-900 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                        Edit quote
+                    </a>
+                }
+                else
+                {
+                    <p class="text-xs leading-relaxed text-ink-400">
+                        A @QuoteBadge.Label(quote.Status).ToLowerInvariant() quote can no longer be edited.
+                    </p>
+                }
+            </div>
+        </section>
+    </div>
+</div>

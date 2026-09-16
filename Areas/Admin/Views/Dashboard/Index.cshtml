@@ -1,0 +1,111 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var cards = new (string Label, int Value, bool Primary)[]
+    {
+        ("Total leads", Model.TotalLeads, true),
+        ("New", Model.CountFor(LeadStatus.New), false),
+        ("Contacted", Model.CountFor(LeadStatus.Contacted), false),
+        ("Assigned", Model.CountFor(LeadStatus.Assigned), false),
+        ("In progress", Model.CountFor(LeadStatus.InProgress), false),
+        ("Quoted", Model.CountFor(LeadStatus.Quoted), false),
+        ("Converted", Model.CountFor(LeadStatus.Converted), false),
+        ("Assigned to vendors", Model.AssignedLeads, false),
+        ("Unassigned", Model.UnassignedLeads, false),
+        ("Total quotes", Model.TotalQuotes, false),
+        ("Quotes submitted", Model.QuotesFor(QuoteStatus.Submitted), false),
+        ("Quotes accepted", Model.QuotesFor(QuoteStatus.Accepted), false),
+        ("Quotes rejected", Model.QuotesFor(QuoteStatus.Rejected), false)
+    };
+}
+
+<section aria-label="Lead statistics">
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        @foreach (var card in cards)
+        {
+            <li class="@(card.Primary ? "bg-ink-900 border-ink-900" : "bg-white border-ink-200") border p-4 rounded-card sm:p-5">
+                <p class="@(card.Primary ? "text-ink-400" : "text-ink-500") text-[13px] font-medium">@card.Label</p>
+                <p class="@(card.Primary ? "text-white" : "text-ink-900") mt-2 text-2xl font-bold tracking-tight sm:text-3xl">@card.Value</p>
+            </li>
+        }
+    </ul>
+</section>
+
+<section class="mt-8" aria-labelledby="recent-heading">
+
+    <div class="flex items-center justify-between gap-4">
+        <h2 id="recent-heading" class="text-[15px] font-semibold text-ink-900">Recent leads</h2>
+        <a href="/admin/leads" class="text-sm font-medium text-jade-600 hover:text-jade-500">View all</a>
+    </div>
+
+    @if (Model.RecentLeads.Count == 0)
+    {
+        <p class="mt-4 border border-ink-200 bg-white p-8 text-center text-sm text-ink-500 rounded-card">
+            No leads yet. They'll appear here as customers submit quote requests.
+        </p>
+    }
+    else
+    {
+        <div class="mt-4 overflow-hidden border border-ink-200 bg-white rounded-card">
+
+            @* Desktop: table. Mobile: the card list below. Two markups beats a
+               table that scrolls sideways on a phone. *@
+            <div class="hidden md:block">
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b border-ink-200 bg-ink-50 text-[12px] uppercase tracking-wide text-ink-500">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 font-semibold">Lead</th>
+                            <th scope="col" class="px-4 py-3 font-semibold">Customer</th>
+                            <th scope="col" class="px-4 py-3 font-semibold">Service</th>
+                            <th scope="col" class="px-4 py-3 font-semibold">Route</th>
+                            <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+                            <th scope="col" class="px-4 py-3 font-semibold">Created</th>
+                            <th scope="col" class="px-4 py-3"><span class="sr-only">Action</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-ink-100">
+                        @foreach (var lead in Model.RecentLeads)
+                        {
+                            <tr class="hover:bg-ink-50">
+                                <td class="whitespace-nowrap px-4 py-3 font-medium text-ink-900">@lead.LeadNumber</td>
+                                <td class="px-4 py-3 text-ink-700">@lead.CustomerName</td>
+                                <td class="px-4 py-3 text-ink-700">@lead.ServiceName</td>
+                                <td class="px-4 py-3 text-ink-500">
+                                    @(lead.MovingFrom is null ? lead.StorageLocation ?? "-" : $"{lead.MovingFrom} to {lead.MovingTo}")
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="@StatusBadge.Classes(lead.Status) inline-flex items-center border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                                        @StatusBadge.Label(lead.Status)
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-4 py-3 text-ink-500">@lead.CreatedAt.ToLocalTime().ToString("d MMM, HH:mm")</td>
+                                <td class="px-4 py-3 text-right">
+                                    <a href="/admin/leads/@lead.Id" class="font-medium text-jade-600 hover:text-jade-500">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <ul class="divide-y divide-ink-100 md:hidden">
+                @foreach (var lead in Model.RecentLeads)
+                {
+                    <li>
+                        <a href="/admin/leads/@lead.Id" class="block p-4 hover:bg-ink-50">
+                            <div class="flex items-start justify-between gap-3">
+                                <span class="text-sm font-semibold text-ink-900">@lead.CustomerName</span>
+                                <span class="@StatusBadge.Classes(lead.Status) shrink-0 border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                                    @StatusBadge.Label(lead.Status)
+                                </span>
+                            </div>
+                            <p class="mt-1 text-sm text-ink-500">@lead.ServiceName</p>
+                            <p class="mt-1 text-xs text-ink-400">@lead.LeadNumber &middot; @lead.CreatedAt.ToLocalTime().ToString("d MMM")</p>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</section>

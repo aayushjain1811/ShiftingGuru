@@ -1,0 +1,21 @@
+@{
+    var reason = ViewData["ReviewBlockedReason"] as string;
+}
+
+<section class="bg-paper">
+    <div class="mx-auto max-w-xl px-5 pb-16 pt-28 text-center sm:px-8 lg:pt-36">
+
+        <h1 class="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-extrabold leading-tight tracking-[-0.04em] text-ink-900">
+            Not ready for a review yet
+        </h1>
+
+        <p class="mt-4 text-base leading-relaxed text-ink-600">
+            @(reason ?? "You can leave a review once your move is complete.")
+        </p>
+
+        <a href="/my-request"
+           class="mt-8 inline-flex h-12 items-center justify-center bg-ink-900 px-6 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+            Back to my request
+        </a>
+    </div>
+</section>

@@ -1,0 +1,59 @@
+@{
+    var routes = new (string From, string To, string Slug, string Distance)[]
+    {
+        ("Delhi", "Bangalore", "delhi-to-bangalore", "~2,150 km"),
+        ("Mumbai", "Pune", "mumbai-to-pune", "~150 km"),
+        ("Gurgaon", "Hyderabad", "gurgaon-to-hyderabad", "~1,570 km"),
+        ("Delhi", "Mumbai", "delhi-to-mumbai", "~1,420 km")
+    };
+}
+
+@* Big-type rows, like a departure board. Distance is the only detail,
+   because on a route list that is the only detail that matters. *@
+<section class="bg-ink-950" aria-labelledby="routes-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <h2 id="routes-heading"
+                class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white">
+                Popular long-distance routes
+            </h2>
+            <p class="text-sm text-ink-400">Distances are approximate</p>
+        </div>
+
+        <ul class="mt-14 border-t border-white/12">
+            @foreach (var route in routes)
+            {
+                <li class="border-b border-white/12">
+                    <a href="/@route.Slug" class="group flex items-center justify-between gap-4 py-7 lg:py-9">
+
+                        <span class="flex flex-wrap items-center gap-x-4 gap-y-1 lg:gap-x-7">
+                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-white transition-colors group-hover:text-jade-400">
+                                @route.From
+                            </span>
+                            <svg class="h-3 w-10 shrink-0 text-ink-500 transition-transform duration-300 group-hover:translate-x-2 lg:w-16"
+                                 viewBox="0 0 64 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                <path d="M0 6h56M52 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-white transition-colors group-hover:text-jade-400">
+                                @route.To
+                            </span>
+                        </span>
+
+                        <span class="shrink-0 text-sm text-ink-400">@route.Distance</span>
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <div class="mt-10">
+            <a href="/routes" class="group inline-flex items-center gap-2 text-base font-semibold text-white">
+                See all routes
+                <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </a>
+        </div>
+    </div>
+</section>

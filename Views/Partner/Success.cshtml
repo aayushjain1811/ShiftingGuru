@@ -1,0 +1,52 @@
+@{
+    var vendorNumber = ViewData["VendorNumber"] as string;
+    var businessName = ViewData["BusinessName"] as string;
+}
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 pb-20 lg:pt-40 lg:pb-28">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div class="max-w-2xl">
+
+            <span class="grid h-14 w-14 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
+                <svg class="h-7 w-7 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+
+            <h1 class="mt-9 font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+                Application received
+            </h1>
+
+            <p class="mt-7 text-lg leading-relaxed text-ink-200">
+                Thanks@(string.IsNullOrEmpty(businessName) ? "" : $", {businessName}"). Your partner application
+                has been submitted successfully.
+            </p>
+
+            <p class="mt-4 max-w-xl text-base leading-relaxed text-ink-400">
+                Our team will review your business details and notify you once your account
+                is approved. You won't be able to sign in to the partner dashboard until then.
+            </p>
+
+            @if (!string.IsNullOrEmpty(vendorNumber))
+            {
+                <div class="mt-8 inline-flex flex-col border border-white/15 bg-white/[0.03] px-6 py-4 rounded-panel">
+                    <span class="text-[13px] font-semibold uppercase tracking-[0.14em] text-ink-400">Your reference</span>
+                    <span class="mt-1 font-display text-xl font-bold tracking-[-0.02em] text-white">@vendorNumber</span>
+                </div>
+            }
+
+            <div class="mt-10 flex flex-wrap gap-4">
+                <a href="/" class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                    Back to Home
+                </a>
+                <a href="/services" class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                    Explore Services
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

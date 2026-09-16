@@ -1,0 +1,194 @@
+@model AdminNotificationListViewModel
+@{
+    var firstItem = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var lastItem = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+
+    var windowStart = Math.Max(1, Model.Page - 2);
+    var windowEnd = Math.Min(Model.TotalPages, windowStart + 4);
+    windowStart = Math.Max(1, windowEnd - 4);
+
+    string Link(int page) => "/admin/notifications?" + string.Join("&",
+        Model.RouteValues(page).Where(kv => !string.IsNullOrEmpty(kv.Value))
+             .Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value!)}"));
+}
+
+<ul class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <li class="border border-ink-200 bg-white p-4 rounded-card">
+        <p class="text-[13px] font-medium text-ink-500">Total</p>
+        <p class="mt-2 text-2xl font-bold tracking-tight text-ink-900">@Model.TotalCount</p>
+    </li>
+    <li class="border border-amber-200 bg-amber-50 p-4 rounded-card">
+        <p class="text-[13px] font-medium text-amber-700">Pending</p>
+        <p class="mt-2 text-2xl font-bold tracking-tight text-amber-800">@Model.PendingCount</p>
+    </li>
+    <li class="border border-red-200 bg-red-50 p-4 rounded-card">
+        <p class="text-[13px] font-medium text-red-700">Failed</p>
+        <p class="mt-2 text-2xl font-bold tracking-tight text-red-800">@Model.FailedCount</p>
+    </li>
+</ul>
+
+<form method="get" action="/admin/notifications" class="mt-4 border border-ink-200 bg-white p-4 rounded-card">
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+
+        <div>
+            <label for="status" class="block text-[12px] font-semibold text-ink-700">Status</label>
+            <select id="status" name="status" class="mt-1.5 block h-10 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                <option value="">All statuses</option>
+                @foreach (var status in Enum.GetValues<NotificationStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label for="type" class="block text-[12px] font-semibold text-ink-700">Type</label>
+            <select id="type" name="type" class="mt-1.5 block h-10 w-full border border-ink-200 bg-white px-2 text-sm text-ink-900 rounded-card focus:border-jade-500">
+                <option value="">All types</option>
+                @foreach (var type in Enum.GetValues<NotificationType>())
+                {
+                    <option value="@type" selected="@(Model.Type == type)">@NotificationBadge.Label(type)</option>
+                }
+            </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 lg:col-span-2">
+            <div>
+                <label for="from" class="block text-[12px] font-semibold text-ink-700">From</label>
+                <input id="from" name="from" type="date" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))"
+                       class="mt-1.5 block h-10 w-full border border-ink-200 px-2 text-sm text-ink-900 rounded-card focus:border-jade-500" />
+            </div>
+            <div>
+                <label for="to" class="block text-[12px] font-semibold text-ink-700">To</label>
+                <input id="to" name="to" type="date" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))"
+                       class="mt-1.5 block h-10 w-full border border-ink-200 px-2 text-sm text-ink-900 rounded-card focus:border-jade-500" />
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3 flex flex-wrap items-center gap-2">
+        <button type="submit" class="h-10 bg-ink-900 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">Apply</button>
+        <a href="/admin/notifications" class="h-10 border border-ink-200 px-5 text-sm font-medium leading-10 text-ink-700 rounded-card hover:border-ink-900">Clear</a>
+    </div>
+</form>
+
+<p class="mt-4 text-sm text-ink-500">
+    @if (Model.TotalCount == 0)
+    {
+        <text>No notifications match these filters.</text>
+    }
+    else
+    {
+        <text>Showing @firstItem&ndash;@lastItem of @Model.TotalCount</text>
+    }
+</p>
+
+@if (Model.TotalCount > 0)
+{
+    <div class="mt-3 overflow-hidden border border-ink-200 bg-white rounded-card">
+
+        <div class="hidden overflow-x-auto lg:block">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-ink-200 bg-ink-50 text-[12px] uppercase tracking-wide text-ink-500">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 font-semibold">Type</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Recipient</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Subject</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Entity</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Status</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Tries</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Created</th>
+                        <th scope="col" class="px-4 py-3 font-semibold">Sent</th>
+                        <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-ink-100">
+                    @foreach (var item in Model.Notifications)
+                    {
+                        <tr class="hover:bg-ink-50">
+                            <td class="px-4 py-3 text-ink-700">@NotificationBadge.Label(item.Type)</td>
+                            <td class="max-w-[180px] truncate px-4 py-3 text-ink-700">@item.Recipient</td>
+                            <td class="max-w-[220px] truncate px-4 py-3 text-ink-500">@item.Subject</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-ink-500">@item.EntityType #@item.EntityId</td>
+                            <td class="px-4 py-3">
+                                <span class="@NotificationBadge.Classes(item.Status) inline-flex items-center border px-2 py-0.5 text-[12px] font-medium rounded-card">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-ink-500">@item.AttemptCount</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-ink-500">@item.CreatedAt.ToLocalTime().ToString("d MMM, HH:mm")</td>
+                            <td class="whitespace-nowrap px-4 py-3 text-ink-500">@(item.SentAt?.ToLocalTime().ToString("d MMM, HH:mm") ?? "-")</td>
+                            <td class="px-4 py-3 text-right">
+                                @if (item.Status != NotificationStatus.Sent)
+                                {
+                                    <form method="post" action="/admin/notifications/@item.Id/retry">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="text-sm font-medium text-jade-600 hover:text-jade-500">Retry</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+
+                        @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                        {
+                            <tr class="bg-red-50/50">
+                                <td colspan="9" class="px-4 py-2 text-xs text-red-700">@item.ErrorMessage</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <ul class="divide-y divide-ink-100 lg:hidden">
+            @foreach (var item in Model.Notifications)
+            {
+                <li class="p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="min-w-0 truncate text-sm font-semibold text-ink-900">@NotificationBadge.Label(item.Type)</p>
+                        <span class="@NotificationBadge.Classes(item.Status) shrink-0 border px-2 py-0.5 text-[12px] font-medium rounded-card">@item.Status</span>
+                    </div>
+                    <p class="mt-1 truncate text-sm text-ink-500">@item.Recipient</p>
+                    <p class="mt-1 truncate text-sm text-ink-500">@item.Subject</p>
+                    <p class="mt-2 text-xs text-ink-400">
+                        @item.EntityType #@item.EntityId &middot; @item.AttemptCount attempt(s) &middot;
+                        @item.CreatedAt.ToLocalTime().ToString("d MMM, HH:mm")
+                    </p>
+
+                    @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                    {
+                        <p class="mt-2 text-xs text-red-700">@item.ErrorMessage</p>
+                    }
+
+                    @if (item.Status != NotificationStatus.Sent)
+                    {
+                        <form method="post" action="/admin/notifications/@item.Id/retry" class="mt-3">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="h-10 border border-ink-200 px-4 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">Retry</button>
+                        </form>
+                    }
+                </li>
+            }
+        </ul>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4 flex flex-wrap items-center gap-1.5" aria-label="Pagination">
+            @if (Model.HasPrevious)
+            {
+                <a href="@Link(Model.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Previous</a>
+            }
+            @for (var p = windowStart; p <= windowEnd; p++)
+            {
+                var isCurrent = p == Model.Page;
+                <a href="@Link(p)" aria-current="@(isCurrent ? "page" : null)"
+                   class="@(isCurrent ? "border-ink-900 bg-ink-900 text-white" : "border-ink-200 bg-white text-ink-700 hover:border-ink-900") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
+            }
+            @if (Model.HasNext)
+            {
+                <a href="@Link(Model.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Next</a>
+            }
+        </nav>
+    }
+}

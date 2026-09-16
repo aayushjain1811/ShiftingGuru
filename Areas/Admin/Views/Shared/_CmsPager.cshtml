@@ -1,0 +1,33 @@
+@model (string BasePath, ShiftingGuru.ViewModels.Admin.AdminCmsListViewModel List)
+@{
+    var list = Model.List;
+
+    var windowStart = Math.Max(1, list.Page - 2);
+    var windowEnd = Math.Min(list.TotalPages, windowStart + 4);
+    windowStart = Math.Max(1, windowEnd - 4);
+
+    string Link(int page) => Model.BasePath + "?" + string.Join("&",
+        list.RouteValues(page).Where(kv => !string.IsNullOrEmpty(kv.Value))
+            .Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value!)}"));
+}
+
+@* Shared by the three CMS lists so paging behaves identically everywhere. *@
+@if (list.TotalPages > 1)
+{
+    <nav class="mt-4 flex flex-wrap items-center gap-1.5" aria-label="Pagination">
+        @if (list.HasPrevious)
+        {
+            <a href="@Link(list.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Previous</a>
+        }
+        @for (var p = windowStart; p <= windowEnd; p++)
+        {
+            var isCurrent = p == list.Page;
+            <a href="@Link(p)" aria-current="@(isCurrent ? "page" : null)"
+               class="@(isCurrent ? "border-ink-900 bg-ink-900 text-white" : "border-ink-200 bg-white text-ink-700 hover:border-ink-900") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
+        }
+        @if (list.HasNext)
+        {
+            <a href="@Link(list.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Next</a>
+        }
+    </nav>
+}

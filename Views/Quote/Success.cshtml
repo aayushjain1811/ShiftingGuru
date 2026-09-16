@@ -1,0 +1,111 @@
+@{
+    var service = ViewData["SubmittedService"] as string;
+    var leadNumber = ViewData["LeadNumber"] as string;
+    var accessLink = ViewData["AccessLink"] as string;
+}
+
+<section class="relative overflow-hidden bg-ink-950 pt-28 pb-20 lg:pt-40 lg:pb-28">
+    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
+        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div class="max-w-2xl">
+
+            <span class="grid h-14 w-14 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
+                <svg class="h-7 w-7 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+
+            <h1 class="mt-9 font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+                Request received
+            </h1>
+
+            <p class="mt-7 text-lg leading-relaxed text-ink-200">
+                Thanks. We've received your
+                @if (!string.IsNullOrEmpty(service))
+                {
+                    <span class="text-white">@service.ToLowerInvariant()</span>
+                }
+                requirement.
+            </p>
+
+            @if (!string.IsNullOrEmpty(leadNumber))
+            {
+                <div class="mt-8 inline-flex flex-col border border-white/15 bg-white/[0.03] px-6 py-4 rounded-panel">
+                    <span class="text-[13px] font-semibold uppercase tracking-[0.14em] text-ink-400">Your reference</span>
+                    <span class="mt-1 font-display text-xl font-bold tracking-[-0.02em] text-white">@leadNumber</span>
+                </div>
+            }
+
+            <p class="mt-8 max-w-xl text-base leading-relaxed text-ink-400">
+                Our team can now review your request and connect you with relevant service
+                providers. You'll be contacted using the details you gave us.
+            </p>
+
+            @* Development only. In production this link is emailed or texted;
+               there is no delivery provider configured yet, so it is shown here
+               rather than claiming a message was sent. *@
+            @if (!string.IsNullOrEmpty(accessLink))
+            {
+                <div class="mt-8 max-w-xl border border-jade-500/30 bg-jade-500/10 p-5 rounded-panel">
+                    <p class="text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
+                        Your secure access link
+                    </p>
+                    <p class="mt-2 text-sm leading-relaxed text-ink-300">
+                        Delivery by email or SMS isn't set up yet, so here's your link. Keep it
+                        private - anyone with it can see your request and quotes.
+                    </p>
+                    <a href="@accessLink" class="mt-3 block break-all text-sm font-medium text-jade-400 hover:text-jade-500">
+                        @accessLink
+                    </a>
+                </div>
+            }
+
+            <div class="mt-10 flex flex-wrap gap-4">
+                <a href="/"
+                   class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                    Back to Home
+                </a>
+                <a href="/services"
+                   class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                    Explore Services
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-paper" aria-labelledby="next-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
+
+        <h2 id="next-heading" class="font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-ink-900">
+            What happens next
+        </h2>
+
+        <ol class="mt-12 grid gap-10 lg:grid-cols-3">
+            <li class="border-t border-ink-200 pt-6">
+                <span class="font-display text-sm font-bold text-jade-600">01</span>
+                <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">We review your requirement</h3>
+                <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">
+                    We check the details and work out which providers cover your route and service.
+                </p>
+            </li>
+            <li class="border-t border-ink-200 pt-6">
+                <span class="font-display text-sm font-bold text-jade-600">02</span>
+                <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">Providers get in touch</h3>
+                <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">
+                    Relevant professionals contact you with what they'd charge and what's included.
+                </p>
+            </li>
+            <li class="border-t border-ink-200 pt-6">
+                <span class="font-display text-sm font-bold text-jade-600">03</span>
+                <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">You compare and choose</h3>
+                <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">
+                    Weigh scope, timing and price, then deal directly with the provider you pick.
+                </p>
+            </li>
+        </ol>
+    </div>
+</section>

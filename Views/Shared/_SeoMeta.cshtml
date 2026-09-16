@@ -1,0 +1,35 @@
+@model ShiftingGuru.ViewModels.Seo.SeoViewModel
+
+@* Every head tag for the page, from one view model. No view writes its own
+   <title> or meta description. *@
+
+<title>@Model.Title | ShiftingGuru</title>
+<meta name="description" content="@Model.Description" />
+<meta name="robots" content="@Model.Robots" />
+
+@if (!string.IsNullOrEmpty(Model.Canonical))
+{
+    <link rel="canonical" href="@Model.Canonical" />
+}
+
+<meta property="og:type" content="@Model.OgType" />
+<meta property="og:site_name" content="ShiftingGuru" />
+<meta property="og:title" content="@Model.EffectiveOgTitle" />
+<meta property="og:description" content="@Model.EffectiveOgDescription" />
+<meta property="og:url" content="@Model.Canonical" />
+
+@* Falls back to the site image rather than pointing at a file that may not
+   exist for this particular page. *@
+<meta property="og:image" content="@(Model.OgImage ?? "/images/og-cover.jpg")" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="@Model.EffectiveOgTitle" />
+<meta name="twitter:description" content="@Model.EffectiveOgDescription" />
+<meta name="twitter:image" content="@(Model.OgImage ?? "/images/og-cover.jpg")" />
+
+@* Already serialised and escaped by SeoService - Html.Raw is safe here
+   precisely because nothing untrusted reaches this point unescaped. *@
+@foreach (var block in Model.JsonLdBlocks)
+{
+    <script type="application/ld+json">@Html.Raw(block)</script>
+}

@@ -1,0 +1,82 @@
+@{
+    var footerColumns = new (string Heading, (string Text, string Href)[] Links)[]
+    {
+        ("Services", new[]
+        {
+            ("Home Shifting", "/services/home-shifting"),
+            ("Office Shifting", "/services/office-shifting"),
+            ("Car Transportation", "/services/car-transportation"),
+            ("Bike Transportation", "/services/bike-transportation"),
+            ("Warehouse & Storage", "/services/warehouse-storage")
+        }),
+        ("Company", new[]
+        {
+            ("About Us", "/about"),
+            ("Cities", "/locations"),
+            ("Routes", "/routes"),
+            ("How It Works", "#how-it-works"),
+            ("Contact", "/contact"),
+            ("FAQ", "#faq")
+        }),
+        ("For Partners", new[]
+        {
+            ("Join as Partner", "/join-as-partner"),
+            ("Partner Login", "/partner/login")
+        }),
+        ("Legal", new[]
+        {
+            ("Privacy Policy", "/privacy"),
+            ("Terms & Conditions", "/terms"),
+            ("Cancellation / Refund Policy", "/refund-policy")
+        })
+    };
+}
+
+<footer class="bg-ink-950 text-ink-400">
+    <div class="mx-auto max-w-[1400px] px-5 pt-20 sm:px-8 lg:pt-24">
+
+        <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-10">
+
+            <div class="lg:col-span-4">
+                <div class="flex items-center gap-3">
+                    <span class="grid h-9 w-9 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
+                        <svg class="h-4.5 w-4.5 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 15h3.2L10 5l3.8 10H17" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <span class="font-display text-[19px] font-extrabold tracking-[-0.03em] text-white">ShiftingGuru</span>
+                </div>
+                <p class="mt-5 max-w-xs text-[15px] leading-relaxed text-ink-400">
+                    Moving and logistics, simplified.
+                </p>
+            </div>
+
+            @foreach (var column in footerColumns)
+            {
+                <div class="lg:col-span-2">
+                    <h2 class="text-[13px] font-semibold tracking-wide text-white">@column.Heading</h2>
+                    <ul class="mt-5 space-y-3">
+                        @foreach (var link in column.Links)
+                        {
+                            <li>
+                                <a href="@link.Href" class="text-[15px] text-ink-400 transition-colors hover:text-white">@link.Text</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+
+        @* Oversized wordmark as the closing note. Purely typographic, so it
+           costs nothing and gives the footer some presence. *@
+        <p class="mt-20 select-none font-display text-[clamp(3rem,13vw,11rem)] font-extrabold leading-[0.8] tracking-[-0.06em] text-white/6"
+           aria-hidden="true">
+            ShiftingGuru
+        </p>
+
+        <div class="mt-10 flex flex-col gap-3 border-t border-white/10 py-7 sm:flex-row sm:items-center sm:justify-between">
+            <p class="text-sm text-ink-500">&copy; @DateTime.Now.Year ShiftingGuru. All rights reserved.</p>
+            <p class="text-sm text-ink-500">ShiftingGuru connects customers with independent service providers.</p>
+        </div>
+    </div>
+</footer>

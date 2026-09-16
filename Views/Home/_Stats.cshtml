@@ -1,0 +1,46 @@
+@{
+    // PLACEHOLDER VALUES. Replace with verified client figures before launch.
+    var supporting = new (string Value, string Decimals, string Suffix, string Label)[]
+    {
+        ("500", "0", "+", "Verified partners"),
+        ("100", "0", "+", "Cities covered"),
+        ("4.8", "1", "/5", "Average rating")
+    };
+}
+
+<section class="bg-paper" aria-labelledby="stats-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="stats-heading" class="sr-only">ShiftingGuru at a glance</h2>
+
+        @* One number is huge, three are small. Equal weight everywhere is
+           what made the old version feel flat. *@
+        <div class="grid gap-12 lg:grid-cols-12 lg:items-end lg:gap-10">
+
+            <div class="reveal lg:col-span-6">
+                <p class="font-display text-[clamp(4.5rem,13vw,10rem)] font-extrabold leading-[0.82] tracking-[-0.055em] text-ink-900">
+                    <span data-count-to="10000" data-decimals="0" data-suffix="+">0</span>
+                </p>
+                <p class="mt-5 max-w-xs text-lg leading-snug text-ink-500">
+                    moves assisted through the platform
+                </p>
+            </div>
+
+            <dl class="grid gap-8 sm:grid-cols-3 lg:col-span-6">
+                @foreach (var stat in supporting)
+                {
+                    <div class="reveal flex flex-col-reverse border-t border-ink-200 pt-5">
+                        <dt class="mt-2 text-sm text-ink-500">@stat.Label</dt>
+                        <dd class="font-display text-4xl font-bold tracking-[-0.04em] text-ink-900">
+                            <span data-count-to="@stat.Value" data-decimals="@stat.Decimals" data-suffix="@stat.Suffix">0</span>
+                        </dd>
+                    </div>
+                }
+            </dl>
+        </div>
+
+        <p class="mt-14 text-xs text-ink-400">
+            Figures shown are placeholders for layout purposes and will be replaced with verified data.
+        </p>
+    </div>
+</section>
