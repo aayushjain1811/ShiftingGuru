@@ -45,3 +45,4 @@ publish/
 # Local uploads
 wwwroot/uploads/*
 !wwwroot/uploads/.gitkeep
+node_modules/
