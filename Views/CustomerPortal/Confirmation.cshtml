@@ -4,53 +4,56 @@
     var quote = Model.Quote;
 }
 
-<section class="relative overflow-hidden bg-ink-950 pb-20 pt-28 lg:pb-28 lg:pt-40">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden bg-hero pb-20 pt-28 lg:pb-28 lg:pt-40">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-5xl px-5 sm:px-8">
         <div class="max-w-2xl">
 
-            <span class="grid h-14 w-14 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
-                <svg class="h-7 w-7 text-ink-950" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
+            <span class="grid h-14 w-14 place-items-center border border-success-200 bg-success-50 rounded-card" aria-hidden="true">
+                <svg class="h-7 w-7 text-success-600" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
                     <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </span>
 
-            <h1 class="mt-9 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            <h1 class="mt-9 font-display text-[clamp(2.25rem,5.5vw,3.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
                 Provider selected
             </h1>
 
-            <p class="mt-7 text-lg leading-relaxed text-ink-200">
-                You've chosen <span class="text-white">@quote.VendorName</span> for your move.
+            <p class="mt-7 text-lg leading-relaxed text-ink-700">
+                You've chosen <span class="font-semibold text-ink-900">@quote.VendorName</span> for your move.
             </p>
 
-            <div class="mt-8 grid gap-px overflow-hidden bg-white/10 sm:grid-cols-3 rounded-panel">
-                <div class="bg-ink-950 p-5">
-                    <p class="text-[13px] text-ink-400">Amount</p>
-                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@Money.Format(quote.TotalAmount)</p>
+            <div class="mt-8 grid gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card sm:grid-cols-3 rounded-panel">
+                <div class="bg-white p-5">
+                    <p class="text-[13px] text-ink-500">Amount</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-ink-900">@Money.Format(quote.TotalAmount)</p>
                 </div>
-                <div class="bg-ink-950 p-5">
-                    <p class="text-[13px] text-ink-400">Quote</p>
-                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@quote.QuoteNumber</p>
+                <div class="bg-white p-5">
+                    <p class="text-[13px] text-ink-500">Quote</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-ink-900">@quote.QuoteNumber</p>
                 </div>
-                <div class="bg-ink-950 p-5">
-                    <p class="text-[13px] text-ink-400">Your request</p>
-                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-white">@lead.LeadNumber</p>
+                <div class="bg-white p-5">
+                    <p class="text-[13px] text-ink-500">Your request</p>
+                    <p class="mt-1 font-display text-xl font-bold tracking-tight text-ink-900">@lead.LeadNumber</p>
                 </div>
             </div>
 
-            <p class="mt-8 max-w-xl text-base leading-relaxed text-ink-400">
+            <p class="mt-8 max-w-xl text-base leading-relaxed text-ink-500">
                 Your chosen provider has your requirement and your contact details, and can now
                 get in touch to arrange the details of your move.
             </p>
 
             <div class="mt-10 flex flex-wrap gap-4">
-                <a href="/my-request" class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                <a href="/my-request" class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                     Back to your request
                 </a>
-                <a href="/" class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                <a href="/" class="inline-flex h-13 items-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                     ShiftingGuru home
                 </a>
             </div>

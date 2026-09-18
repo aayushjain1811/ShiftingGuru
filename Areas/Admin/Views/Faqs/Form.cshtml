@@ -18,23 +18,23 @@
 
     <div class="space-y-4 lg:col-span-2">
 
-        <section class="border border-ink-200 bg-white p-5 rounded-card">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">The question</h2>
 
             <div class="mt-4 space-y-4">
                 <div>
                     <label asp-for="Question" class="block text-[13px] font-semibold text-ink-800"></label>
                     <input asp-for="Question" placeholder="How much does moving in Gurgaon cost?"
-                           class="mt-2 block h-11 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                           class="mt-2 block h-11 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
                     <span asp-validation-for="Question" class="mt-1 block text-sm text-red-600"></span>
                 </div>
 
                 <div>
                     <label asp-for="Answer" class="block text-[13px] font-semibold text-ink-800"></label>
                     <textarea asp-for="Answer" rows="7"
-                              class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] leading-relaxed text-ink-900 rounded-card focus:border-jade-500"></textarea>
+                              class="mt-2 block w-full border border-ink-200 bg-white px-3 py-2.5 text-[15px] leading-relaxed text-ink-900 rounded-card focus:border-jade-500"></textarea>
                     <span asp-validation-for="Answer" class="mt-1 block text-sm text-red-600"></span>
-                    <p class="mt-1.5 text-xs text-ink-400">
+                    <p class="mt-1.5 text-xs text-ink-500">
                         Answer it properly. This text goes into the page's FAQ structured data, and
                         search engines compare it against what's visible.
                     </p>
@@ -42,7 +42,7 @@
             </div>
         </section>
 
-        <section class="border border-ink-200 bg-white p-5 rounded-card">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Where it appears</h2>
             <p class="mt-1.5 text-sm text-ink-500">An FAQ belongs to exactly one page.</p>
 
@@ -53,7 +53,7 @@
                     {
                         <label class="cursor-pointer">
                             <input type="radio" asp-for="OwnerType" value="@value" class="peer sr-only" />
-                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@label</span>
+                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">@label</span>
                         </label>
                     }
                 </div>
@@ -105,28 +105,28 @@
     </div>
 
     <div class="lg:col-span-1">
-        <section class="border border-ink-200 bg-white p-5 rounded-card lg:sticky lg:top-20">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel lg:sticky lg:top-20">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Display</h2>
 
             <div class="mt-4">
                 <label asp-for="DisplayOrder" class="block text-[13px] font-semibold text-ink-800"></label>
                 <input asp-for="DisplayOrder" type="number" min="0" max="999"
-                       class="mt-2 block h-11 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                       class="mt-2 block h-11 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
                 <span asp-validation-for="DisplayOrder" class="mt-1 block text-sm text-red-600"></span>
-                <p class="mt-1.5 text-xs text-ink-400">Lower numbers appear first.</p>
+                <p class="mt-1.5 text-xs text-ink-500">Lower numbers appear first.</p>
             </div>
 
             <label class="mt-5 flex items-start gap-3">
                 <input asp-for="IsPublished" type="checkbox" class="mt-0.5 h-4 w-4 accent-jade-500" />
                 <span>
                     <span class="block text-sm font-medium text-ink-800">Published</span>
-                    <span class="mt-0.5 block text-xs leading-relaxed text-ink-400">
+                    <span class="mt-0.5 block text-xs leading-relaxed text-ink-500">
                         Shows on the page and in its FAQ structured data.
                     </span>
                 </span>
             </label>
 
-            <button type="submit" class="mt-5 h-11 w-full bg-ink-900 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+            <button type="submit" class="mt-5 h-11 w-full bg-jade-500 text-sm font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                 @(Model.IsEdit ? "Save changes" : "Create FAQ")
             </button>
         </section>

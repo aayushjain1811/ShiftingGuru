@@ -13,7 +13,7 @@
             Back to quotes
         </a>
 
-        <div class="mt-5 border border-ink-200 bg-white p-7 rounded-panel">
+        <div class="mt-5 border border-ink-200 bg-white p-7 shadow-card rounded-panel">
 
             <h1 class="font-display text-2xl font-bold leading-tight tracking-[-0.03em] text-ink-900">
                 Choose @quote.VendorName?
@@ -47,12 +47,12 @@
                 @Html.AntiForgeryToken()
 
                 <button type="submit"
-                        class="h-12 flex-1 bg-jade-500 text-sm font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                        class="h-12 flex-1 bg-jade-500 text-sm font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                     Confirm provider
                 </button>
 
                 <a href="/my-request/quotes"
-                   class="grid h-12 flex-1 place-items-center border border-ink-200 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                   class="grid h-12 flex-1 place-items-center border border-ink-200 text-sm font-medium text-ink-800 bg-white rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                     Cancel
                 </a>
             </form>

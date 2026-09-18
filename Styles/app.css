@@ -1,6 +1,7 @@
 /* ---------------------------------------------------------------
    ShiftingGuru - Tailwind source file
-   Build:  ./tailwindcss -i Styles/app.css -o wwwroot/css/site.css --watch
+   Build:  npm run build:css      (one time)
+   Watch:  npm run watch:css      (rebuilds on every save)
    --------------------------------------------------------------- */
 
 @import "tailwindcss";
@@ -15,31 +16,55 @@
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Near-black with a blue cast. Deeper than the old navy. */
-  --color-ink-950: #060a0f;
-  --color-ink-900: #0a1119;
-  --color-ink-800: #131c26;
-  --color-ink-700: #22303f;
-  --color-ink-500: #55697e;
-  --color-ink-400: #7e8fa1;
-  --color-ink-200: #c6cfd8;
-  --color-ink-100: #e5eaef;
-  --color-ink-50: #f5f7f9;
-  --color-paper: #fafaf8;
+  /* ---- Light premium palette ----
+     Names stay "ink" / "jade" / "paper" so the 61 views keep working.
+     ink-950 = primary navy (#1E2A44), used for the few dark surfaces
+               (footer, admin sidebar) and dark text.
+     ink-900 = heading colour (#182238). Slightly deeper than ink-950 on
+               purpose: headings need the strongest contrast.
+     ink-500 = body text, ink-200 = borders. */
+  --color-ink-950: #1e2a44;
+  --color-ink-900: #182238;
+  --color-ink-800: #2a3550;
+  --color-ink-700: #475467;
+  --color-ink-600: #5b6478;
+  --color-ink-500: #667085;
+  --color-ink-400: #98a2b3;
+  --color-ink-300: #d0d5dd;
+  --color-ink-200: #e6e8ed;
+  --color-ink-100: #eff1f4;
+  --color-ink-50: #f7f5f0;
 
-  /* Jade is the action colour. Every mover in India uses orange or
-     red, so green reads differently and also means "go". */
-  --color-jade-600: #0b7d57;
-  --color-jade-500: #0e9f6e;
-  --color-jade-400: #22c58a;
-  --color-jade-100: #dff5ec;
+  /* Backgrounds */
+  --color-paper: #fcfaf6;   /* main background */
+  --color-hero: #fefdfb;    /* hero background */
+
+  /* CTA blue. 500 = buttons and links, 600 = hover, 400 = light blue for
+     text on navy, 100 = soft blue accent, 50 = faintest tint. */
+  --color-jade-600: #2747a8;
+  --color-jade-500: #3156c6;
+  --color-jade-400: #93a9f0;
+  --color-jade-100: #dce6ff;
+  --color-jade-50: #f3f6ff;
+
+  /* Success / verified */
+  --color-success-700: #25624f;
+  --color-success-600: #2f7d65;
+  --color-success-200: #c4e2d6;
+  --color-success-50: #ebf5f1;
 
   /* Amber survives for one job only: star ratings. */
   --color-amber-400: #f5a623;
 
-  /* Sharper than before. Editorial, not app-store. */
-  --radius-card: 3px;
-  --radius-panel: 4px;
+  /* Softer corners for a modern, calm feel. */
+  --radius-card: 8px;
+  --radius-panel: 12px;
+
+  /* Very subtle shadows. card = resting cards, float = the hero form,
+     cta = a soft blue lift under primary buttons. */
+  --shadow-card: 0 1px 2px rgb(24 34 56 / 0.04), 0 6px 20px -10px rgb(24 34 56 / 0.08);
+  --shadow-float: 0 1px 2px rgb(24 34 56 / 0.04), 0 28px 56px -28px rgb(24 34 56 / 0.2);
+  --shadow-cta: 0 10px 24px -12px rgb(49 86 198 / 0.55);
 }
 
 html {
@@ -129,10 +154,10 @@ body {
 }
 
 .site-header.is-condensed {
-  background-color: rgb(250 250 248 / 0.92);
+  background-color: rgb(252 250 246 / 0.9);
   backdrop-filter: blur(10px);
   border-color: var(--color-ink-100);
-  box-shadow: 0 1px 0 rgb(10 17 25 / 0.04);
+  box-shadow: 0 1px 0 rgb(24 34 56 / 0.05);
 }
 
 /* --- List rows that fill from the left on hover --- */
@@ -155,6 +180,12 @@ body {
 .fill-row:hover::before,
 .fill-row:focus-within::before {
   transform: scaleX(1);
+}
+
+/* Light version of the row fill: a faint blue wash instead of navy.
+   Use together with .fill-row, and keep the text dark on hover. */
+.fill-row-soft::before {
+  background-color: var(--color-jade-50);
 }
 
 /* --- Mobile drawer --- */
@@ -180,7 +211,7 @@ body {
   transform: rotate(45deg);
 }
 
-/* --- Hairline grid used behind dark panels --- */
+/* --- Hairline grid used behind dark panels (older pages only) --- */
 .grid-veil {
   background-image:
     linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
@@ -234,10 +265,10 @@ body {
   }
 }
 
-/* Navbar colours flip when it condenses over light background. */
+/* Navbar colours once it condenses after scrolling. */
 .site-header.is-condensed [data-header-word] { color: var(--color-ink-900); }
 .site-header.is-condensed [data-header-link] { color: var(--color-ink-700); }
-.site-header.is-condensed [data-header-link]:hover { color: var(--color-ink-900); }
+.site-header.is-condensed [data-header-link]:hover { color: var(--color-jade-500); }
 .site-header.is-condensed [data-header-icon] { color: var(--color-ink-900); }
 .site-header.is-condensed #menu-toggle { border-color: var(--color-ink-200); }
 
@@ -279,8 +310,6 @@ html:not(.js-steps) [data-nav-next] {
 [data-step-marker].is-done span {
   color: var(--color-ink-500);
 }
-
-/* Admin area markup lives outside /Views, so Tailwind needs to scan it too. */
 
 /* ---------------------------------------------------------------
    Admin sidebar. Slides in from the left on mobile; becomes a plain

@@ -4,19 +4,23 @@
     var heroPoints = new[] { "Verified professionals", "Multiple quotes", "Easy comparison", "Pan-India network" };
 }
 
-<section class="relative overflow-hidden bg-ink-950 pt-28 lg:pt-36">
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 lg:pt-36">
 
-    @* The signature visual: an abstract route network. Drawn once, then
-       static. No photography needed and it weighs about 2 KB. *@
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-32 h-[620px] w-[620px] rounded-full bg-jade-500/12 blur-[120px]"></div>
+    @* The signature visual: an abstract route network plus two very faint
+       arcs. No grid, no glow. SVG colours can't use Tailwind classes, so
+       they are written here directly (#3156C6 = CTA blue).
+       Only the two dots are <circle> elements, because the node-pop
+       animation delays count circles in order. *@
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
         <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMid slice" fill="none">
+            <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+            <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
             <path class="route-path" d="M-60 690 C 240 690, 320 470, 620 470 S 1020 250, 1500 190"
-                  stroke="rgb(34 197 138 / 0.5)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
+                  stroke="rgb(49 86 198 / 0.22)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
             <path class="route-path" d="M-60 780 C 320 780, 460 620, 780 600 S 1180 520, 1500 420"
-                  stroke="rgb(255 255 255 / 0.12)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
-            <circle class="node-pop" cx="620" cy="470" r="4.5" fill="#22C58A" />
-            <circle class="node-pop" cx="1180" cy="255" r="4.5" fill="#22C58A" />
+                  stroke="rgb(49 86 198 / 0.1)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
+            <circle class="node-pop" cx="620" cy="470" r="4.5" fill="#3156C6" />
+            <circle class="node-pop" cx="1180" cy="255" r="4.5" fill="#3156C6" />
         </svg>
     </div>
 
@@ -27,38 +31,38 @@
             <!-- Message -->
             <div class="lg:col-span-7 lg:pb-28 xl:col-span-7">
 
-                <p class="flex items-center gap-3 text-[13px] font-medium tracking-wide text-jade-400">
-                    <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+                <p class="flex items-center gap-3 text-[13px] font-medium tracking-wide text-jade-500">
+                    <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
                     Moving &amp; logistics marketplace
                 </p>
 
                 @* Three lines, each rising in turn on load. This is the only
                    page-load animation on the site. *@
-                <h1 class="line-rise mt-7 font-display text-[clamp(2.75rem,8vw,5.5rem)] font-extrabold leading-[0.95] tracking-[-0.045em] text-white">
+                <h1 class="line-rise mt-7 font-display text-[clamp(2.75rem,8vw,5.5rem)] font-extrabold leading-[0.95] tracking-[-0.045em] text-ink-900">
                     <span>Your move.</span>
                     <span>Our network.</span>
-                    <span class="text-jade-400">Zero hassle.</span>
+                    <span class="text-jade-500">Zero hassle.</span>
                 </h1>
 
-                <p class="mt-8 max-w-md text-lg leading-relaxed text-ink-200">
+                <p class="mt-8 max-w-md text-lg leading-relaxed text-ink-500">
                     Find trusted moving and logistics professionals, compare your options,
                     and move with confidence.
                 </p>
 
                 <a href="#get-quotes"
-                   class="mt-8 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400 lg:hidden">
+                   class="mt-8 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 lg:hidden">
                     Get Free Quotes
                 </a>
 
-                <ul class="mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-white/10 pt-8">
+                <ul class="mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-ink-200 pt-8">
                     @foreach (var point in heroPoints)
                     {
                         <li class="flex items-start gap-2.5">
-                            <svg class="mt-1 h-3.5 w-3.5 shrink-0 text-jade-400" viewBox="0 0 20 20" fill="none"
+                            <svg class="mt-1 h-3.5 w-3.5 shrink-0 text-success-600" viewBox="0 0 20 20" fill="none"
                                  stroke="currentColor" stroke-width="2.6" aria-hidden="true">
                                 <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span class="text-sm text-ink-200">@point</span>
+                            <span class="text-sm text-ink-700">@point</span>
                         </li>
                     }
                 </ul>
@@ -68,11 +72,11 @@
                That overlap is what gives the page depth without an image. *@
             <div class="lg:col-span-5 lg:-mb-24 lg:pt-4">
                 <div id="get-quotes"
-                     class="scroll-mt-28 border border-ink-100 bg-white p-6 shadow-[0_28px_70px_-24px_rgb(6_10_15/0.55)] rounded-panel sm:p-8">
+                     class="scroll-mt-28 border border-ink-200 bg-white p-6 shadow-float rounded-panel sm:p-8">
 
                     <div class="flex items-baseline justify-between">
                         <h2 class="font-display text-[22px] font-bold tracking-[-0.03em] text-ink-900">Get Free Quotes</h2>
-                        <span class="text-xs font-medium text-ink-400">Takes a minute</span>
+                        <span class="text-xs font-medium text-ink-500">Takes a minute</span>
                     </div>
                     <p class="mt-2 text-[15px] leading-relaxed text-ink-500">
                         Tell us the basics. We'll match you with relevant professionals.
@@ -116,7 +120,7 @@
                         </div>
 
                         <button type="submit"
-                                class="group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-ink-900 px-6 text-base font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                                class="group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-jade-500 px-6 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                             Get Free Quotes
                             <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
                                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -124,7 +128,7 @@
                             </svg>
                         </button>
 
-                        <p class="text-center text-xs text-ink-400">Free to use. No obligation to book.</p>
+                        <p class="text-center text-xs text-ink-500">Free to use. No obligation to book.</p>
                     </form>
                 </div>
             </div>

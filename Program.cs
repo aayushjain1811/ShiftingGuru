@@ -33,6 +33,7 @@ builder.Services.AddScoped<ISeoService, SeoService>();
 builder.Services.AddHttpContextAccessor();       // AuditService needs it
 builder.Services.AddScoped<IAuditService, AuditService>();
 
+
 // ---------------------------------------------------------------
 // Email and notifications
 // ---------------------------------------------------------------
@@ -149,5 +150,6 @@ await AdminSeeder.SeedAsync(app.Services);
 // Seven cities and five routes as DRAFTS. Nothing is published until an admin
 // reviews the content, so /locations is empty on first run by design.
 await SeoSeeder.SeedAsync(app.Services);
+await CityCatalogSeeder.SeedAsync(app.Services);
 
 app.Run();

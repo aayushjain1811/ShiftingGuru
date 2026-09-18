@@ -4,21 +4,21 @@
    Featured services take a double-width tile. *@
 <li class="@(Model.IsFeatured ? "col-span-2" : "")">
     <a href="/services/@Model.Slug"
-       class="group relative flex h-full flex-col bg-white p-6 transition-colors duration-200 hover:bg-ink-900 lg:p-8">
+       class="group relative flex h-full flex-col bg-white p-6 transition-colors duration-200 hover:bg-jade-50 lg:p-8">
 
-        <svg class="h-6 w-6 text-ink-900 transition-colors duration-200 group-hover:text-jade-400"
+        <svg class="h-6 w-6 text-jade-500 transition-colors duration-200 group-hover:text-jade-600"
              viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="@Model.IconPath" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
 
-        <h3 class="@(Model.IsFeatured ? "mt-14 lg:text-2xl" : "mt-10") font-display text-lg font-bold tracking-[-0.03em] text-ink-900 transition-colors duration-200 group-hover:text-white">
+        <h3 class="@(Model.IsFeatured ? "mt-14 lg:text-2xl" : "mt-10") font-display text-lg font-bold tracking-[-0.03em] text-ink-900 transition-colors duration-200">
             @Model.Name
         </h3>
-        <p class="mt-2 max-w-[30ch] flex-1 text-sm leading-relaxed text-ink-500 transition-colors duration-200 group-hover:text-ink-200">
+        <p class="mt-2 max-w-[30ch] flex-1 text-sm leading-relaxed text-ink-500">
             @Model.ShortDescription
         </p>
 
-        <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ink-900 transition-colors duration-200 group-hover:text-jade-400">
+        <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-jade-500 transition-colors duration-200 group-hover:text-jade-600">
             View service
             <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1.5"
                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">

@@ -31,7 +31,7 @@
 
     <div class="space-y-4 lg:col-span-2">
 
-        <section class="border border-ink-200 bg-white p-5 rounded-card">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Quote</h2>
             <dl class="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
@@ -49,7 +49,7 @@
             </dl>
         </section>
 
-        <section class="border border-ink-200 bg-white p-5 rounded-card">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Pricing</h2>
             <dl class="mt-4 divide-y divide-ink-100 border-y border-ink-100">
                 @foreach (var line in lines)
@@ -66,7 +66,7 @@
             </div>
         </section>
 
-        <section class="border border-ink-200 bg-white p-5 rounded-card">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Timing</h2>
             <dl class="mt-4 grid gap-4 sm:grid-cols-3">
                 <div>
@@ -86,7 +86,7 @@
 
         @if (!string.IsNullOrWhiteSpace(quote.VendorNotes))
         {
-            <section class="border border-ink-200 bg-white p-5 rounded-card">
+            <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
                 <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Your notes</h2>
                 <p class="mt-3 whitespace-pre-line text-sm leading-relaxed text-ink-800">@quote.VendorNotes</p>
             </section>
@@ -94,7 +94,7 @@
     </div>
 
     <div class="lg:col-span-1">
-        <section class="border border-ink-200 bg-white p-5 rounded-card lg:sticky lg:top-6">
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel lg:sticky lg:top-6">
             <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">The lead</h2>
             <dl class="mt-4 space-y-3">
                 <div>
@@ -119,20 +119,20 @@
 
             <div class="mt-5 space-y-2.5 border-t border-ink-100 pt-4">
                 <a href="/partner/leads/@lead.Id"
-                   class="grid h-11 place-items-center border border-ink-200 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+                   class="grid h-11 place-items-center border border-ink-200 text-sm font-medium text-ink-800 bg-white rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                     View the lead
                 </a>
 
                 @if (quote.IsEditableByVendor)
                 {
                     <a href="/partner/quotes/@quote.Id/edit"
-                       class="grid h-11 place-items-center bg-ink-900 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                       class="grid h-11 place-items-center bg-jade-500 text-sm font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                         Edit quote
                     </a>
                 }
                 else
                 {
-                    <p class="text-xs leading-relaxed text-ink-400">
+                    <p class="text-xs leading-relaxed text-ink-500">
                         A @QuoteBadge.Label(quote.Status).ToLowerInvariant() quote can no longer be edited.
                     </p>
                 }

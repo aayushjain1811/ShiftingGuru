@@ -12,27 +12,30 @@
     };
 }
 
-<section class="relative overflow-hidden bg-ink-950 pb-16 pt-28 lg:pb-20 lg:pt-40">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[560px] w-[560px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pb-16 pt-28 lg:pb-20 lg:pt-40">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <partial name="_Breadcrumbs" model="seo!.Breadcrumbs" />
 
-        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
-            <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+            <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
             @location.Display
         </p>
 
         @* The one H1 on the page, from the database so every city differs. *@
-        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
             @location.H1
         </h1>
 
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">@location.ShortDescription</p>
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-500">@location.ShortDescription</p>
 
-        <a href="/quote" class="mt-10 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+        <a href="/quote" class="mt-10 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
             Get Free Quotes
         </a>
     </div>
@@ -61,19 +64,19 @@
             Services available here
         </h2>
 
-        <ul class="mt-12 grid grid-cols-2 gap-px bg-ink-200 lg:grid-cols-4">
+        <ul class="mt-12 grid grid-cols-2 gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel lg:grid-cols-4">
             @foreach (var service in Model.Services)
             {
                 <li>
-                    <a href="/services/@service.Slug" class="group flex h-full flex-col bg-paper p-6 transition-colors hover:bg-ink-900">
-                        <svg class="h-6 w-6 text-ink-900 transition-colors group-hover:text-jade-400" viewBox="0 0 20 20"
+                    <a href="/services/@service.Slug" class="group flex h-full flex-col bg-white p-6 transition-colors hover:bg-jade-50">
+                        <svg class="h-6 w-6 text-jade-500 transition-colors group-hover:text-jade-600" viewBox="0 0 20 20"
                              fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                             <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
-                        <h3 class="mt-8 font-display text-base font-bold tracking-[-0.02em] text-ink-900 transition-colors group-hover:text-white">
+                        <h3 class="mt-8 font-display text-base font-bold tracking-[-0.02em] text-ink-900">
                             @service.Name
                         </h3>
-                        <p class="mt-2 text-sm leading-relaxed text-ink-500 transition-colors group-hover:text-ink-200">
+                        <p class="mt-2 text-sm leading-relaxed text-ink-500">
                             @service.ShortDescription
                         </p>
                     </a>
@@ -86,21 +89,21 @@
 @* Only rendered when routes actually exist for this city. *@
 @if (Model.Routes.Count > 0)
 {
-    <section class="bg-ink-950" aria-labelledby="routes-heading">
+    <section class="bg-white" aria-labelledby="routes-heading">
         <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
-            <h2 id="routes-heading" class="max-w-2xl font-display text-[clamp(1.75rem,4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-white">
+            <h2 id="routes-heading" class="max-w-2xl font-display text-[clamp(1.75rem,4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-ink-900">
                 Routes from and to @location.Name
             </h2>
 
-            <ul class="mt-12 border-t border-white/12">
+            <ul class="mt-12 border-t border-ink-200">
                 @foreach (var route in Model.Routes)
                 {
-                    <li class="border-b border-white/12">
+                    <li class="border-b border-ink-200">
                         <a href="@route.Url" class="group flex items-center justify-between gap-4 py-6">
-                            <span class="font-display text-[clamp(1.25rem,3vw,2rem)] font-bold leading-none tracking-[-0.04em] text-white transition-colors group-hover:text-jade-400">
+                            <span class="font-display text-[clamp(1.25rem,3vw,2rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">
                                 @route.Label
                             </span>
-                            <svg class="h-4 w-4 shrink-0 text-ink-500 transition-transform duration-200 group-hover:translate-x-2"
+                            <svg class="h-4 w-4 shrink-0 text-ink-300 transition-all duration-200 group-hover:translate-x-2 group-hover:text-jade-500"
                                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
@@ -112,7 +115,7 @@
     </section>
 }
 
-<section class="bg-white" aria-labelledby="how-heading">
+<section class="border-t border-ink-100 bg-white" aria-labelledby="how-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
         <h2 id="how-heading" class="max-w-2xl font-display text-[clamp(1.75rem,4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-ink-900">
             How it works
@@ -122,7 +125,7 @@
             @foreach (var step in steps)
             {
                 <li class="border-t border-ink-200 pt-6">
-                    <span class="font-display text-sm font-bold text-jade-600">@step.Number</span>
+                    <span class="font-display text-sm font-bold text-jade-500">@step.Number</span>
                     <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@step.Title</h3>
                     <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">@step.Body</p>
                 </li>
@@ -135,7 +138,7 @@
 
 @if (Model.OtherLocations.Count > 0)
 {
-    <section class="border-t border-ink-100 bg-paper" aria-labelledby="other-heading">
+    <section class="bg-white" aria-labelledby="other-heading">
         <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
             <h2 id="other-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">Other cities</h2>
 
@@ -143,7 +146,7 @@
                 @foreach (var other in Model.OtherLocations)
                 {
                     <li>
-                        <a href="@other.Url" class="inline-flex min-h-11 items-center border border-ink-200 px-4 text-[15px] font-medium text-ink-800 rounded-card transition-colors hover:border-ink-900 hover:bg-ink-900 hover:text-white">
+                        <a href="@other.Url" class="inline-flex min-h-11 items-center border border-ink-200 bg-white px-4 text-[15px] font-medium text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:bg-jade-50 hover:text-jade-600">
                             @other.Name
                         </a>
                     </li>

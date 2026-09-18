@@ -23,7 +23,7 @@
         <div asp-validation-summary="ModelOnly"
              class="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card empty:hidden"></div>
 
-        <form method="post" action="/my-request/review" class="mt-7 border border-ink-200 bg-white p-6 rounded-panel sm:p-7">
+        <form method="post" action="/my-request/review" class="mt-7 border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-7">
             @Html.AntiForgeryToken()
 
             @* Real radio inputs: arrow keys work, the form submits without
@@ -62,15 +62,15 @@
                 <textarea asp-for="Comment" rows="5" placeholder="How was the packing, the timing, the handling? What would you tell a friend?"
                           class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500"></textarea>
                 <span asp-validation-for="Comment" class="mt-1 block text-sm text-red-600"></span>
-                <p class="mt-1.5 text-xs text-ink-400">Between 10 and 1000 characters.</p>
+                <p class="mt-1.5 text-xs text-ink-500">Between 10 and 1000 characters.</p>
             </div>
 
             <button type="submit"
-                    class="mt-6 h-12 w-full bg-jade-500 text-[15px] font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                    class="mt-6 h-12 w-full bg-jade-500 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                 @(Model.IsEdit ? "Save changes" : "Submit review")
             </button>
 
-            <p class="mt-4 text-xs leading-relaxed text-ink-400">
+            <p class="mt-4 text-xs leading-relaxed text-ink-500">
                 Reviews are checked by our team before they're published. Your review shows your
                 first name and last initial only.
             </p>

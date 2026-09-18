@@ -12,24 +12,27 @@
     var durations = new[] { "Under 1 month", "1-3 months", "3-6 months", "6+ months" };
 }
 
-<section class="relative overflow-hidden bg-ink-950 pt-28 pb-16 lg:pt-40 lg:pb-20">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-16 lg:pt-40 lg:pb-20">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <nav aria-label="Breadcrumb">
-            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
-                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
-                <li aria-hidden="true">/</li>
-                <li><span class="text-ink-200" aria-current="page">Get Free Quotes</span></li>
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
+                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li class="text-ink-300" aria-hidden="true">/</li>
+                <li><span class="font-medium text-ink-900" aria-current="page">Get Free Quotes</span></li>
             </ol>
         </nav>
 
-        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
             Tell us about your move
         </h1>
-        <p class="mt-6 max-w-lg text-lg leading-relaxed text-ink-200">
+        <p class="mt-6 max-w-lg text-lg leading-relaxed text-ink-500">
             Four short steps. We'll pass your requirement to professionals who handle
             this kind of work, and they'll come back to you.
         </p>
@@ -78,7 +81,7 @@
                 @* Without JavaScript every step is visible and this behaves as one
                    long form. quote.js adds .js-steps to switch on step mode. *@
                 <form id="quote-form" method="post" asp-action="Index" novalidate
-                      class="border border-ink-200 bg-white">
+                      class="overflow-hidden border border-ink-200 bg-white shadow-card rounded-panel">
 
                     <div asp-validation-summary="ModelOnly" class="border-b border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700 empty:hidden"></div>
 
@@ -96,15 +99,15 @@
                                 <label class="group relative block cursor-pointer">
                                     <input type="radio" asp-for="ServiceSlug" value="@service.Slug" data-service-option
                                            class="peer sr-only" />
-                                    <span class="flex h-full flex-col border border-ink-200 bg-white p-5 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
-                                        <svg class="h-5 w-5 text-ink-900 group-has-[:checked]:text-jade-400" viewBox="0 0 20 20"
+                                    <span class="flex h-full flex-col border border-ink-200 bg-white p-5 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
+                                        <svg class="h-5 w-5 text-jade-500 group-has-[:checked]:text-jade-600" viewBox="0 0 20 20"
                                              fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                             <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
-                                        <span class="mt-5 font-display text-base font-bold tracking-[-0.02em] text-ink-900 group-has-[:checked]:text-white">
+                                        <span class="mt-5 font-display text-base font-bold tracking-[-0.02em] text-ink-900 group-has-[:checked]:text-jade-600">
                                             @service.Name
                                         </span>
-                                        <span class="mt-1.5 text-sm leading-relaxed text-ink-500 group-has-[:checked]:text-ink-200">
+                                        <span class="mt-1.5 text-sm leading-relaxed text-ink-500">
                                             @service.ShortDescription
                                         </span>
                                     </span>
@@ -130,9 +133,9 @@
                                 </div>
 
                                 <button type="button" data-swap-locations
-                                        class="mb-1 grid h-12 w-12 shrink-0 place-items-center border border-ink-200 bg-white rounded-card transition-colors hover:border-ink-900 sm:mb-7"
+                                        class="mb-1 grid h-12 w-12 shrink-0 place-items-center border border-ink-200 bg-white text-ink-700 rounded-card transition-colors hover:border-jade-500 hover:text-jade-500 sm:mb-7"
                                         aria-label="Swap moving from and moving to">
-                                    <svg class="h-4 w-4 text-ink-700" viewBox="0 0 20 20" fill="none"
+                                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none"
                                          stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                                         <path d="M6 4L3 7l3 3M3 7h11M14 16l3-3-3-3M17 13H6" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg>
@@ -179,7 +182,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="PropertyType" value="@type" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@type</span>
                                         </label>
                                     }
                                 </div>
@@ -201,7 +204,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="OfficeSize" value="@size" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@size</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@size</span>
                                         </label>
                                     }
                                 </div>
@@ -223,7 +226,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="VehicleType" value="@type" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@type</span>
                                         </label>
                                     }
                                 </div>
@@ -243,7 +246,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="VehicleCondition" value="@condition" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@condition</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@condition</span>
                                         </label>
                                     }
                                 </div>
@@ -258,7 +261,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="VehicleType" value="@type" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@type</span>
                                         </label>
                                     }
                                 </div>
@@ -279,7 +282,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="GoodsType" value="@type" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@type</span>
                                         </label>
                                     }
                                 </div>
@@ -307,7 +310,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="StorageType" value="@type" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@type</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@type</span>
                                         </label>
                                     }
                                 </div>
@@ -321,7 +324,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="StorageDuration" value="@duration" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@duration</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@duration</span>
                                         </label>
                                     }
                                 </div>
@@ -367,7 +370,7 @@
                                 </div>
 
                                 <div>
-                                    <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800">Email address <span class="font-normal text-ink-400">(optional)</span></label>
+                                    <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800">Email address <span class="font-normal text-ink-500">(optional)</span></label>
                                     <input asp-for="Email" type="email" autocomplete="email" placeholder="you@@example.com"
                                            class="mt-2 block h-12 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
                                     <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
@@ -381,7 +384,7 @@
                                     {
                                         <label class="cursor-pointer">
                                             <input type="radio" asp-for="PreferredContactMethod" value="@method" class="peer sr-only" />
-                                            <span class="inline-flex h-11 items-center border border-ink-200 px-4 text-[15px] text-ink-800 rounded-card transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white">@method</span>
+                                            <span class="inline-flex h-11 items-center border border-ink-200 bg-white px-4 text-[15px] text-ink-800 rounded-card transition-colors hover:border-ink-300 peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600">@method</span>
                                         </label>
                                     }
                                 </div>
@@ -402,12 +405,12 @@
                     <!-- ===== Navigation ===== -->
                     <div class="flex flex-col-reverse gap-3 border-t border-ink-200 bg-paper p-6 sm:flex-row sm:items-center sm:justify-between sm:p-9">
                         <button type="button" data-nav-back
-                                class="inline-flex h-12 items-center justify-center border border-ink-200 bg-white px-6 text-[15px] font-semibold text-ink-800 rounded-card transition-colors hover:border-ink-900">
+                                class="inline-flex h-12 items-center justify-center border border-ink-200 bg-white px-6 text-[15px] font-semibold text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                             Back
                         </button>
 
                         <button type="button" data-nav-next
-                                class="group inline-flex h-13 items-center justify-center gap-2 bg-ink-900 px-7 text-base font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                                class="group inline-flex h-13 items-center justify-center gap-2 bg-ink-950 px-7 text-base font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
                             Continue
                             <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
                                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -416,7 +419,7 @@
                         </button>
 
                         <button type="submit" data-nav-submit
-                                class="inline-flex h-13 items-center justify-center bg-jade-500 px-8 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                                class="inline-flex h-13 items-center justify-center bg-jade-500 px-8 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                             Submit Request
                         </button>
                     </div>

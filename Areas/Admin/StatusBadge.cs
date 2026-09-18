@@ -10,12 +10,13 @@ public static class StatusBadge
 {
     public static string Classes(LeadStatus status) => status switch
     {
-        LeadStatus.New => "bg-jade-100 text-jade-600 border-jade-500/30",
+        LeadStatus.New => "bg-jade-50 text-jade-600 border-jade-100",
         LeadStatus.Contacted => "bg-sky-50 text-sky-700 border-sky-200",
         LeadStatus.Assigned => "bg-indigo-50 text-indigo-700 border-indigo-200",
         LeadStatus.InProgress => "bg-amber-50 text-amber-700 border-amber-200",
         LeadStatus.Quoted => "bg-violet-50 text-violet-700 border-violet-200",
-        LeadStatus.Converted => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        LeadStatus.Converted => "bg-success-50 text-success-600 border-success-200",
+        LeadStatus.Completed => "bg-success-50 text-success-600 border-success-200",
         LeadStatus.Closed => "bg-ink-100 text-ink-600 border-ink-200",
         LeadStatus.Cancelled => "bg-red-50 text-red-700 border-red-200",
         _ => "bg-ink-100 text-ink-600 border-ink-200"
@@ -31,7 +32,7 @@ public static class VendorBadge
     public static string Classes(VendorStatus status) => status switch
     {
         VendorStatus.Pending => "bg-amber-50 text-amber-700 border-amber-200",
-        VendorStatus.Approved => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        VendorStatus.Approved => "bg-success-50 text-success-600 border-success-200",
         VendorStatus.Rejected => "bg-red-50 text-red-700 border-red-200",
         VendorStatus.Suspended => "bg-ink-100 text-ink-600 border-ink-200",
         _ => "bg-ink-100 text-ink-600 border-ink-200"
@@ -46,7 +47,7 @@ public static class AssignmentBadge
         AssignmentStatus.Assigned => "bg-sky-50 text-sky-700 border-sky-200",
         AssignmentStatus.Viewed => "bg-violet-50 text-violet-700 border-violet-200",
         AssignmentStatus.Declined => "bg-red-50 text-red-700 border-red-200",
-        AssignmentStatus.Completed => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        AssignmentStatus.Completed => "bg-success-50 text-success-600 border-success-200",
         AssignmentStatus.Expired => "bg-ink-100 text-ink-600 border-ink-200",
         AssignmentStatus.Cancelled => "bg-ink-100 text-ink-500 border-ink-200",
         _ => "bg-ink-100 text-ink-600 border-ink-200"
@@ -54,7 +55,7 @@ public static class AssignmentBadge
 
     public static string MatchClasses(ShiftingGuru.ViewModels.Admin.MatchLevel level) => level switch
     {
-        ShiftingGuru.ViewModels.Admin.MatchLevel.Match => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        ShiftingGuru.ViewModels.Admin.MatchLevel.Match => "bg-success-50 text-success-600 border-success-200",
         ShiftingGuru.ViewModels.Admin.MatchLevel.Partial => "bg-amber-50 text-amber-700 border-amber-200",
         _ => "bg-ink-100 text-ink-500 border-ink-200"
     };
@@ -75,7 +76,7 @@ public static class QuoteBadge
         QuoteStatus.Draft => "bg-ink-100 text-ink-600 border-ink-200",
         QuoteStatus.Submitted => "bg-sky-50 text-sky-700 border-sky-200",
         QuoteStatus.UnderReview => "bg-amber-50 text-amber-700 border-amber-200",
-        QuoteStatus.Accepted => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        QuoteStatus.Accepted => "bg-success-50 text-success-600 border-success-200",
         QuoteStatus.NotSelected => "bg-ink-100 text-ink-600 border-ink-200",
         QuoteStatus.Rejected => "bg-red-50 text-red-700 border-red-200",
         QuoteStatus.Expired => "bg-ink-100 text-ink-500 border-ink-200",
@@ -96,7 +97,7 @@ public static class NotificationBadge
 {
     public static string Classes(NotificationStatus status) => status switch
     {
-        NotificationStatus.Sent => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        NotificationStatus.Sent => "bg-success-50 text-success-600 border-success-200",
         NotificationStatus.Pending => "bg-amber-50 text-amber-700 border-amber-200",
         NotificationStatus.Failed => "bg-red-50 text-red-700 border-red-200",
         _ => "bg-ink-100 text-ink-600 border-ink-200"
@@ -118,7 +119,7 @@ public static class ReviewBadge
     public static string Classes(ReviewStatus status) => status switch
     {
         ReviewStatus.Pending => "bg-amber-50 text-amber-700 border-amber-200",
-        ReviewStatus.Approved => "bg-emerald-50 text-emerald-700 border-emerald-200",
+        ReviewStatus.Approved => "bg-success-50 text-success-600 border-success-200",
         ReviewStatus.Rejected => "bg-red-50 text-red-700 border-red-200",
         ReviewStatus.Hidden => "bg-ink-100 text-ink-600 border-ink-200",
         _ => "bg-ink-100 text-ink-600 border-ink-200"

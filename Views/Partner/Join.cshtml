@@ -10,29 +10,32 @@
     };
 }
 
-<section class="relative overflow-hidden bg-ink-950 pt-28 pb-16 lg:pt-40 lg:pb-20">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-16 lg:pt-40 lg:pb-20">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <nav aria-label="Breadcrumb">
-            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-400">
-                <li><a href="/" class="transition-colors hover:text-white">Home</a></li>
-                <li aria-hidden="true">/</li>
-                <li><span class="text-ink-200" aria-current="page">Join as Partner</span></li>
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
+                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li class="text-ink-300" aria-hidden="true">/</li>
+                <li><span class="font-medium text-ink-900" aria-current="page">Join as Partner</span></li>
             </ol>
         </nav>
 
-        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
-            <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+            <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
             For moving &amp; logistics businesses
         </p>
 
-        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
             Grow your business with ShiftingGuru
         </h1>
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-500">
             Verified moving and logistics businesses receive relevant customer enquiries
             through the platform. Tell us about your business and our team will review it.
         </p>
@@ -59,13 +62,13 @@
 
                     <p class="mt-8 text-sm text-ink-500">
                         Already registered?
-                        <a href="/partner/login" class="font-semibold text-jade-600 hover:text-jade-500">Partner login</a>
+                        <a href="/partner/login" class="font-semibold text-jade-500 transition-colors hover:text-jade-600">Partner login</a>
                     </p>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
-                <form method="post" class="border border-ink-200 bg-white">
+                <form method="post" class="overflow-hidden border border-ink-200 bg-white shadow-card rounded-panel">
 
                     <div asp-validation-summary="ModelOnly"
                          class="border-b border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700 empty:hidden"></div>
@@ -138,7 +141,7 @@
                                     <label class="cursor-pointer">
                                         <input type="checkbox" name="ServicesOffered" value="@service.Slug"
                                                checked="@isChecked" class="peer sr-only" />
-<span class="flex h-full items-center rounded-card border border-ink-200 bg-white p-4 text-[15px] font-semibold text-ink-900 transition-colors peer-checked:border-ink-900 peer-checked:bg-ink-900 peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
+<span class="flex h-full items-center rounded-card border border-ink-200 bg-white p-4 text-[15px] font-semibold text-ink-900 transition-colors peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
     @service.Name
 </span>
                                     </label>
@@ -178,7 +181,7 @@
                                     <input asp-for="Password" type="password" autocomplete="new-password"
                                            class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
                                     <span asp-validation-for="Password" class="mt-1 block text-sm text-red-600"></span>
-                                    <p class="mt-1.5 text-xs text-ink-400">At least 12 characters, with a capital, a number and a symbol.</p>
+                                    <p class="mt-1.5 text-xs text-ink-500">At least 12 characters, with a capital, a number and a symbol.</p>
                                 </div>
 
                                 <div>
@@ -197,7 +200,7 @@
                             every business before approving it.
                         </p>
                         <button type="submit"
-                                class="h-13 shrink-0 bg-jade-500 px-8 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                                class="h-13 shrink-0 bg-jade-500 px-8 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                             Submit application
                         </button>
                     </div>

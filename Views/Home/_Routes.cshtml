@@ -10,44 +10,52 @@
 
 @* Big-type rows, like a departure board. Distance is the only detail,
    because on a route list that is the only detail that matters. *@
-<section class="bg-ink-950" aria-labelledby="routes-heading">
-    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+<section class="relative overflow-hidden border-y border-ink-100 bg-paper" aria-labelledby="routes-heading">
+
+    @* One extremely faint arc, echoing the hero lines. *@
+    <svg class="pointer-events-none absolute -right-24 top-0 hidden h-full w-[720px] lg:block" viewBox="0 0 720 640"
+         fill="none" preserveAspectRatio="xMaxYMid meet" aria-hidden="true">
+        <path d="M720 40 C 520 60, 420 240, 520 420 S 700 620, 720 640" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M720 120 C 580 140, 500 280, 580 430 S 710 600, 720 620" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
 
         <div class="flex flex-wrap items-end justify-between gap-6">
             <h2 id="routes-heading"
-                class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-white">
+                class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
                 Popular long-distance routes
             </h2>
-            <p class="text-sm text-ink-400">Distances are approximate</p>
+            <p class="text-sm text-ink-500">Distances are approximate</p>
         </div>
 
-        <ul class="mt-14 border-t border-white/12">
+        <ul class="mt-14 border-t border-ink-200">
             @foreach (var route in routes)
             {
-                <li class="border-b border-white/12">
+                <li class="border-b border-ink-200">
                     <a href="/@route.Slug" class="group flex items-center justify-between gap-4 py-7 lg:py-9">
 
                         <span class="flex flex-wrap items-center gap-x-4 gap-y-1 lg:gap-x-7">
-                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-white transition-colors group-hover:text-jade-400">
+                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">
                                 @route.From
                             </span>
-                            <svg class="h-3 w-10 shrink-0 text-ink-500 transition-transform duration-300 group-hover:translate-x-2 lg:w-16"
+                            <svg class="h-3 w-10 shrink-0 text-ink-300 transition-transform duration-300 group-hover:translate-x-2 lg:w-16"
                                  viewBox="0 0 64 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                 <path d="M0 6h56M52 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
-                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-white transition-colors group-hover:text-jade-400">
+                            <span class="font-display text-[clamp(1.5rem,3.6vw,2.75rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">
                                 @route.To
                             </span>
                         </span>
 
-                        <span class="shrink-0 text-sm text-ink-400">@route.Distance</span>
+                        <span class="shrink-0 text-sm text-ink-500">@route.Distance</span>
                     </a>
                 </li>
             }
         </ul>
 
         <div class="mt-10">
-            <a href="/routes" class="group inline-flex items-center gap-2 text-base font-semibold text-white">
+            <a href="/routes" class="group inline-flex items-center gap-2 text-base font-semibold text-jade-500 transition-colors hover:text-jade-600">
                 See all routes
                 <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
                      viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">

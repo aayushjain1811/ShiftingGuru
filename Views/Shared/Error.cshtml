@@ -1,25 +1,38 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+@* The default template used Bootstrap classes (text-danger), which this
+   Tailwind site doesn't have, so the page had no styling. Same text, now
+   styled to match the site. Top padding clears the fixed navbar. *@
+<section class="bg-hero pb-24 pt-32 lg:pb-32 lg:pt-44">
+    <div class="mx-auto max-w-[1400px] px-5 sm:px-8">
+        <div class="max-w-2xl">
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+            <h1 class="font-display text-[clamp(2.25rem,6vw,4rem)] font-extrabold leading-[1] tracking-[-0.045em] text-ink-900">Error.</h1>
+            <h2 class="mt-4 text-xl font-semibold text-red-700">An error occurred while processing your request.</h2>
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+            @if (Model.ShowRequestId)
+            {
+                <p class="mt-6 text-[15px] text-ink-700">
+                    <strong class="font-semibold text-ink-900">Request ID:</strong>
+                    <code class="rounded-card border border-ink-200 bg-white px-2 py-0.5 text-sm">@Model.RequestId</code>
+                </p>
+            }
+
+            <div class="mt-10 border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-8">
+                <h3 class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Development Mode</h3>
+                <p class="mt-3 text-[15px] leading-relaxed text-ink-500">
+                    Swapping to <strong class="font-semibold text-ink-900">Development</strong> environment will display more detailed information about the error that occurred.
+                </p>
+                <p class="mt-3 text-[15px] leading-relaxed text-ink-500">
+                    <strong class="font-semibold text-ink-900">The Development environment shouldn't be enabled for deployed applications.</strong>
+                    It can result in displaying sensitive information from exceptions to end users.
+                    For local debugging, enable the <strong class="font-semibold text-ink-900">Development</strong> environment by setting the <strong class="font-semibold text-ink-900">ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong class="font-semibold text-ink-900">Development</strong>
+                    and restarting the app.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

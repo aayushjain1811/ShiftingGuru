@@ -27,25 +27,25 @@
                 }
             </select>
         </div>
-        <button type="submit" class="h-10 bg-ink-900 px-4 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">Apply</button>
+        <button type="submit" class="h-10 bg-jade-500 px-4 text-sm font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">Apply</button>
     </form>
 </div>
 
 @if (Model.TotalCount == 0)
 {
-    <div class="mt-6 border border-ink-200 bg-white p-10 text-center rounded-card">
+    <div class="mt-6 border border-ink-200 bg-white p-10 text-center shadow-card rounded-panel">
         <h2 class="text-[15px] font-semibold text-ink-900">No quotes yet</h2>
         <p class="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-500">
             When you submit a price against an assigned lead, it'll appear here.
         </p>
-        <a href="/partner/leads" class="mt-6 inline-flex h-11 items-center bg-ink-900 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+        <a href="/partner/leads" class="mt-6 inline-flex h-11 items-center bg-jade-500 px-5 text-sm font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
             View my leads
         </a>
     </div>
 }
 else
 {
-    <div class="mt-5 overflow-hidden border border-ink-200 bg-white rounded-card">
+    <div class="mt-5 overflow-hidden border border-ink-200 bg-white shadow-card rounded-panel">
 
         <div class="hidden overflow-x-auto lg:block">
             <table class="w-full text-left text-sm">
@@ -64,7 +64,7 @@ else
                 <tbody class="divide-y divide-ink-100">
                     @foreach (var row in Model.Quotes)
                     {
-                        <tr class="hover:bg-ink-50">
+                        <tr class="hover:bg-jade-50">
                             <td class="whitespace-nowrap px-4 py-3 font-medium text-ink-900">@row.QuoteNumber</td>
                             <td class="whitespace-nowrap px-4 py-3 text-ink-500">@row.LeadNumber</td>
                             <td class="px-4 py-3 text-ink-700">@row.ServiceName</td>
@@ -79,7 +79,7 @@ else
                             </td>
                             <td class="whitespace-nowrap px-4 py-3 text-ink-500">@row.CreatedAt.ToLocalTime().ToString("d MMM")</td>
                             <td class="px-4 py-3 text-right">
-                                <a href="/partner/quotes/@row.QuoteId" class="font-medium text-jade-600 hover:text-jade-500">View</a>
+                                <a href="/partner/quotes/@row.QuoteId" class="font-medium text-jade-500 transition-colors hover:text-jade-600">View</a>
                             </td>
                         </tr>
                     }
@@ -91,7 +91,7 @@ else
             @foreach (var row in Model.Quotes)
             {
                 <li>
-                    <a href="/partner/quotes/@row.QuoteId" class="block p-4 hover:bg-ink-50">
+                    <a href="/partner/quotes/@row.QuoteId" class="block p-4 hover:bg-jade-50">
                         <div class="flex items-start justify-between gap-3">
                             <p class="min-w-0 truncate text-sm font-semibold text-ink-900">@row.ServiceName</p>
                             <span class="@QuoteBadge.Classes(row.Status) shrink-0 border px-2 py-0.5 text-[12px] font-medium rounded-card">
@@ -102,7 +102,7 @@ else
                             @(row.MovingFrom is null ? row.StorageLocation ?? "-" : $"{row.MovingFrom} to {row.MovingTo}")
                         </p>
                         <p class="mt-2 text-base font-bold text-ink-900">@Money.Format(row.TotalAmount)</p>
-                        <p class="mt-1 text-xs text-ink-400">@row.QuoteNumber &middot; @row.CreatedAt.ToLocalTime().ToString("d MMM")</p>
+                        <p class="mt-1 text-xs text-ink-500">@row.QuoteNumber &middot; @row.CreatedAt.ToLocalTime().ToString("d MMM")</p>
                     </a>
                 </li>
             }
@@ -114,17 +114,17 @@ else
         <nav class="mt-4 flex flex-wrap items-center gap-1.5" aria-label="Pagination">
             @if (Model.HasPrevious)
             {
-                <a href="@Link(Model.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Previous</a>
+                <a href="@Link(Model.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">Previous</a>
             }
             @for (var p = 1; p <= Model.TotalPages; p++)
             {
                 var isCurrent = p == Model.Page;
                 <a href="@Link(p)" aria-current="@(isCurrent ? "page" : null)"
-                   class="@(isCurrent ? "border-ink-900 bg-ink-900 text-white" : "border-ink-200 bg-white text-ink-700 hover:border-ink-900") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
+                   class="@(isCurrent ? "border-jade-500 bg-jade-500 text-white" : "border-ink-200 bg-white text-ink-700 transition-colors hover:border-jade-500 hover:text-jade-600") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
             }
             @if (Model.HasNext)
             {
-                <a href="@Link(Model.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Next</a>
+                <a href="@Link(Model.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">Next</a>
             }
         </nav>
     }

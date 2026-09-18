@@ -15,7 +15,7 @@
         {
             @* Identical message whether or not anything matched, so this form
                can't be used to find out who's a customer. *@
-            <div class="mt-7 border border-jade-500/30 bg-jade-100 p-6 rounded-panel">
+            <div class="mt-7 border border-jade-100 bg-jade-50 p-6 rounded-panel">
                 <p class="text-sm leading-relaxed text-jade-600">
                     If your request matches our records, we'll send you a secure access link.
                 </p>
@@ -35,7 +35,7 @@
                 </div>
             }
 
-            <a href="/" class="mt-7 inline-flex h-12 items-center border border-ink-200 px-6 text-sm font-medium text-ink-800 rounded-card hover:border-ink-900">
+            <a href="/" class="mt-7 inline-flex h-12 items-center border border-ink-200 px-6 text-sm font-medium text-ink-800 bg-white rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                 Back to home
             </a>
         }
@@ -44,7 +44,7 @@
             <div asp-validation-summary="ModelOnly"
                  class="mt-6 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card empty:hidden"></div>
 
-            <form method="post" class="mt-7 border border-ink-200 bg-white p-6 space-y-5 rounded-panel">
+            <form method="post" class="mt-7 border border-ink-200 bg-white p-6 space-y-5 shadow-card rounded-panel">
                 @Html.AntiForgeryToken()
 
                 <div>
@@ -54,7 +54,7 @@
                     <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
                 </div>
 
-                <p class="text-center text-sm text-ink-400">or</p>
+                <p class="text-center text-sm text-ink-500">or</p>
 
                 <div>
                     <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
@@ -64,7 +64,7 @@
                 </div>
 
                 <button type="submit"
-                        class="h-12 w-full bg-ink-900 text-[15px] font-semibold text-white rounded-card transition-colors hover:bg-ink-800">
+                        class="h-12 w-full bg-jade-500 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                     Send me a link
                 </button>
             </form>

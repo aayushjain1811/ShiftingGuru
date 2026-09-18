@@ -17,17 +17,17 @@
     <nav class="mt-4 flex flex-wrap items-center gap-1.5" aria-label="Pagination">
         @if (list.HasPrevious)
         {
-            <a href="@Link(list.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Previous</a>
+            <a href="@Link(list.Page - 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">Previous</a>
         }
         @for (var p = windowStart; p <= windowEnd; p++)
         {
             var isCurrent = p == list.Page;
             <a href="@Link(p)" aria-current="@(isCurrent ? "page" : null)"
-               class="@(isCurrent ? "border-ink-900 bg-ink-900 text-white" : "border-ink-200 bg-white text-ink-700 hover:border-ink-900") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
+               class="@(isCurrent ? "border-jade-500 bg-jade-500 text-white" : "border-ink-200 bg-white text-ink-700 transition-colors hover:border-jade-500 hover:text-jade-600") grid h-9 min-w-9 place-items-center border px-3 text-sm font-medium rounded-card">@p</a>
         }
         @if (list.HasNext)
         {
-            <a href="@Link(list.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card hover:border-ink-900">Next</a>
+            <a href="@Link(list.Page + 1)" class="grid h-9 min-w-9 place-items-center border border-ink-200 bg-white px-3 text-sm font-medium text-ink-700 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">Next</a>
         }
     </nav>
 }

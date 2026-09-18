@@ -3,18 +3,21 @@
     var seo = ViewData["Seo"] as ShiftingGuru.ViewModels.Seo.SeoViewModel;
 }
 
-<section class="relative overflow-hidden bg-ink-950 pb-16 pt-28 lg:pb-20 lg:pt-40">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pb-16 pt-28 lg:pb-20 lg:pt-40">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <partial name="_Breadcrumbs" model="seo!.Breadcrumbs" />
 
-        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
             Popular moving routes
         </h1>
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-200">
+        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-500">
             Long-distance corridors we're asked about most often. Each page covers what to expect on that route.
         </p>
     </div>
@@ -35,12 +38,12 @@
                     <li class="border-b border-ink-200">
                         <a href="@route.Url" class="group flex items-center justify-between gap-4 py-6 lg:py-8">
                             <span class="flex flex-wrap items-center gap-x-4 gap-y-1 lg:gap-x-7">
-                                <span class="font-display text-[clamp(1.25rem,3vw,2.25rem)] font-bold leading-none tracking-[-0.04em] text-ink-900">@route.FromName</span>
-                                <svg class="h-3 w-10 shrink-0 text-ink-400 transition-transform duration-300 group-hover:translate-x-2 lg:w-16"
+                                <span class="font-display text-[clamp(1.25rem,3vw,2.25rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">@route.FromName</span>
+                                <svg class="h-3 w-10 shrink-0 text-ink-300 transition-transform duration-300 group-hover:translate-x-2 lg:w-16"
                                      viewBox="0 0 64 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                                     <path d="M0 6h56M52 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
                                 </svg>
-                                <span class="font-display text-[clamp(1.25rem,3vw,2.25rem)] font-bold leading-none tracking-[-0.04em] text-ink-900">@route.ToName</span>
+                                <span class="font-display text-[clamp(1.25rem,3vw,2.25rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">@route.ToName</span>
                             </span>
                         </a>
                     </li>
@@ -49,7 +52,7 @@
         }
 
         <div class="mt-12">
-            <a href="/locations" class="group inline-flex items-center gap-2 text-base font-semibold text-ink-900">
+            <a href="/locations" class="group inline-flex items-center gap-2 text-base font-semibold text-jade-500 transition-colors hover:text-jade-600">
                 Browse by city
                 <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
                      viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">

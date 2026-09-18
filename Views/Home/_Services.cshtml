@@ -16,7 +16,7 @@
             </p>
         </div>
 
-        <ul class="mt-14 grid grid-cols-2 gap-px bg-ink-100 lg:grid-cols-4">
+        <ul class="mt-14 grid grid-cols-2 gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel lg:grid-cols-4">
             @foreach (var service in Catalog.GetAll())
             {
                 <partial name="_ServiceCard" model="service" />
@@ -25,7 +25,7 @@
 
         <div class="mt-12">
             <a href="/services"
-               class="group inline-flex items-center gap-2 text-base font-semibold text-ink-900">
+               class="group inline-flex items-center gap-2 text-base font-semibold text-jade-500 transition-colors hover:text-jade-600">
                 See all services
                 <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
                      viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">

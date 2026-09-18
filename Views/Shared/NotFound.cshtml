@@ -1,43 +1,46 @@
-<section class="relative overflow-hidden bg-ink-950 pb-24 pt-32 lg:pb-32 lg:pt-44">
-    <div class="pointer-events-none absolute inset-0 grid-veil" aria-hidden="true">
-        <div class="absolute -right-40 -top-40 h-[520px] w-[520px] rounded-full bg-jade-500/12 blur-[120px]"></div>
-    </div>
+<section class="relative overflow-hidden bg-hero pb-24 pt-32 lg:pb-32 lg:pt-44">
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
 
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <div class="max-w-2xl">
 
-            <p class="flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-400">
-                <span class="h-px w-8 bg-jade-400" aria-hidden="true"></span>
+            <p class="flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+                <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
                 Error 404
             </p>
 
-            <h1 class="mt-7 font-display text-[clamp(2.5rem,7vw,5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-white">
+            <h1 class="mt-7 font-display text-[clamp(2.5rem,7vw,5rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
                 We couldn't find that page.
             </h1>
 
-            <p class="mt-7 max-w-lg text-lg leading-relaxed text-ink-200">
+            <p class="mt-7 max-w-lg text-lg leading-relaxed text-ink-500">
                 The link may be out of date, or the page may have moved. Here's where to go instead.
             </p>
 
             <div class="mt-10 flex flex-wrap gap-4">
                 <a href="/quote"
-                   class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-ink-950 rounded-card transition-colors hover:bg-jade-400">
+                   class="inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                     Get Free Quotes
                 </a>
                 <a href="/services"
-                   class="inline-flex h-13 items-center border border-white/25 px-7 text-base font-semibold text-white rounded-card transition-colors hover:border-white hover:bg-white/5">
+                   class="inline-flex h-13 items-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                     Browse services
                 </a>
                 <a href="/"
-                   class="inline-flex h-13 items-center px-7 text-base font-medium text-ink-200 transition-colors hover:text-white">
+                   class="inline-flex h-13 items-center px-7 text-base font-medium text-ink-500 transition-colors hover:text-jade-500">
                     Back to home
                 </a>
             </div>
 
-            <ul class="mt-14 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/10 pt-8 text-sm">
-                <li><a href="/locations" class="text-ink-400 transition-colors hover:text-white">Cities we cover</a></li>
-                <li><a href="/routes" class="text-ink-400 transition-colors hover:text-white">Popular routes</a></li>
-                <li><a href="/join-as-partner" class="text-ink-400 transition-colors hover:text-white">Join as a partner</a></li>
+            <ul class="mt-14 flex flex-wrap gap-x-6 gap-y-3 border-t border-ink-200 pt-8 text-sm">
+                <li><a href="/locations" class="text-ink-500 transition-colors hover:text-jade-500">Cities we cover</a></li>
+                <li><a href="/routes" class="text-ink-500 transition-colors hover:text-jade-500">Popular routes</a></li>
+                <li><a href="/join-as-partner" class="text-ink-500 transition-colors hover:text-jade-500">Join as a partner</a></li>
             </ul>
         </div>
     </div>
