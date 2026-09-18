@@ -42,6 +42,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@@400;500;600;700&display=swap" rel="stylesheet" />
+    <partial name="_Favicons" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="bg-paper font-sans text-ink-800">
@@ -55,11 +56,8 @@
            class="admin-drawer fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-ink-950 lg:static lg:z-auto">
 
         <div class="flex h-14 items-center gap-2.5 border-b border-white/10 px-5">
-            <span class="grid h-7 w-7 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
-                <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 15h3.2L10 5l3.8 10H17" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </span>
+            @* The sidebar is navy, so this needs a light version of the logo. *@
+            <partial name="_Logo" model="@("h-7 w-auto")" />
             <span class="text-[15px] font-bold tracking-tight text-white">ShiftingGuru</span>
         </div>
 

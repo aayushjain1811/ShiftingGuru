@@ -22,21 +22,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@@400;500;600;700&display=swap" rel="stylesheet" />
+    <partial name="_Favicons" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body class="min-h-dvh bg-ink-50 font-sans text-ink-800">
+<body class="min-h-dvh bg-paper font-sans text-ink-800">
 
 <header class="border-b border-ink-200 bg-white">
     <div class="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
 
         <a href="/partner/dashboard" class="flex items-center gap-2.5">
-            <span class="grid h-7 w-7 place-items-center bg-jade-500 rounded-card" aria-hidden="true">
-                <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 15h3.2L10 5l3.8 10H17" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </span>
+            <partial name="_Logo" model="@("h-7 w-auto")" />
             <span class="text-[15px] font-bold tracking-tight text-ink-900">ShiftingGuru</span>
-            <span class="hidden text-[13px] font-medium text-ink-400 sm:inline">Partners</span>
+            <span class="hidden text-[13px] font-medium text-ink-500 sm:inline">Partners</span>
         </a>
 
         <nav class="flex items-center gap-1" aria-label="Partner">
@@ -44,14 +41,14 @@
             {
                 var active = path.StartsWith(item.Href);
                 <a href="@item.Href"
-                   class="@(active ? "bg-ink-900 text-white" : "text-ink-600 hover:bg-ink-100") px-3 py-2 text-sm font-medium rounded-card transition-colors">
+                   class="@(active ? "bg-jade-50 text-jade-600" : "text-ink-600 hover:bg-ink-50 hover:text-ink-900") px-3 py-2 text-sm font-medium rounded-card transition-colors">
                     @item.Label
                 </a>
             }
 
             <form method="post" action="/partner/logout" class="ml-1">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="px-3 py-2 text-sm font-medium text-ink-600 rounded-card transition-colors hover:bg-ink-100">
+                <button type="submit" class="px-3 py-2 text-sm font-medium text-ink-600 rounded-card transition-colors hover:bg-ink-50 hover:text-ink-900">
                     Logout
                 </button>
             </form>
@@ -62,7 +59,7 @@
 <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
     @if (TempData["PartnerMessage"] is string ok)
     {
-        <div class="mb-5 border border-jade-500/30 bg-jade-100 px-4 py-3 text-sm text-jade-600 rounded-card" role="status">@ok</div>
+        <div class="mb-5 border border-jade-100 bg-jade-50 px-4 py-3 text-sm text-jade-600 rounded-card" role="status">@ok</div>
     }
 
     @RenderBody()

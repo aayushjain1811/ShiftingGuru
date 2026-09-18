@@ -16,6 +16,52 @@ public class HomeController : Controller
         return View();
     }
 
+    /// <summary>
+    /// GET /about
+    ///
+    /// The [Route] attribute is what makes the URL "/about" rather than
+    /// "/Home/About". The default route would still serve the second one, so
+    /// both would work and be two URLs for one page - which search engines
+    /// treat as duplicate content. The canonical tag below settles it.
+    /// </summary>
+    [Route("/about")]
+    public IActionResult About()
+    {
+        ViewData["Title"] = "About Us";
+        ViewData["MetaDescription"] =
+            "About ShiftingGuru: how we connect customers with verified moving and "
+            + "car transport professionals across India.";
+        ViewData["Canonical"] = AbsoluteUrl("/about");
+
+        return View();
+    }
+
+    // GET /how-it-works
+    [Route("/how-it-works")]
+    public IActionResult HowItWorks()
+    {
+        ViewData["Title"] = "How It Works";
+        ViewData["MetaDescription"] =
+            "How car transport and home shifting works with ShiftingGuru: send your requirement, "
+            + "compare quotes from verified professionals, and choose with confidence.";
+        ViewData["Canonical"] = AbsoluteUrl("/how-it-works");
+
+        return View();
+    }
+
+    // GET /contact
+    [Route("/contact")]
+    public IActionResult Contact()
+    {
+        ViewData["Title"] = "Contact Us";
+        ViewData["MetaDescription"] =
+            "Contact ShiftingGuru by phone, WhatsApp or email for car transport, "
+            + "home shifting and logistics across India.";
+        ViewData["Canonical"] = AbsoluteUrl("/contact");
+
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() => View();
 
@@ -34,4 +80,12 @@ public class HomeController : Controller
 
         return code == 404 ? View("NotFound") : View("Error");
     }
+
+    /// <summary>
+    /// Builds a full URL from the current request, so the canonical tag is
+    /// right on localhost, on staging and in production without a hardcoded
+    /// domain anywhere.
+    /// </summary>
+    private string AbsoluteUrl(string path) =>
+        $"{Request.Scheme}://{Request.Host}{path}";
 }

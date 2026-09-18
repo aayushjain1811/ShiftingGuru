@@ -1,0 +1,21 @@
+@model string
+
+@*
+    The site logo, in one place.
+
+    Every layout used to draw its own inline SVG, so changing the logo meant
+    editing eight files. They all render this partial instead now.
+
+    If your file is a PNG rather than an SVG, change the src below and it
+    updates everywhere.
+
+    The model is the size for this spot, e.g.
+        <partial name="_Logo" model="@("h-9 w-auto")" />
+
+    h-9 = 36px tall. w-auto keeps the logo's own proportions, so it is never
+    squashed: height is set, width never is.
+*@
+
+<img src="~/images/logo.svg"
+     alt="Goyal Car Carrier"
+     class="@(string.IsNullOrWhiteSpace(Model) ? "h-9 w-auto" : Model)" />

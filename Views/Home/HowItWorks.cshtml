@@ -1,0 +1,254 @@
+@{
+    ViewData["Title"] = "How It Works";
+    ViewData["MetaDescription"] =
+        "How car transport and home shifting works with ShiftingGuru: send your requirement, "
+        + "compare quotes from verified professionals, and track your move end to end.";
+
+    var steps = new (string Number, string Title, string Body, string Detail)[]
+    {
+        ("01", "Tell us what you need",
+         "Service, both cities and an approximate date. Four fields, no account required.",
+         "You can add details later. If you are not sure of the exact date, give the week - providers quote for a window and confirm the day once you accept."),
+
+        ("02", "We pass it to verified professionals",
+         "Only providers who cover your service and your route see the requirement.",
+         "Every provider applies, is checked and is approved before a single enquiry reaches them. Nobody buys their way to the front of the list."),
+
+        ("03", "Compare what comes back",
+         "Each quote states the price and what it includes, side by side.",
+         "This is where most money is saved. A low headline price with packing excluded is not cheaper than a higher one with packing included - the comparison view makes that obvious."),
+
+        ("04", "Choose, and deal directly",
+         "Pick the provider you want. Their contact details are shared and the job is yours and theirs.",
+         "Nothing is booked on your behalf and there is no pressure to choose. If none of the quotes suit you, you can simply walk away.")
+    };
+
+    // TODO: these are the answers customers actually ask on the phone.
+    // Replace each one with what you tell them - short and specific.
+    var faqs = new (string Question, string Answer)[]
+    {
+        ("Is my car driven or carried?",
+         "[DRAFT - say which, and why. Most customers assume it is driven and are relieved to hear otherwise.]"),
+
+        ("How long does delivery take?",
+         "[DRAFT - give real ranges for your common routes, e.g. Delhi to Bangalore takes X to Y days.]"),
+
+        ("What affects the price?",
+         "Distance, the size and weight of what is moving, the floor and lift access at both ends, and whether packing is included. Two moves on the same route can differ substantially, which is why comparing a few quotes is more useful than a single headline price."),
+
+        ("Is the vehicle insured in transit?",
+         "[DRAFT - state exactly what cover applies, what it does not cover, and whether it costs extra. Be precise here: a vague answer loses the booking.]"),
+
+        ("What do I need to hand over at pickup?",
+         "[DRAFT - list the documents: RC copy, ID, anything else. Also say what should be removed from the car first.]"),
+
+        ("When do I pay?",
+         "[DRAFT - explain advance, balance and accepted payment methods, and whether you give a GST invoice.]")
+    };
+}
+
+@section Head {
+    @* Tells Google this page answers questions, so the answers can appear
+       directly in search results. Only include questions that are really
+       on the page. *@
+    <script type="application/ld+json">
+    {
+      "@@context": "https://schema.org",
+      "@@type": "HowTo",
+      "name": "How to book car transport or home shifting",
+      "step": [
+        { "@@type": "HowToStep", "position": 1, "name": "Tell us what you need" },
+        { "@@type": "HowToStep", "position": 2, "name": "We pass it to verified professionals" },
+        { "@@type": "HowToStep", "position": 3, "name": "Compare what comes back" },
+        { "@@type": "HowToStep", "position": 4, "name": "Choose, and deal directly" }
+      ]
+    }
+    </script>
+}
+
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pb-16 pt-28 lg:pb-20 lg:pt-40">
+
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
+                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li class="text-ink-300" aria-hidden="true">/</li>
+                <li><span class="font-medium text-ink-900" aria-current="page">How It Works</span></li>
+            </ol>
+        </nav>
+
+        <h1 class="mt-10 max-w-[18ch] font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[1.02] tracking-[-0.045em] text-ink-900">
+            From enquiry to delivery.
+        </h1>
+
+        <p class="mt-7 max-w-[58ch] text-lg leading-relaxed text-ink-500">
+            No account, no calls until you want them, and no obligation to book.
+            Here is exactly what happens after you send a requirement.
+        </p>
+
+        <a href="/quote"
+           class="mt-9 inline-flex h-13 items-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+            Get Free Quotes
+        </a>
+    </div>
+</section>
+
+<!-- The four steps -->
+<section class="bg-paper" aria-labelledby="steps-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="steps-heading" class="max-w-2xl font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-tight tracking-[-0.04em] text-ink-900">
+            Four steps, start to finish
+        </h2>
+
+        <ol class="mt-14 grid gap-5 sm:grid-cols-2">
+            @foreach (var step in steps)
+            {
+                <li class="reveal flex flex-col border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-8">
+                    <span class="grid h-12 w-12 place-items-center border border-jade-100 bg-jade-50 font-display text-sm font-bold text-jade-600 rounded-card">
+                        @step.Number
+                    </span>
+
+                    <h3 class="mt-6 font-display text-xl font-bold tracking-[-0.03em] text-ink-900">@step.Title</h3>
+                    <p class="mt-3 text-[15px] leading-relaxed text-ink-700">@step.Body</p>
+                    <p class="mt-4 border-t border-ink-100 pt-4 text-[15px] leading-relaxed text-ink-500">@step.Detail</p>
+                </li>
+            }
+        </ol>
+    </div>
+</section>
+
+<!-- What it costs you -->
+<section class="border-y border-ink-100 bg-white" aria-labelledby="cost-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
+
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-10">
+
+            <div class="lg:col-span-5">
+                <h2 id="cost-heading" class="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-bold leading-tight tracking-[-0.04em] text-ink-900">
+                    What using this costs you
+                </h2>
+                <p class="mt-6 max-w-[42ch] text-[17px] leading-relaxed text-ink-500">
+                    Nothing. You pay the provider you choose, at the price they quoted.
+                </p>
+            </div>
+
+            <div class="lg:col-span-7">
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-1 h-4 w-4 shrink-0 text-success-600" viewBox="0 0 20 20" fill="none"
+                             stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+                            <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="text-[15px] leading-relaxed text-ink-700">
+                            <span class="font-semibold text-ink-900">Free to use.</span>
+                            Sending a requirement and comparing quotes costs nothing.
+                        </p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-1 h-4 w-4 shrink-0 text-success-600" viewBox="0 0 20 20" fill="none"
+                             stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+                            <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="text-[15px] leading-relaxed text-ink-700">
+                            <span class="font-semibold text-ink-900">No obligation.</span>
+                            If none of the quotes suit you, you are not committed to anything.
+                        </p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <svg class="mt-1 h-4 w-4 shrink-0 text-success-600" viewBox="0 0 20 20" fill="none"
+                             stroke="currentColor" stroke-width="2.6" aria-hidden="true">
+                            <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="text-[15px] leading-relaxed text-ink-700">
+                            <span class="font-semibold text-ink-900">Your number stays with the job.</span>
+                            Only providers quoting on your requirement receive it, not a list of everyone.
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Questions -->
+<section id="faq" class="scroll-mt-24 bg-paper" aria-labelledby="faq-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-10">
+
+            <div class="lg:col-span-4">
+                <h2 id="faq-heading" class="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-bold leading-tight tracking-[-0.04em] text-ink-900">
+                    Common questions
+                </h2>
+                <p class="mt-6 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">
+                    Still unsure about something? Call us and ask.
+                </p>
+                <a href="/contact"
+                   class="mt-6 inline-flex items-center gap-2 text-base font-semibold text-jade-500 transition-colors hover:text-jade-600">
+                    Contact us
+                </a>
+            </div>
+
+            <div class="lg:col-span-8">
+                <ul id="faq-list" class="divide-y divide-ink-100 border border-ink-200 bg-white px-5 shadow-card rounded-panel sm:px-7">
+                    @for (var i = 0; i < faqs.Length; i++)
+                    {
+                        <li>
+                            <button type="button" data-faq-question
+                                    class="flex w-full items-start justify-between gap-6 py-6 text-left"
+                                    aria-expanded="false" aria-controls="hiw-faq-@i">
+                                <span class="font-display text-lg font-semibold tracking-[-0.02em] text-ink-900">
+                                    @faqs[i].Question
+                                </span>
+                                <svg class="faq-icon h-5 w-5 shrink-0 text-jade-500" viewBox="0 0 20 20" fill="none"
+                                     stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                    <path d="M10 4v12M4 10h12" stroke-linecap="round" />
+                                </svg>
+                            </button>
+
+                            <div id="hiw-faq-@i" class="faq-panel pb-6">
+                                <p class="max-w-[62ch] text-[15px] leading-relaxed text-ink-500">@faqs[i].Answer</p>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Closing CTA -->
+<section class="relative overflow-hidden border-y border-jade-100 bg-jade-50" aria-labelledby="hiw-cta-heading">
+
+    @* Two faint arcs in the soft blue accent. Decoration only. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 400"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M-40 360 C 360 360, 520 80, 980 70 S 1400 20, 1480 10" stroke="#DCE6FF" stroke-width="2" />
+        <path d="M-40 400 C 420 400, 640 170, 1060 160 S 1400 110, 1480 100" stroke="#DCE6FF" stroke-width="1.5" />
+    </svg>
+
+    <div class="relative mx-auto flex max-w-[1400px] flex-col gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:py-20">
+        <div>
+            <h2 id="hiw-cta-heading" class="max-w-[20ch] font-display text-[clamp(1.75rem,4vw,2.75rem)] font-extrabold leading-tight tracking-[-0.045em] text-ink-900">
+                Ready when you are.
+            </h2>
+            <p class="mt-4 max-w-[40ch] text-[17px] leading-snug text-ink-700">
+                Four fields is all it takes to start.
+            </p>
+        </div>
+
+        <a href="/quote"
+           class="inline-flex h-14 shrink-0 items-center justify-center bg-jade-500 px-8 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+            Get Free Quotes
+        </a>
+    </div>
+</section>

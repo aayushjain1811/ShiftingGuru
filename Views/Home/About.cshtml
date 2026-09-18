@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "About Us";
+    ViewData["MetaDescription"] =
+        "About ShiftingGuru: how we connect customers with verified moving and car transport professionals across India.";
+
+    // TODO: replace these with your real numbers before publishing.
+    var facts = new (string Value, string Label)[]
+    {
+        ("20+", "Years in car transport"),
+        ("80+", "Cities covered"),
+        ("Pan-India", "Network of carriers")
+    };
+
+    var values = new (string Title, string Body)[]
+    {
+        ("Verified professionals only",
+         "Every partner applies, is checked and is approved before a single enquiry reaches them. Anyone who stops meeting the standard is suspended."),
+        ("You compare, you decide",
+         "We pass your requirement to several providers and show you what each one offers. Nothing is booked on your behalf and there is no pressure to choose."),
+        ("Clear pricing, no hidden charges",
+         "Quotes state what is included, so you are comparing the same thing across providers rather than guessing what a low headline price leaves out.")
+    };
+}
+
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pb-16 pt-28 lg:pb-20 lg:pt-40">
+
+    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
+
+        <nav aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
+                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li class="text-ink-300" aria-hidden="true">/</li>
+                <li><span class="font-medium text-ink-900" aria-current="page">About Us</span></li>
+            </ol>
+        </nav>
+
+        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+            <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
+            About us
+        </p>
+
+        <h1 class="mt-7 max-w-[16ch] font-display text-[clamp(2.25rem,5.5vw,4rem)] font-extrabold leading-[1.02] tracking-[-0.045em] text-ink-900">
+            Moving, made straightforward.
+        </h1>
+
+        <p class="mt-7 max-w-[62ch] text-lg leading-relaxed text-ink-500">
+            [DRAFT - write two or three sentences here in your own words: when the business
+            started, what you moved first, and why customers came back. This is the part
+            people read to decide whether to trust you, so it should sound like you and
+            not like a template.]
+        </p>
+    </div>
+</section>
+
+<!-- Numbers -->
+<section class="bg-paper" aria-labelledby="facts-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-20">
+
+        <h2 id="facts-heading" class="sr-only">Key facts</h2>
+
+        <ul class="grid gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel sm:grid-cols-3">
+            @foreach (var fact in facts)
+            {
+                <li class="bg-white p-7 lg:p-9">
+                    <p class="font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-none tracking-[-0.045em] text-ink-900">
+                        @fact.Value
+                    </p>
+                    <p class="mt-3 text-[15px] text-ink-500">@fact.Label</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+<!-- How we work -->
+<section class="border-y border-ink-100 bg-white" aria-labelledby="values-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
+
+        <h2 id="values-heading" class="max-w-[20ch] font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-tight tracking-[-0.04em] text-ink-900">
+            How we work
+        </h2>
+
+        <ul class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach (var value in values)
+            {
+                <li class="reveal border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-7">
+                    <h3 class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">@value.Title</h3>
+                    <p class="mt-3 text-[15px] leading-relaxed text-ink-500">@value.Body</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
+
+<!-- Talk to us -->
+<section class="bg-paper" aria-labelledby="contact-heading">
+    <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
+
+        <div class="flex flex-col gap-6 border border-ink-200 bg-white p-8 shadow-card rounded-panel sm:flex-row sm:items-center sm:justify-between lg:p-10">
+            <div>
+                <h2 id="contact-heading" class="font-display text-[22px] font-bold tracking-[-0.03em] text-ink-900">
+                    Questions before you book?
+                </h2>
+                <p class="mt-2 text-[15px] leading-relaxed text-ink-500">
+                    Talk to us directly, or send your requirement and compare quotes.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a href="/contact"
+                   class="inline-flex h-12 items-center justify-center border border-ink-300 bg-white px-6 text-[15px] font-semibold text-ink-900 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
+                    Contact us
+                </a>
+                <a href="/quote"
+                   class="inline-flex h-12 items-center justify-center bg-jade-500 px-6 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+                    Get Free Quotes
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
