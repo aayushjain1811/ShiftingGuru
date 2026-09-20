@@ -2,14 +2,6 @@
 
 @{
     var service = Model.Service;
-
-    var steps = new (string Number, string Title, string Body)[]
-    {
-        ("01", "Tell us what you need", $"Share your {service.Name.ToLowerInvariant()} requirement, both locations and an approximate date."),
-        ("02", "Compare your options", "Providers who handle this service respond with what they'd charge and what's included."),
-        ("03", "Choose confidently", "Weigh scope, timing and price, then deal directly with the provider you pick.")
-    };
-
     var reasons = new (string Title, string Body)[]
     {
         ("Verified professionals", "Partner details are checked before they can receive your requirement."),
@@ -22,24 +14,29 @@
 <!-- ============ 1 + 2. Breadcrumb and hero ============ -->
 <section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 lg:pt-40">
 
-    @* Faint arcs plus one dotted route line. No grid, no glow. *@
-    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        <svg class="absolute inset-0 h-full w-full" viewBox="0 0 1440 620" preserveAspectRatio="xMidYMid slice" fill="none">
-            <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
-            <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
-            <path class="route-path" d="M-60 540 C 280 540, 360 340, 680 330 S 1100 200, 1500 150"
-                  stroke="rgb(49 86 198 / 0.22)" stroke-width="1.5" stroke-dasharray="7 11" stroke-linecap="round" />
-        </svg>
-    </div>
+    @* This service's own photograph, settling slowly as the page loads.
+       The filename is the slug, so every service gets its own without any
+       extra configuration. *@
+    <img src="~/images/services/@(service.Slug).webp"
+         alt=""
+         class="photo-drift absolute inset-0 h-full w-full object-cover object-center lg:object-right"
+         width="1280" height="854" fetchpriority="high" decoding="async" aria-hidden="true" />
+
+    @* Cream on the left so the heading reads, clearing to the right so the
+       photograph is actually visible. On phones it washes the whole image. *@
+    <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(254,253,251,0.95)_0%,rgba(254,253,251,0.85)_55%,rgba(254,253,251,0.7)_100%)] lg:bg-[linear-gradient(90deg,rgba(254,253,251,1)_0%,rgba(254,253,251,0.97)_38%,rgba(254,253,251,0.75)_56%,rgba(254,253,251,0)_86%)]" aria-hidden="true"></div>
+
+    <div class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-hero via-hero/70 to-transparent lg:h-32" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-hero to-transparent" aria-hidden="true"></div>
 
     <div class="relative mx-auto max-w-[1400px] px-5 pb-20 sm:px-8 lg:pb-28">
 
         @* Breadcrumb wraps instead of overflowing on narrow screens. *@
         <nav aria-label="Breadcrumb">
             <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
-                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li><a href="/" class="underline-grow transition-colors hover:text-jade-500">Home</a></li>
                 <li class="text-ink-300" aria-hidden="true">/</li>
-                <li><a href="/services" class="transition-colors hover:text-jade-500">Services</a></li>
+                <li><a href="/services" class="underline-grow transition-colors hover:text-jade-500">Services</a></li>
                 <li class="text-ink-300" aria-hidden="true">/</li>
                 <li><span class="font-medium text-ink-900" aria-current="page">@service.Name</span></li>
             </ol>
@@ -48,22 +45,22 @@
         <div class="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-10">
 
             <div class="lg:col-span-7">
-                <p class="flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+                <p class="hero-in hero-in-1 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
                     <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
                     @service.Name
                 </p>
 
-                <h1 class="mt-7 max-w-[16ch] font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
+                <h1 class="hero-in hero-in-2 mt-7 max-w-[16ch] font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
                     @service.HeroTitle
                 </h1>
 
-                <p class="mt-8 max-w-xl text-lg leading-relaxed text-ink-500">
+                <p class="hero-in hero-in-3 mt-8 max-w-xl text-lg leading-relaxed text-ink-700">
                     @service.HeroDescription
                 </p>
 
-                <div class="mt-10 flex flex-wrap gap-4">
+                <div class="hero-in hero-in-4 mt-10 flex flex-wrap gap-4">
                     <a href="/quote"
-                       class="group inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+                       class="lift group inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                         Get Free Quotes
                         <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
                              viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -71,16 +68,14 @@
                         </svg>
                     </a>
                     <a href="#how-it-works"
-                       class="inline-flex h-13 items-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
+                       class="lift inline-flex h-13 items-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 shadow-card rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                         How It Works
                     </a>
                 </div>
             </div>
 
-            @* Compact scope summary instead of a stock photo. Same drawn-panel
-               language as the homepage value section. *@
-            <div class="lg:col-span-4 lg:col-start-9">
-                <div class="border border-ink-200 bg-white p-7 shadow-card rounded-panel">
+            <div class="hero-in hero-in-5 lg:col-span-4 lg:col-start-9">
+                <div class="border border-ink-200 bg-white p-7 shadow-float rounded-panel">
                     <svg class="h-7 w-7 text-jade-500" viewBox="0 0 20 20" fill="none"
                          stroke="currentColor" stroke-width="1.4" aria-hidden="true">
                         <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
@@ -113,7 +108,7 @@
             Ready to compare @service.Name.ToLowerInvariant() quotes?
         </p>
         <a href="/quote"
-           class="inline-flex h-12 shrink-0 items-center justify-center bg-jade-500 px-6 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+           class="lift inline-flex h-12 shrink-0 items-center justify-center bg-jade-500 px-6 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
             Get Free Quotes
         </a>
     </div>
@@ -125,11 +120,11 @@
         <div class="grid gap-10 lg:grid-cols-12">
 
             <h2 id="overview-heading"
-                class="lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                class="reveal-left lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
                 About this service
             </h2>
 
-            <div class="lg:col-span-7 lg:col-start-6">
+            <div class="reveal-right lg:col-span-7 lg:col-start-6">
                 @foreach (var paragraph in service.Overview)
                 {
                     <p class="mb-6 max-w-[62ch] text-lg leading-relaxed text-ink-700 last:mb-0">@paragraph</p>
@@ -144,14 +139,14 @@
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
 
         <h2 id="includes-heading"
-            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+            class="reveal-up max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
             What @service.Name.ToLowerInvariant() includes
         </h2>
 
-        <ol class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ol class="stagger mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @for (var i = 0; i < service.Features.Count; i++)
             {
-                <li class="reveal border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-7">
+                <li class="reveal-scale border border-ink-200 bg-white p-6 shadow-card rounded-panel sm:p-7">
                     <span class="font-display text-sm font-bold text-jade-500">@((i + 1).ToString("00"))</span>
                     <h3 class="mt-3 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@service.Features[i].Title</h3>
                     <p class="mt-2.5 max-w-[34ch] text-[15px] leading-relaxed text-ink-500">@service.Features[i].Body</p>
@@ -167,18 +162,18 @@
 
         <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
             <h2 id="why-heading"
-                class="lg:col-span-6 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                class="reveal-up lg:col-span-6 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
                 Why choose ShiftingGuru
             </h2>
-            <p class="lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
+            <p class="reveal-up lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
                 We're not a moving company. We're the layer that helps you find the right one.
             </p>
         </div>
 
-        <ul class="mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ul class="stagger mt-14 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
             @foreach (var reason in reasons)
             {
-                <li class="reveal border-t border-ink-200 pt-6">
+                <li class="reveal-up border-t border-ink-200 pt-6">
                     <h3 class="font-display text-lg font-bold tracking-[-0.03em] text-ink-900">@reason.Title</h3>
                     <p class="mt-2.5 text-[15px] leading-relaxed text-ink-500">@reason.Body</p>
                 </li>
@@ -188,45 +183,33 @@
 </section>
 
 <!-- ============ 7. How it works ============ -->
-<section id="how-it-works" class="scroll-mt-24 border-y border-ink-100 bg-paper" aria-labelledby="how-heading">
+<section id="how-it-works" class="journey scroll-mt-24 overflow-hidden border-y border-ink-100 bg-paper" aria-labelledby="how-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
 
-        <h2 id="how-heading"
-            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
-            How it works
-        </h2>
-
-        <div class="relative mt-16">
-            <div class="pointer-events-none absolute inset-x-0 top-7 hidden h-px bg-ink-200 lg:block" aria-hidden="true">
-                <div class="progress-line h-px bg-jade-500"></div>
-            </div>
-
-            <ol class="relative grid gap-12 lg:grid-cols-3 lg:gap-10">
-                @foreach (var step in steps)
-                {
-                    <li class="reveal">
-                        <span class="grid h-14 w-14 place-items-center border border-ink-200 bg-white font-display text-sm font-bold text-jade-500 shadow-card rounded-card">
-                            @step.Number
-                        </span>
-                        <h3 class="mt-7 font-display text-xl font-bold tracking-[-0.03em] text-ink-900">@step.Title</h3>
-                        <p class="mt-3 max-w-[32ch] text-[15px] leading-relaxed text-ink-500">@step.Body</p>
-                    </li>
-                }
-            </ol>
+        <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+            <h2 id="how-heading"
+                class="reveal-up lg:col-span-7 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                How it works
+            </h2>
+            <p class="reveal-up lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
+                From your first @service.Name.ToLowerInvariant() request to final delivery.
+            </p>
         </div>
+
+        <partial name="_Journey" />
     </div>
 </section>
 
-<!-- ============ 8. Service-specific benefits ============ -->
+<<!-- ============ 8. Service-specific benefits ============ -->
 <section class="bg-white" aria-labelledby="benefits-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
 
         <h2 id="benefits-heading"
-            class="max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+            class="reveal-up max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
             Why this works well for @service.Name.ToLowerInvariant()
         </h2>
 
-        <ul class="mt-14 grid gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel sm:grid-cols-2">
+        <ul class="reveal-scale mt-14 grid gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel sm:grid-cols-2">
             @foreach (var benefit in service.Benefits)
             {
                 <li class="bg-white p-7 lg:p-9">
@@ -244,13 +227,13 @@
         <div class="grid gap-10 lg:grid-cols-12">
 
             <h2 id="faq-heading"
-                class="lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                class="reveal-left lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
                 @service.Name questions
             </h2>
 
             @* Same id and data attributes the homepage accordion uses, so the
                existing site.js drives this with no extra JavaScript. *@
-            <div id="faq-list" class="lg:col-span-7 lg:col-start-6 divide-y divide-ink-100 border border-ink-200 bg-white px-5 shadow-card rounded-panel sm:px-7">
+            <div id="faq-list" class="reveal-right lg:col-span-7 lg:col-start-6 divide-y divide-ink-100 border border-ink-200 bg-white px-5 shadow-card rounded-panel sm:px-7">
                 @for (var i = 0; i < service.Faqs.Count; i++)
                 {
                     var panelId = "faq-panel-" + i;
@@ -282,58 +265,44 @@
 <!-- ============ Related services ============ -->
 @if (Model.RelatedServices.Count > 0)
 {
-    <section class="bg-white" aria-labelledby="related-heading">
-        <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-20">
+    <section class="border-y border-ink-100 bg-paper" aria-labelledby="related-heading">
+        <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
 
-            <h2 id="related-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
-                Other services
-            </h2>
+            <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+                <h2 id="related-heading"
+                    class="reveal-up lg:col-span-7 font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                    Other services
+                </h2>
+                <p class="reveal-up lg:col-span-4 lg:col-start-9 text-base leading-relaxed text-ink-500">
+                    Moving more than one thing? Everything can go through the same enquiry.
+                </p>
+            </div>
 
-            <ul class="mt-8 border-t border-ink-200">
+            @* Same photo cards as the homepage, so a service page and the
+               homepage never look like two different sites. *@
+            <ul class="stagger mt-14 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
                 @foreach (var related in Model.RelatedServices)
                 {
-                    <li class="border-b border-ink-200">
-                        <a href="/services/@related.Slug" class="fill-row fill-row-soft group flex items-center justify-between gap-4 px-4 py-5">
-                            <span class="font-display text-lg font-semibold tracking-[-0.02em] text-ink-900 transition-colors group-hover:text-jade-600">
-                                @related.Name
-                            </span>
-                            <svg class="h-4 w-4 shrink-0 text-ink-300 transition-all duration-200 group-hover:translate-x-1.5 group-hover:text-jade-500"
-                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </a>
-                    </li>
+                    <partial name="_ServiceCard" model="related" />
                 }
             </ul>
+
+            <div class="mt-12">
+                <a href="/services"
+                   class="group inline-flex items-center gap-2 text-base font-semibold text-jade-500 transition-colors hover:text-jade-600">
+                    See all services
+                    <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                         viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+            </div>
         </div>
     </section>
 }
 
 <!-- ============ Service FAQs ============ -->
 <partial name="_Faqs" model="Model.Faqs" />
-
-<!-- ============ Cities ============ -->
-@if (Model.Locations.Count > 0)
-{
-    <section class="bg-white" aria-labelledby="cities-heading">
-        <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
-            <h2 id="cities-heading" class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">
-                @service.Name by city
-            </h2>
-
-            <ul class="mt-6 flex flex-wrap gap-3">
-                @foreach (var location in Model.Locations)
-                {
-                    <li>
-                        <a href="@location.Url" class="inline-flex min-h-11 items-center border border-ink-200 bg-white px-4 text-[15px] font-medium text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:bg-jade-50 hover:text-jade-600">
-                            @location.Name
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    </section>
-}
 
 <!-- ============ 10. Final CTA ============ -->
 <partial name="_QuoteCta" />

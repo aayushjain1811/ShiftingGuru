@@ -46,7 +46,13 @@ builder.Services.Configure<AppOptions>(
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<AppOptions>>().Value);
 
 builder.Services.AddSingleton<EmailTemplate>();
-builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+// Resend over HTTPS rather than SMTP: Cloud Run blocks port 25 and throttles
+// the others. AddHttpClient pools connections and handles DNS changes, which
+// a bare "new HttpClient()" does not.
+builder.Services.AddHttpClient<IEmailService, ResendEmailService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // The queue is process-wide; the worker drains it. Notifications are written

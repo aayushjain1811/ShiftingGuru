@@ -1,29 +1,46 @@
 @model Service
 
 @* One card, used by both the homepage services grid and /services.
-   Featured services take a double-width tile. *@
-<li class="@(Model.IsFeatured ? "col-span-2" : "")">
+   Featured services take a double-width tile.
+
+   The photo filename is the service slug, so adding a service to
+   StaticServiceCatalog only needs a matching file in
+   wwwroot/images/services/ - no change here. *@
+<li class="reveal-scale @(Model.IsFeatured ? "col-span-2" : "")">
     <a href="/services/@Model.Slug"
-       class="group relative flex h-full flex-col bg-white p-6 transition-colors duration-200 hover:bg-jade-50 lg:p-8">
+       class="group relative flex h-full min-h-[300px] flex-col justify-end overflow-hidden shadow-card rounded-panel transition-transform duration-300 hover:-translate-y-1 lg:min-h-[340px]">
 
-        <svg class="h-6 w-6 text-jade-500 transition-colors duration-200 group-hover:text-jade-600"
-             viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-            <path d="@Model.IconPath" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
+        <img src="~/images/services/@(Model.Slug).webp"
+             alt="@Model.Name"
+             class="absolute inset-0 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
+             width="1280" height="854"
+             loading="lazy" decoding="async" />
 
-        <h3 class="@(Model.IsFeatured ? "mt-14 lg:text-2xl" : "mt-10") font-display text-lg font-bold tracking-[-0.03em] text-ink-900 transition-colors duration-200">
-            @Model.Name
-        </h3>
-        <p class="mt-2 max-w-[30ch] flex-1 text-sm leading-relaxed text-ink-500">
-            @Model.ShortDescription
-        </p>
+        @* Readability, in three layers: an even tint over the whole photo,
+           a deep gradient where the words actually sit, and a soft shadow
+           on the text itself. Bright photos beat a single gradient. *@
+        <span class="absolute inset-0 bg-ink-950/25" aria-hidden="true"></span>
+        <span class="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/75 to-transparent" aria-hidden="true"></span>
 
-        <span class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-jade-500 transition-colors duration-200 group-hover:text-jade-600">
-            View service
-            <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1.5"
-                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+        <div class="relative p-6 [text-shadow:0_1px_3px_rgb(24_34_56_/_0.55)] lg:p-7">
+            <svg class="h-6 w-6 text-white" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="@Model.IconPath" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-        </span>
+
+            <h3 class="@(Model.IsFeatured ? "lg:text-2xl" : "") mt-5 font-display text-lg font-bold tracking-[-0.03em] text-white">
+                @Model.Name
+            </h3>
+            <p class="mt-2 max-w-[34ch] text-sm leading-relaxed text-white/90">
+                @Model.ShortDescription
+            </p>
+
+            <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white">
+                View service
+                <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1.5"
+                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </span>
+        </div>
     </a>
 </li>

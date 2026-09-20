@@ -1,9 +1,6 @@
 @{
     var navLinks = new (string Text, string Href)[]
     {
-        @* "/#services" not "#services": a bare anchor only works on the
-           homepage. With the slash it jumps to the homepage section from
-           any page on the site. *@
         ("Services", "/services"),
         ("Locations", "/locations"),
         ("How It Works", "/how-it-works"),
@@ -28,22 +25,26 @@
             @foreach (var link in navLinks)
             {
                 <a href="@link.Href" data-header-link
-                   class="text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">@link.Text</a>
+                   class="underline-grow text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">@link.Text</a>
             }
         </nav>
 
         <div class="hidden lg:flex lg:items-center lg:gap-6">
             @* Customers have no password: /my-request sends them to the
                request-access page if their sign-in link has expired. *@
-            <a href="/my-request" data-header-link class="text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">
+            <a href="/my-request" data-header-link class="underline-grow text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">
                 Track My Request
             </a>
-            <a href="/partner/login" data-header-link class="text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">
+            <a href="/partner/login" data-header-link class="underline-grow text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">
                 Partner Login
             </a>
             <a href="#get-quotes"
-               class="inline-flex h-11 items-center bg-jade-500 px-6 text-[15px] font-semibold text-white rounded-card transition-colors hover:bg-jade-600">
+               class="lift group inline-flex h-11 items-center gap-2 bg-jade-500 px-6 text-[15px] font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                 Get Free Quotes
+                <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1"
+                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
             </a>
         </div>
 
@@ -57,7 +58,7 @@
             </a>
 
             <button id="menu-toggle" type="button"
-                    class="grid h-11 w-11 place-items-center border border-ink-200 rounded-card"
+                    class="grid h-11 w-11 place-items-center border border-ink-200 bg-white rounded-card transition-colors hover:border-jade-500"
                     aria-expanded="false" aria-controls="mobile-drawer" aria-label="Open menu">
                 <svg data-header-icon class="h-5 w-5 text-ink-900" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                     <path d="M3 6h14M3 10h14M3 14h14" stroke-linecap="round" />
@@ -88,7 +89,7 @@
             @foreach (var link in navLinks)
             {
                 <li>
-                    <a href="@link.Href" class="block py-4 font-display text-lg font-semibold tracking-tight text-ink-900">@link.Text</a>
+                    <a href="@link.Href" class="block py-4 font-display text-lg font-semibold tracking-tight text-ink-900 transition-colors hover:text-jade-500">@link.Text</a>
                 </li>
             }
         </ul>
@@ -96,19 +97,19 @@
 
     <div class="space-y-3 border-t border-ink-100 p-5">
         <a href="#get-quotes"
-           class="block bg-jade-500 py-3.5 text-center text-base font-semibold text-white rounded-card transition-colors hover:bg-jade-600">
+           class="lift block bg-jade-500 py-3.5 text-center text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
             Get Free Quotes
         </a>
         <a href="/my-request"
-           class="block border border-ink-200 bg-white py-3.5 text-center text-base font-medium text-ink-800 rounded-card">
+           class="block border border-ink-200 bg-white py-3.5 text-center text-base font-medium text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
             Track My Request
         </a>
         <a href="/partner/login"
-           class="block border border-ink-200 bg-white py-3.5 text-center text-base font-medium text-ink-800 rounded-card">
+           class="block border border-ink-200 bg-white py-3.5 text-center text-base font-medium text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
             Partner Login
         </a>
         <a href="/join-as-partner"
-           class="block py-2 text-center text-sm font-medium text-ink-500">
+           class="block py-2 text-center text-sm font-medium text-ink-500 transition-colors hover:text-jade-500">
             Join as Partner
         </a>
     </div>

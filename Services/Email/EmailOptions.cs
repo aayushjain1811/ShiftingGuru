@@ -18,7 +18,11 @@ public class EmailOptions
 
     public string? Username { get; set; }
     public string? Password { get; set; }
-
+        /// <summary>
+    /// Resend API key. Comes from user secrets locally and Secret Manager in
+    /// production - never from appsettings, which is committed.
+    /// </summary>
+    public string? ApiKey { get; set; }
     public string FromEmail { get; set; } = "no-reply@shiftingguru.com";
     public string FromName { get; set; } = "ShiftingGuru";
 

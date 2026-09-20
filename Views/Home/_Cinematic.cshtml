@@ -1,0 +1,49 @@
+@* A full-width photograph between two content blocks. The image settles
+   slowly as it arrives and two small cards drift over it, which is what
+   gives the page a sense of depth. *@
+<section class="relative overflow-hidden bg-ink-950" aria-labelledby="cinematic-heading">
+
+    <img src="~/images/hero/hero-2.webp"
+         alt="Packed cartons ready for a household move"
+         class="photo-drift absolute inset-0 h-full w-full object-cover"
+         width="1920" height="1080" loading="lazy" decoding="async" />
+
+    <span class="absolute inset-0 bg-ink-950/55" aria-hidden="true"></span>
+    <span class="absolute inset-0 bg-gradient-to-r from-ink-950/80 via-ink-950/40 to-transparent" aria-hidden="true"></span>
+
+    <div class="relative mx-auto max-w-[1400px] px-5 py-28 sm:px-8 lg:py-40">
+
+        <p class="reveal-up text-[13px] font-semibold uppercase tracking-[0.14em] text-white/75">
+            Every move is somebody's new chapter
+        </p>
+
+        <h2 id="cinematic-heading"
+            class="reveal-up mt-6 max-w-[16ch] font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[1] tracking-[-0.045em] text-white">
+            Your move is bigger than a booking.
+        </h2>
+
+        <p class="reveal-up mt-7 max-w-[46ch] text-lg leading-relaxed text-white/85">
+            Which is why it is worth seeing more than one option before you commit.
+            Compare what each professional includes, then decide.
+        </p>
+
+        @* Two small floating cards, drifting at different speeds. *@
+        <div class="pointer-events-none absolute right-8 top-16 hidden lg:block" aria-hidden="true">
+            <div class="float-slow flex items-center gap-3 border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm rounded-panel">
+                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="text-sm font-medium text-white">Packed and labelled</span>
+            </div>
+        </div>
+
+        <div class="pointer-events-none absolute bottom-20 right-24 hidden lg:block" aria-hidden="true">
+            <div class="float-slow-2 flex items-center gap-3 border border-white/20 bg-white/10 px-4 py-3 backdrop-blur-sm rounded-panel">
+                <svg class="h-5 w-5 text-white" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M4 10.5l4 4 8-9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="text-sm font-medium text-white">Delivered to the room</span>
+            </div>
+        </div>
+    </div>
+</section>

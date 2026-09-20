@@ -17,6 +17,7 @@
     initMobileMenu();
     initFaq();
     initReveal();
+    initJourney();
     initCounters();
     initQuoteForm();
     initHeader();
@@ -126,11 +127,16 @@
 
   /* -------------------------------------------------------------
      3. Scroll reveal
-     One shared observer. Each element is unobserved after it fires,
-     so nothing keeps running in the background.
+     One shared observer for every reveal class on the site. Each
+     element is unobserved after it fires, so nothing keeps running
+     in the background.
      ------------------------------------------------------------- */
   function initReveal() {
-    var targets = document.querySelectorAll(".reveal, .progress-line");
+    var targets = document.querySelectorAll(
+      ".reveal, .progress-line, .reveal-up, .reveal-left, .reveal-right, " +
+      ".reveal-scale, .reveal-blur, .reveal-clip, .timeline-rail, " +
+      ".timeline-rail-v, .route-road, .photo-drift"
+    );
     if (!targets.length) return;
 
     if (!("IntersectionObserver" in window)) {
@@ -156,8 +162,88 @@
     });
   }
 
+   /* -------------------------------------------------------------
+     4. The move journey
+     Plays itself, like a short film: every few seconds the next stage
+     fades in, the line fills and the truck moves along. It only runs
+     while the section is on screen, so nothing ticks in the background,
+     and it pauses on hover or keyboard focus. Clicking a step jumps
+     straight to it.
+     ------------------------------------------------------------- */
+  function initJourney() {
+    var journey = document.getElementById("journey");
+    if (!journey) return;
+
+    var steps = journey.querySelectorAll(".journey-step");
+    var stages = journey.querySelectorAll(".stage");
+    var fill = journey.querySelector(".journey-fill");
+    var truck = journey.querySelector(".journey-truck");
+    if (!steps.length) return;
+
+    var current = 0;
+    var timer = null;
+    var HOLD = 3200;   // milliseconds each stage stays on screen
+
+    function activate(index) {
+      current = index;
+
+      steps.forEach(function (step, i) {
+        step.classList.toggle("is-active", i === index);
+        step.classList.toggle("is-done", i < index);
+      });
+
+      stages.forEach(function (stage, i) {
+        stage.classList.toggle("is-active", i === index);
+      });
+
+      var percent = ((index + 1) / steps.length) * 100;
+      if (fill) fill.style.width = percent + "%";
+      if (truck) truck.style.left = percent + "%";
+    }
+
+    function play() {
+      if (timer || reducedMotion) return;
+      timer = window.setInterval(function () {
+        activate((current + 1) % steps.length);
+      }, HOLD);
+    }
+
+    function pause() {
+      window.clearInterval(timer);
+      timer = null;
+    }
+
+    // Clicking or tabbing to a step takes over from the autoplay.
+    steps.forEach(function (step) {
+      step.addEventListener("click", function () {
+        activate(Number(step.dataset.step));
+        pause();
+      });
+
+      step.addEventListener("focus", pause);
+    });
+
+    journey.addEventListener("mouseenter", pause);
+    journey.addEventListener("mouseleave", play);
+
+    activate(0);
+
+    // Only run while the section is actually visible.
+    if (!("IntersectionObserver" in window)) {
+      play();
+      return;
+    }
+
+    new IntersectionObserver(
+      function (entries) {
+        entries[0].isIntersecting ? play() : pause();
+      },
+      { threshold: 0.25 }
+    ).observe(journey);
+  }
+
   /* -------------------------------------------------------------
-     4. Statistics counters
+     5. Statistics counters
      Counts up once, then stops permanently. No timers left running.
      ------------------------------------------------------------- */
   function initCounters() {
@@ -218,7 +304,7 @@
   }
 
   /* -------------------------------------------------------------
-     5. Quote form helpers
+     6. Quote form helpers
      ------------------------------------------------------------- */
   function initQuoteForm() {
     // Stop people picking a moving date in the past.
@@ -233,11 +319,14 @@
 
     // Any "Get Free Quotes" link jumps to the form and focuses it,
     // so keyboard and screen reader users land in the right place.
+    // The hero field is "hero-service"; the full form on /quote uses
+    // "ServiceType", so try both.
     document.addEventListener("click", function (event) {
       var trigger = event.target.closest('a[href="#get-quotes"]');
       if (!trigger) return;
 
-      var firstField = document.getElementById("ServiceType");
+      var firstField =
+        document.getElementById("hero-service") || document.getElementById("ServiceType");
       if (!firstField) return;
 
       window.setTimeout(function () {

@@ -13,21 +13,21 @@
     <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <nav aria-label="Breadcrumb">
             <ol class="flex flex-wrap items-center gap-2 text-sm text-ink-500">
-                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                <li><a href="/" class="underline-grow transition-colors hover:text-jade-500">Home</a></li>
                 <li class="text-ink-300" aria-hidden="true">/</li>
                 <li><span class="font-medium text-ink-900" aria-current="page">Services</span></li>
             </ol>
         </nav>
 
-        <h1 class="mt-10 max-w-3xl font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
+        <h1 class="hero-in hero-in-1 mt-10 max-w-3xl font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
             Moving &amp; Logistics Services
         </h1>
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-500">
+        <p class="hero-in hero-in-2 mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
             Whatever you're moving, ShiftingGuru helps you find the right professionals.
         </p>
 
         <a href="/quote"
-           class="group mt-9 inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+           class="lift hero-in hero-in-3 group mt-9 inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
             Get Free Quotes
             <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -42,7 +42,9 @@
 
         <h2 id="all-services-heading" class="sr-only">All services</h2>
 
-        <ul class="grid grid-cols-2 gap-px overflow-hidden border border-ink-200 bg-ink-200 shadow-card rounded-panel lg:grid-cols-4">
+        @* Separate photo cards, matching the homepage. The old hairline panel
+           is gone: each tile now carries its own image and shadow. *@
+        <ul class="stagger grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
             @foreach (var service in Model.Services)
             {
                 <partial name="_ServiceCard" model="service" />

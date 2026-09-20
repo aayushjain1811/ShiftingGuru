@@ -17,7 +17,7 @@
 
         <div class="flex flex-wrap items-end justify-between gap-6">
             <h2 id="reviews-heading"
-                class="font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                class="reveal-up font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
                 What customers say
             </h2>
             <p class="text-sm text-ink-500">Placeholder content while real reviews are collected</p>
@@ -25,10 +25,10 @@
 
         @* Scroll-snap rail on mobile, plain grid on desktop. No JS, and
            nothing moves on its own. *@
-        <ul class="no-scrollbar mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0">
+        <ul class="stagger no-scrollbar mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0">
             @foreach (var review in reviews)
             {
-                <li class="w-[86%] shrink-0 snap-start lg:w-auto">
+                <li class="reveal-up w-[86%] shrink-0 snap-start lg:w-auto">
                     <figure class="flex h-full flex-col border border-ink-200 bg-white p-7 shadow-card rounded-panel">
 
                         <div class="flex items-center gap-1.5" role="img" aria-label="@review.Stars out of 5 stars">
