@@ -30,6 +30,12 @@ public class Location
     public string? OgDescription { get; set; }
     public string? OgImage { get; set; }
 
+    /// <summary>
+    /// NEW: the city photo behind the hero, e.g. "media/locations/agra-3f2a....webp".
+    /// Served at "/" + this path by MediaController. Null means the plain hero.
+    /// </summary>
+    public string? HeroImagePath { get; set; }
+
     /// <summary>Unpublished locations 404 publicly and stay out of the sitemap.</summary>
     public bool IsPublished { get; set; }
 
@@ -42,4 +48,7 @@ public class Location
 
     /// <summary>"Gurgaon, Haryana"</summary>
     public string Display => string.IsNullOrWhiteSpace(State) ? City : $"{City}, {State}";
+
+    /// <summary>NEW: the public URL of the hero photo, or null.</summary>
+    public string? HeroImageUrl => string.IsNullOrEmpty(HeroImagePath) ? null : "/" + HeroImagePath;
 }

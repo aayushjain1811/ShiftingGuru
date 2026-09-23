@@ -5,6 +5,7 @@ using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services;
 using ShiftingGuru.Services.Seo;
+using ShiftingGuru.Services.Storage;
 using ShiftingGuru.ViewModels.Admin;
 
 namespace ShiftingGuru.Areas.Admin.Controllers;
@@ -21,18 +22,24 @@ public class LocationsController : Controller
 {
     private const int PageSize = 25;
 
+    // NEW: a hero photo is the biggest thing on the page. Past ~2 MB it
+    // visibly slows the page on mobile and hurts the Google speed score.
+    private const long MaxHeroBytes = 2 * 1024 * 1024;
+
     private readonly ApplicationDbContext _db;
     private readonly ISeoService _seo;
     private readonly IAuditService _audit;
+    private readonly IDocumentStorage _storage;
     private readonly ILogger<LocationsController> _logger;
 
     public LocationsController(
         ApplicationDbContext db, ISeoService seo, IAuditService audit,
-        ILogger<LocationsController> logger)
+        IDocumentStorage storage, ILogger<LocationsController> logger)
     {
         _db = db;
         _seo = seo;
         _audit = audit;
+        _storage = storage;
         _logger = logger;
     }
 
@@ -90,7 +97,9 @@ public class LocationsController : Controller
     // POST /admin/locations/create
     [HttpPost("create")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(AdminLocationFormViewModel model, CancellationToken ct)
+    [RequestSizeLimit(4 * 1024 * 1024)]
+    public async Task<IActionResult> Create(
+        AdminLocationFormViewModel model, IFormFile? heroPhoto, CancellationToken ct)
     {
         ViewData["Title"] = "New location";
 
@@ -101,10 +110,20 @@ public class LocationsController : Controller
             ModelState.AddModelError(nameof(model.Slug), "That slug is already in use.");
         }
 
+        var photo = await CheckHeroPhotoAsync(heroPhoto, ct);
+
         if (!ModelState.IsValid) return View("Form", model);
 
         var location = new Location { CreatedAt = DateTime.UtcNow };
         Apply(model, location, slug);
+
+        string? uploaded = null;
+        if (heroPhoto is not null && photo is not null)
+        {
+            uploaded = await UploadHeroAsync(heroPhoto, photo, slug, ct);
+            if (uploaded is null) return View("Form", model);
+            location.HeroImagePath = uploaded;
+        }
 
         _db.Locations.Add(location);
 
@@ -115,6 +134,7 @@ public class LocationsController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Location create failed for slug {Slug}", slug);
+            await DeleteQuietlyAsync(uploaded);
             ModelState.AddModelError(string.Empty, "Couldn't save that location. Please try again.");
             return View("Form", model);
         }
@@ -134,6 +154,7 @@ public class LocationsController : Controller
         if (location is null) return View("NotFound");
 
         ViewData["Title"] = $"Edit {location.Name}";
+        ViewData["HeroImageUrl"] = location.HeroImageUrl;
 
         return View("Form", new AdminLocationFormViewModel
         {
@@ -158,7 +179,10 @@ public class LocationsController : Controller
     // POST /admin/locations/5/edit
     [HttpPost("{id:int}/edit")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, AdminLocationFormViewModel model, CancellationToken ct)
+    [RequestSizeLimit(4 * 1024 * 1024)]
+    public async Task<IActionResult> Edit(
+        int id, AdminLocationFormViewModel model, IFormFile? heroPhoto, bool removeHeroPhoto,
+        CancellationToken ct)
     {
         // The id comes from the route, not the form - a tampered hidden field
         // can't redirect the edit at another record.
@@ -167,7 +191,9 @@ public class LocationsController : Controller
 
         model.Id = id;
         ViewData["Title"] = $"Edit {location.Name}";
+        ViewData["HeroImageUrl"] = location.HeroImageUrl;
 
+        var oldHeroPath = location.HeroImagePath;
         var slug = _seo.Slugify(model.Slug ?? "");
 
         if (await _db.Locations.AnyAsync(l => l.Slug == slug && l.Id != id, ct))
@@ -175,10 +201,25 @@ public class LocationsController : Controller
             ModelState.AddModelError(nameof(model.Slug), "That slug is already in use.");
         }
 
+        var photo = await CheckHeroPhotoAsync(heroPhoto, ct);
+
         if (!ModelState.IsValid) return View("Form", model);
 
         Apply(model, location, slug);
         location.UpdatedAt = DateTime.UtcNow;
+
+        // A new photo wins over "remove".
+        string? uploaded = null;
+        if (heroPhoto is not null && photo is not null)
+        {
+            uploaded = await UploadHeroAsync(heroPhoto, photo, slug, ct);
+            if (uploaded is null) return View("Form", model);
+            location.HeroImagePath = uploaded;
+        }
+        else if (removeHeroPhoto)
+        {
+            location.HeroImagePath = null;
+        }
 
         try
         {
@@ -187,8 +228,16 @@ public class LocationsController : Controller
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Location update failed for {LocationId}", id);
+            await DeleteQuietlyAsync(uploaded);
             ModelState.AddModelError(string.Empty, "Couldn't save those changes. Please try again.");
             return View("Form", model);
+        }
+
+        // Only after the database points at the new photo (or none) is the
+        // old file removed, so the live page never shows a broken image.
+        if (oldHeroPath is not null && oldHeroPath != location.HeroImagePath)
+        {
+            await DeleteQuietlyAsync(oldHeroPath);
         }
 
         await _audit.RecordAsync(AuditAction.Updated, nameof(Location), location.Id,
@@ -221,6 +270,65 @@ public class LocationsController : Controller
             : $"{location.Name} is now a draft and has been removed from the sitemap.";
 
         return RedirectToAction(nameof(Index));
+    }
+
+    // -----------------------------------------------------------------
+
+    /// <summary>NEW: null with no photo chosen, or when the photo is rejected (error added).</summary>
+    private async Task<InspectedFile?> CheckHeroPhotoAsync(IFormFile? file, CancellationToken ct)
+    {
+        if (file is null || file.Length == 0) return null;
+
+        if (file.Length > MaxHeroBytes)
+        {
+            ModelState.AddModelError("heroPhoto",
+                "That photo is larger than 2 MB. Export it about 1920 pixels wide as WEBP or JPG.");
+            return null;
+        }
+
+        // Checks the file's real contents, not its name.
+        var info = await DocumentInspector.InspectAsync(file, allowPdf: false, ct);
+        if (info is null)
+        {
+            ModelState.AddModelError("heroPhoto", "Upload a JPG, PNG or WEBP photo.");
+        }
+        return info;
+    }
+
+    /// <summary>NEW: stores the photo under a fresh name. Null (with an error) if storage fails.</summary>
+    private async Task<string?> UploadHeroAsync(
+        IFormFile file, InspectedFile info, string slug, CancellationToken ct)
+    {
+        // A new name every time, so browsers that cached the old photo for a
+        // year still see the new one immediately.
+        var path = $"media/locations/{slug}-{Guid.NewGuid():N}{info.Extension}";
+
+        try
+        {
+            await using var content = file.OpenReadStream();
+            await _storage.SaveAsync(path, content, info.ContentType, ct);
+            return path;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Couldn't store hero photo for location {Slug}", slug);
+            ModelState.AddModelError("heroPhoto", "Couldn't upload that photo. Please try again.");
+            return null;
+        }
+    }
+
+    private async Task DeleteQuietlyAsync(string? path)
+    {
+        if (path is null) return;
+
+        try
+        {
+            await _storage.DeleteAsync(path, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Couldn't delete old hero photo {Path}", path);
+        }
     }
 
     private static void Apply(AdminLocationFormViewModel model, Location location, string slug)

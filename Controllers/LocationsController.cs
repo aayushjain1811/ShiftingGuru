@@ -124,7 +124,12 @@ public class LocationsController : Controller
             Canonical = canonical,
             OgTitle = location.OgTitle,
             OgDescription = location.OgDescription,
-            OgImage = location.OgImage,
+
+            // CHANGED: with no share image set, the city's hero photo is used,
+            // so a link shared on WhatsApp shows that city instead of nothing.
+            OgImage = location.OgImage
+                ?? (location.HeroImageUrl is { } hero ? _seo.Canonical(hero) : null),
+
             Breadcrumbs = crumbs,
             JsonLdBlocks = jsonLd
         };

@@ -1,6 +1,7 @@
 @model AdminLocationFormViewModel
 @{
     var action = Model.IsEdit ? $"/admin/locations/{Model.Id}/edit" : "/admin/locations/create";
+    var heroUrl = ViewData["HeroImageUrl"] as string;
 }
 
 <a href="/admin/locations" class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-500 hover:text-ink-900">
@@ -13,7 +14,8 @@
 <div asp-validation-summary="ModelOnly"
      class="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 rounded-card empty:hidden"></div>
 
-<form method="post" action="@action" class="mt-4 grid gap-4 lg:grid-cols-3">
+@* multipart/form-data is required, or the photo never reaches the server. *@
+<form method="post" action="@action" enctype="multipart/form-data" class="mt-4 grid gap-4 lg:grid-cols-3">
     @Html.AntiForgeryToken()
 
     <div class="space-y-4 lg:col-span-2">
@@ -58,6 +60,49 @@
                     <label asp-for="Country" class="block text-[13px] font-semibold text-ink-800"></label>
                     <input asp-for="Country" class="mt-2 block h-11 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
                     <span asp-validation-for="Country" class="mt-1 block text-sm text-red-600"></span>
+                </div>
+            </div>
+        </section>
+
+        @* NEW: hero photo *@
+        <section class="border border-ink-200 bg-white p-5 shadow-card rounded-panel">
+            <h2 class="text-[13px] font-semibold uppercase tracking-wide text-ink-500">Hero photo</h2>
+            <p class="mt-2 text-sm leading-relaxed text-ink-500">
+                Shown behind the top of the city page, and used when the page is shared if no share image is set.
+                Use a landmark or street scene from this city that you have the right to use.
+            </p>
+
+            <div class="mt-4 grid gap-5 sm:grid-cols-2">
+                <div class="overflow-hidden border border-ink-200 bg-ink-50 rounded-card">
+                    @if (heroUrl is not null)
+                    {
+                        <img src="@heroUrl" alt="Current hero photo" class="aspect-video w-full object-cover" />
+                    }
+                    else
+                    {
+                        <div class="grid aspect-video place-items-center text-sm text-ink-500">No photo yet</div>
+                    }
+                </div>
+
+                <div>
+                    <label for="heroPhoto" class="block text-[13px] font-semibold text-ink-800">
+                        @(heroUrl is null ? "Upload a photo" : "Replace the photo")
+                    </label>
+                    <input type="file" id="heroPhoto" name="heroPhoto" accept="image/jpeg,image/png,image/webp"
+                           class="mt-2 block w-full text-sm text-ink-700 file:mr-3 file:h-10 file:cursor-pointer file:border file:border-ink-200 file:bg-white file:px-4 file:text-sm file:font-semibold file:text-ink-800 file:rounded-card hover:file:border-jade-500" />
+                    @Html.ValidationMessage("heroPhoto", new { @class = "mt-1 block text-sm text-red-600" })
+                    <p class="mt-1.5 text-xs leading-relaxed text-ink-500">
+                        Landscape, about 1920 × 1080 pixels, WEBP or JPG, under 2 MB.
+                        The subject looks best on the right half, since text covers the left.
+                    </p>
+
+                    @if (heroUrl is not null)
+                    {
+                        <label class="mt-4 flex items-start gap-2.5">
+                            <input type="checkbox" name="removeHeroPhoto" value="true" class="mt-0.5 h-4 w-4 accent-red-600" />
+                            <span class="text-sm text-ink-700">Remove the photo (the page goes back to the plain design)</span>
+                        </label>
+                    }
                 </div>
             </div>
         </section>
@@ -123,6 +168,7 @@
                         <label asp-for="OgImage" class="block text-[13px] font-semibold text-ink-800"></label>
                         <input asp-for="OgImage" placeholder="https://..." class="mt-2 block h-11 w-full border border-ink-200 bg-white px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
                         <span asp-validation-for="OgImage" class="mt-1 block text-sm text-red-600"></span>
+                        <p class="mt-1.5 text-xs text-ink-500">Leave blank to use the hero photo.</p>
                     </div>
                 </div>
 

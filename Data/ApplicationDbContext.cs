@@ -399,6 +399,9 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
             location.Property(l => l.OgDescription).HasMaxLength(320);
             location.Property(l => l.OgImage).HasMaxLength(400);
 
+            // NEW: where the city's hero photo is stored, e.g. media/locations/agra-3f2a....webp
+            location.Property(l => l.HeroImagePath).HasMaxLength(300);
+
             location.Property(l => l.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
             location.Property(l => l.UpdatedAt).HasColumnType("timestamp with time zone");
 
