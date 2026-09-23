@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ShiftingGuru.Data;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
 
 namespace ShiftingGuru.Controllers;
@@ -11,15 +12,22 @@ namespace ShiftingGuru.Controllers;
 /// </summary>
 public class PartnerController : Controller
 {
+    private const long MaxRequestBytes = 28 * 1024 * 1024;
+
     private readonly IServiceCatalog _catalog;
     private readonly IPartnerService _partners;
+    private readonly IEmailVerificationService _emailVerification;
     private readonly ILogger<PartnerController> _logger;
 
     public PartnerController(
-        IServiceCatalog catalog, IPartnerService partners, ILogger<PartnerController> logger)
+        IServiceCatalog catalog,
+        IPartnerService partners,
+        IEmailVerificationService emailVerification,
+        ILogger<PartnerController> logger)
     {
         _catalog = catalog;
         _partners = partners;
+        _emailVerification = emailVerification;
         _logger = logger;
     }
 
@@ -28,8 +36,12 @@ public class PartnerController : Controller
     public IActionResult Join() => View(Prepare(new PartnerRegistrationViewModel()));
 
     // POST /join-as-partner
+    // Five files of up to 5 MB each, plus the form. The cap stays under Cloud
+    // Run's 32 MB request limit, so an oversized upload gets a clean error.
     [HttpPost("/join-as-partner")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaxRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MaxRequestBytes)]
     public async Task<IActionResult> Join(PartnerRegistrationViewModel model, CancellationToken ct)
     {
         if (!ModelState.IsValid) return View(Prepare(model));
@@ -38,6 +50,21 @@ public class PartnerController : Controller
 
         if (!result.Succeeded)
         {
+            // A rejected proof must be redone, so clear it and the page shows
+            // "Send code" again. ModelState.Remove is needed because the form
+            // re-displays the value it received rather than the model's.
+            if (result.ResetEmailVerification)
+            {
+                ModelState.Remove(nameof(model.EmailVerificationToken));
+                model.EmailVerificationToken = null;
+            }
+
+            if (result.ResetPhoneVerification)
+            {
+                ModelState.Remove(nameof(model.PhoneVerificationToken));
+                model.PhoneVerificationToken = null;
+            }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error);
@@ -50,6 +77,24 @@ public class PartnerController : Controller
         TempData["PartnerVendorNumber"] = result.Vendor.VendorNumber;
 
         return RedirectToAction(nameof(Success));
+    }
+
+    // POST /join-as-partner/email-code/send   (called by partner-join.js)
+    [HttpPost("/join-as-partner/email-code/send")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendEmailCode([FromBody] EmailCodeRequest request, CancellationToken ct)
+    {
+        var result = await _emailVerification.SendCodeAsync(request?.Email ?? "", ct);
+        return result.Succeeded ? Ok() : BadRequest(new { error = result.Error });
+    }
+
+    // POST /join-as-partner/email-code/verify   (called by partner-join.js)
+    [HttpPost("/join-as-partner/email-code/verify")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyEmailCode([FromBody] EmailCodeRequest request, CancellationToken ct)
+    {
+        var result = await _emailVerification.VerifyCodeAsync(request?.Email ?? "", request?.Code ?? "", ct);
+        return result.Succeeded ? Ok(new { token = result.Token }) : BadRequest(new { error = result.Error });
     }
 
     // GET /join-as-partner/success
@@ -70,7 +115,7 @@ public class PartnerController : Controller
     {
         model.AvailableServices = _catalog.GetAll();
 
-        ViewData["Title"] = "Join as a Partner";
+        ViewData["Title"] = "Become a Partner";
         ViewData["MetaDescription"] =
             "Register your moving or logistics business with ShiftingGuru and receive "
             + "relevant customer enquiries from across India.";
@@ -79,3 +124,6 @@ public class PartnerController : Controller
         return model;
     }
 }
+
+/// <summary>What partner-join.js sends to the two email-code endpoints.</summary>
+public record EmailCodeRequest(string? Email, string? Code);

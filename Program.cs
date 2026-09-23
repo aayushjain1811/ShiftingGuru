@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -8,6 +9,8 @@ using ShiftingGuru.Services;
 using ShiftingGuru.Services.Email;
 using ShiftingGuru.Services.Notifications;
 using ShiftingGuru.Services.Seo;
+using ShiftingGuru.Services.Storage;
+using ShiftingGuru.Services.Verification;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +35,34 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ISeoService, SeoService>();
 builder.Services.AddHttpContextAccessor();       // AuditService needs it
 builder.Services.AddScoped<IAuditService, AuditService>();
+
+// NEW: email one-time codes for the partner sign-up form.
+builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+
+// NEW: checks the mobile proof with Firebase. One instance is enough; it sets
+// Firebase up the first time it's needed.
+builder.Services.AddSingleton<IPhoneVerificationService, FirebasePhoneVerificationService>();
+
+// NEW: where partner documents are stored. A local folder while developing,
+// a private Google Cloud Storage bucket in production.
+builder.Services.Configure<StorageOptions>(
+    builder.Configuration.GetSection(StorageOptions.SectionName));
+
+if (string.Equals(builder.Configuration["Storage:Provider"], "Gcs", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddSingleton<IDocumentStorage, GcsDocumentStorage>();
+}
+else if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<IDocumentStorage, LocalDocumentStorage>();
+}
+else
+{
+    // Cloud Run wipes its disk on every restart, so a local folder there would
+    // silently lose partners' documents. Refuse to start instead.
+    throw new InvalidOperationException(
+        "Partner documents need Storage:Provider=Gcs and Storage:Bucket outside Development.");
+}
 
 
 // ---------------------------------------------------------------
@@ -59,6 +90,14 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 // to the database before being queued, so nothing is lost on a restart.
 builder.Services.AddSingleton<NotificationQueue>();
 builder.Services.AddHostedService<NotificationSender>();
+
+// NEW: the keys that sign login cookies and form tokens are stored in the
+// database, so every Cloud Run instance shares them and they survive restarts
+// and deploys. Without this, users are logged out at random and forms can
+// fail with a 400 when a different instance answers the POST.
+builder.Services.AddDataProtection()
+    .SetApplicationName("ShiftingGuru")
+    .PersistKeysToDbContext<ApplicationDbContext>();
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {

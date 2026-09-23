@@ -1,10 +1,4 @@
-@{
-    @* Six stages of the move itself, not six steps of our software. The
-       names are all the text the journey needs: the drawing explains it. *@
-    var stages = new[] { "Request", "Loading", "In Transit", "Arriving", "Unloading", "Delivered" };
-}
-
-<section id="how-it-works" class="journey scroll-mt-24 overflow-hidden border-y border-ink-100 bg-paper" aria-labelledby="how-heading">
+<section id="how-it-works" class="scroll-mt-24 overflow-hidden border-y border-ink-100 bg-paper" aria-labelledby="how-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
 
         <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
@@ -17,146 +11,24 @@
             </p>
         </div>
 
-        @* --- The road. The dashed curve draws itself once when the section
-               arrives; the solid line then fills in behind the truck on a
-               loop. Desktop only - phones get the list below instead. --- *@
-        <div class="mt-16 hidden lg:block" aria-hidden="true">
-            <svg class="block w-full" viewBox="0 0 1200 240" fill="none">
+        @* The road, the truck, the icons and the stage names all live in
+           Views/Shared/_Journey.cshtml, so the homepage and every service
+           page show exactly the same journey. *@
+        <partial name="_Journey" />
 
-                <path class="route-road"
-                      d="M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70"
-                      stroke="#DCE6FF" stroke-width="2.5" stroke-linecap="round" />
-
-                <path class="route-done" pathLength="1"
-                      d="M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70"
-                      stroke="#3156C6" stroke-width="2.5" stroke-linecap="round" />
-
-                @* The six stops, sitting exactly on the curve. Each ring fades
-                   in as the truck reaches it; the last one confirms in green. *@
-                <g>
-                    <circle class="journey-ring stage-1" cx="100" cy="150" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                    <circle class="journey-dot stage-1" cx="100" cy="150" r="6" fill="#DCE6FF" />
-
-                    <circle class="journey-ring stage-2" cx="300" cy="95" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                    <circle class="journey-dot stage-2" cx="300" cy="95" r="6" fill="#DCE6FF" />
-
-                    <circle class="journey-ring stage-3" cx="500" cy="135" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                    <circle class="journey-dot stage-3" cx="500" cy="135" r="6" fill="#DCE6FF" />
-
-                    <circle class="journey-ring stage-4" cx="700" cy="80" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                    <circle class="journey-dot stage-4" cx="700" cy="80" r="6" fill="#DCE6FF" />
-
-                    <circle class="journey-ring stage-5" cx="900" cy="120" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                    <circle class="journey-dot stage-5" cx="900" cy="120" r="6" fill="#DCE6FF" />
-
-                    <circle class="journey-ring stage-6" cx="1100" cy="70" r="15" fill="none" stroke="#2F7D65" stroke-opacity="0.35" stroke-width="2" />
-                    <circle class="journey-dot stage-6" cx="1100" cy="70" r="6" fill="#DCE6FF" />
-                </g>
-
-                @* Boxes going into the truck at Loading, and back out at
-                   Unloading. Small, and only for a moment. *@
-                <g class="box-load">
-                    <rect x="262" y="78" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
-                    <rect x="246" y="86" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
-                </g>
-
-                <g class="box-unload">
-                    <rect x="926" y="104" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
-                    <rect x="944" y="112" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
-                </g>
-
-                @* The truck. offset-path keeps it on the curve, and the same
-                   18 second loop moves it from the first stop to the last. *@
-                <g class="route-truck">
-                    <circle r="20" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="1.5" />
-                    <g transform="translate(-10,-8)" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="0" y="2" width="11" height="9" rx="1.5" fill="#1E2A44" stroke="#1E2A44" stroke-width="1.2" />
-                        <path d="M11,5h3.2L17,8v3h-6z" fill="#3156C6" stroke="#3156C6" stroke-width="1.2" />
-                        <circle cx="4" cy="12.5" r="1.8" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
-                        <circle cx="13.5" cy="12.5" r="1.8" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
-                    </g>
-                </g>
-            </svg>
-        </div>
-                @* --- The same journey for phones: a shorter curve, a smaller truck,
-               and the stops spaced to fit a narrow screen. --- *@
-        <div class="mt-12 lg:hidden" aria-hidden="true">
-            <svg class="block w-full" viewBox="0 0 600 150" fill="none">
-
-                <path class="route-road"
-                      d="M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50"
-                      stroke="#DCE6FF" stroke-width="3" stroke-linecap="round" />
-
-                <path class="route-done" pathLength="1"
-                      d="M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50"
-                      stroke="#3156C6" stroke-width="3" stroke-linecap="round" />
-
-                <circle class="journey-ring stage-1" cx="40" cy="105" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                <circle class="journey-dot stage-1" cx="40" cy="105" r="6" fill="#DCE6FF" />
-
-                <circle class="journey-ring stage-2" cx="145" cy="60" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                <circle class="journey-dot stage-2" cx="145" cy="60" r="6" fill="#DCE6FF" />
-
-                <circle class="journey-ring stage-3" cx="250" cy="100" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                <circle class="journey-dot stage-3" cx="250" cy="100" r="6" fill="#DCE6FF" />
-
-                <circle class="journey-ring stage-4" cx="355" cy="55" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                <circle class="journey-dot stage-4" cx="355" cy="55" r="6" fill="#DCE6FF" />
-
-                <circle class="journey-ring stage-5" cx="460" cy="95" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-                <circle class="journey-dot stage-5" cx="460" cy="95" r="6" fill="#DCE6FF" />
-
-                <circle class="journey-ring stage-6" cx="560" cy="50" r="13" fill="none" stroke="#2F7D65" stroke-opacity="0.35" stroke-width="2" />
-                <circle class="journey-dot stage-6" cx="560" cy="50" r="6" fill="#DCE6FF" />
-
-                <g class="route-truck-m">
-                    <circle r="17" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="1.5" />
-                    <g transform="translate(-9,-7)" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="0" y="2" width="10" height="8" rx="1.5" fill="#1E2A44" stroke="#1E2A44" stroke-width="1.2" />
-                        <path d="M10,4.5h3L15.5,7v3h-5.5z" fill="#3156C6" stroke="#3156C6" stroke-width="1.2" />
-                        <circle cx="3.5" cy="11" r="1.6" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
-                        <circle cx="12" cy="11" r="1.6" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
-                    </g>
-                </g>
-            </svg>
-        </div>
-
-        @* --- Stage names. Six columns on desktop, lined up under the six
-               stops; a plain vertical list on phones. --- *@
-        <ol class="relative mt-8 grid gap-8 lg:mt-2 lg:grid-cols-6 lg:gap-6">
-            @for (var i = 0; i < stages.Length; i++)
-            {
-                <li class="flex items-center gap-4 lg:block">
-                    <span class="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-ink-200 bg-white font-display text-[13px] font-bold text-jade-500 shadow-card lg:hidden">
-                        @($"0{i + 1}")
-                    </span>
-
-                    <div>
-                        <p class="hidden font-display text-[13px] font-bold text-jade-500 lg:block">@($"0{i + 1}")</p>
-                        <p class="journey-label stage-@(i + 1) font-display text-lg font-bold tracking-[-0.03em] text-ink-900 lg:mt-1.5">
-                            @stages[i]
-                        </p>
-                    </div>
-                </li>
-            }
-        </ol>
-
-        @* --- Short, honest copy under the journey. It gives the section real
-               text for search engines, and links to the pages meant to rank.
-               Locations and routes are no longer on the homepage, so this is
-               where Google finds the way through to them. --- *@
+        @* Short, honest copy under the journey: real text for search engines,
+           and links to the pages meant to rank. *@
         <div class="mt-16 grid gap-10 border-t border-ink-200 pt-12 lg:mt-20 lg:grid-cols-12 lg:gap-10">
 
             <div class="reveal-up lg:col-span-7">
                 <h3 class="font-display text-xl font-bold tracking-[-0.03em] text-ink-900">
-                    Packers and movers, car transport and logistics, in one request
+                    Packers and movers, pet relocation and international moves, in one request
                 </h3>
                 <p class="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-ink-500">
-                    Whether it is household shifting within the city, an office
-                    relocation over a weekend, or car and bike transportation between
-                    two states, the process is the same: describe the move once, and
-                    professionals who cover that route respond with a price and what
-                    it includes.
+                    Whether it is household shifting within the city, moving your pet to
+                    another state, or relocating your home, car and cargo abroad, the
+                    process is the same: describe the move once, and professionals who
+                    cover that route respond with a price and what it includes.
                 </p>
                 <p class="mt-4 max-w-[62ch] text-[15px] leading-relaxed text-ink-500">
                     Nothing is booked on your behalf, and comparing quotes costs
@@ -169,31 +41,12 @@
                     Popular starting points
                 </p>
                 <ul class="mt-5 space-y-2.5">
-                    <li>
-                        <a href="/services/home-shifting" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">
-                            Home shifting services
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/services/car-transportation" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">
-                            Car transportation
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/services/office-shifting" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">
-                            Office relocation
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/locations" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">
-                            Cities we cover
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/routes" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">
-                            Popular moving routes
-                        </a>
-                    </li>
+                    <li><a href="/services/pet-relocation" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">Pet relocation</a></li>
+                    <li><a href="/services/international-relocation" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">International relocation</a></li>
+                    <li><a href="/services/home-shifting" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">Home shifting services</a></li>
+                    <li><a href="/services/car-transportation" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">Car transportation</a></li>
+                    <li><a href="/locations" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">Cities we cover</a></li>
+                    <li><a href="/routes" class="text-[15px] font-medium text-jade-500 transition-colors hover:text-jade-600">Popular moving routes</a></li>
                 </ul>
             </div>
         </div>

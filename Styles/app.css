@@ -17,11 +17,10 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   /* ---- Light premium palette ----
-     Names stay "ink" / "jade" / "paper" so the 61 views keep working.
+     Names stay "ink" / "jade" / "paper" so the views keep working.
      ink-950 = primary navy (#1E2A44), used for the few dark surfaces
                (footer, admin sidebar) and dark text.
-     ink-900 = heading colour (#182238). Slightly deeper than ink-950 on
-               purpose: headings need the strongest contrast.
+     ink-900 = heading colour (#182238).
      ink-500 = body text, ink-200 = borders. */
   --color-ink-950: #1e2a44;
   --color-ink-900: #182238;
@@ -86,7 +85,7 @@ body {
    Anything that hides content is scoped to .js.
    --------------------------------------------------------------- */
 
-/* --- One orchestrated page-load moment: the hero headline --- */
+/* --- Older pages: headline lines rising in turn --- */
 .js .line-rise > span {
   display: block;
   opacity: 0;
@@ -102,7 +101,7 @@ body {
   to   { opacity: 1; transform: none; }
 }
 
-/* Route line draws once, then stops for good. */
+/* Decorative route line on older heroes: draws once, then stops. */
 .js .route-path {
   stroke-dasharray: 900;
   stroke-dashoffset: 900;
@@ -147,6 +146,7 @@ body {
 .js .progress-line.is-visible {
   transform: scaleX(1);
 }
+
 /* ---------------------------------------------------------------
    Reveal utilities.
 
@@ -203,7 +203,7 @@ body {
 .js .stagger > *:nth-child(7)   { transition-delay: 0.48s; }
 .js .stagger > *:nth-child(8)   { transition-delay: 0.56s; }
 
-/* --- Timeline: the rail fills as the section scrolls into view --- */
+/* --- Simple timelines: the rail fills as the section arrives --- */
 .timeline-rail {
   transform: scaleX(0);
   transform-origin: left center;
@@ -220,7 +220,6 @@ body {
 
 .timeline-rail-v.is-visible { transform: scaleY(1); }
 
-/* The numbered marker lights up as its step arrives. */
 .js .timeline-step .timeline-dot {
   transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
 }
@@ -253,14 +252,22 @@ body {
     transition: none;
   }
 }
-/* ---------------------------------------------------------------
-   How It Works: the route the truck drives.
 
-   The road is a real curve, not a straight rule. The dashes draw
-   themselves once when the section arrives, and the truck follows the
-   same curve forever using CSS motion path - so the browser animates
-   one transform on the compositor and nothing runs in JavaScript.
+/* ---------------------------------------------------------------
+   How It Works: the moving journey.
+
+   One 18 second loop drives the whole story. The truck drives the road
+   and pauses at each stop; each stop lights up the moment the truck
+   arrives and stays lit until the loop resets. Every stage uses its own
+   keyframes with fixed percentages rather than delays, so nothing can
+   drift out of step however long the page stays open.
+
+   Stop times (percent of the loop):
+     01 Request 3%   02 Loading 18%   03 In Transit 35%
+     04 Arriving 52% 05 Unloading 69% 06 Delivered 88%
    --------------------------------------------------------------- */
+
+/* The dashed road draws itself once when the section arrives. */
 .route-road {
   stroke-dasharray: 10 14;
   stroke-dashoffset: 1800;
@@ -269,59 +276,233 @@ body {
 
 .route-road.is-visible { stroke-dashoffset: 0; }
 
+/* The solid line left behind the truck (pathLength="1" in the markup). */
+.route-done {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: route-draw 18s ease-in-out infinite;
+}
+
+.route-truck,
+.route-truck-m {
+  offset-rotate: 0deg;
+  offset-distance: 0%;
+  animation: route-travel 18s ease-in-out infinite;
+  will-change: offset-distance;
+}
+
 .route-truck {
   offset-path: path("M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70");
-  offset-rotate: 0deg;
-  offset-distance: 0%;
-  animation: route-travel 18s linear infinite;
-  will-change: offset-distance;
 }
-/* Phones get their own, shorter road: the same six stops squeezed into
-   a narrower curve, so the truck still travels left to right. */
+
 .route-truck-m {
-  offset-path: path("M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50");
-  offset-rotate: 0deg;
-  offset-distance: 0%;
-  animation: route-travel 18s linear infinite;
-  will-change: offset-distance;
+  offset-path: path("M50,205 C90,205 110,170 150,170 S210,210 250,210 S310,165 350,165 S410,205 450,205 S510,160 550,160");
 }
 
+/* Drive, pause, drive. Each pair of percentages is a pause at a stop. */
 @keyframes route-travel {
-  from { offset-distance: 0%; }
-  to   { offset-distance: 100%; }
+  0%        { offset-distance: 0%;   opacity: 0; }
+  3%, 6%    { offset-distance: 0%;   opacity: 1; }
+  18%, 23%  { offset-distance: 20%;  opacity: 1; }
+  35%, 40%  { offset-distance: 40%;  opacity: 1; }
+  52%, 57%  { offset-distance: 60%;  opacity: 1; }
+  69%, 74%  { offset-distance: 80%;  opacity: 1; }
+  88%, 96%  { offset-distance: 100%; opacity: 1; }
+  100%      { offset-distance: 100%; opacity: 0; }
 }
 
-/* Phones get the same idea vertically: the truck slides down the rail
-   and starts again. */
+@keyframes route-draw {
+  0%, 6%    { stroke-dashoffset: 1; }
+  18%, 23%  { stroke-dashoffset: 0.8; }
+  35%, 40%  { stroke-dashoffset: 0.6; }
+  52%, 57%  { stroke-dashoffset: 0.4; }
+  69%, 74%  { stroke-dashoffset: 0.2; }
+  88%, 96%  { stroke-dashoffset: 0; }
+  100%      { stroke-dashoffset: 1; }
+}
+
+/* --- Phones: the same journey, top to bottom. The truck's wrapper is
+       exactly the rail's length plus one truck tall, so "100% - 44px"
+       is the full rail and each stop is a clean fifth of it. --- */
 .route-truck-v {
-  animation: route-travel-v 14s ease-in-out infinite;
+  animation: route-travel-v 18s ease-in-out infinite;
   will-change: transform;
 }
 
 @keyframes route-travel-v {
-  0%        { transform: translateY(0); }
-  45%, 55%  { transform: translateY(calc(100% - 2.75rem)); }
-  100%      { transform: translateY(0); }
+  0%        { transform: translateY(0); opacity: 0; }
+  3%, 6%    { transform: translateY(0); opacity: 1; }
+  18%, 23%  { transform: translateY(calc((100% - 44px) * 0.2)); opacity: 1; }
+  35%, 40%  { transform: translateY(calc((100% - 44px) * 0.4)); opacity: 1; }
+  52%, 57%  { transform: translateY(calc((100% - 44px) * 0.6)); opacity: 1; }
+  69%, 74%  { transform: translateY(calc((100% - 44px) * 0.8)); opacity: 1; }
+  88%, 96%  { transform: translateY(calc(100% - 44px)); opacity: 1; }
+  100%      { transform: translateY(calc(100% - 44px)); opacity: 0; }
+}
+
+/* The blue line fills down the rail behind the truck. */
+.route-done-v {
+  transform-origin: top center;
+  animation: route-draw-v 18s ease-in-out infinite;
+}
+
+@keyframes route-draw-v {
+  0%, 6%    { transform: scaleY(0); }
+  18%, 23%  { transform: scaleY(0.2); }
+  35%, 40%  { transform: scaleY(0.4); }
+  52%, 57%  { transform: scaleY(0.6); }
+  69%, 74%  { transform: scaleY(0.8); }
+  88%, 96%  { transform: scaleY(1); }
+  100%      { transform: scaleY(0); }
+}
+
+/* Speed lines behind the truck: only while it is actually moving. */
+.truck-speed {
+  opacity: 0;
+  animation: truck-speed 18s linear infinite;
+}
+
+@keyframes truck-speed {
+  0%, 6%    { opacity: 0; }
+  8%, 16%   { opacity: 1; }
+  18%, 23%  { opacity: 0; }
+  25%, 33%  { opacity: 1; }
+  35%, 40%  { opacity: 0; }
+  42%, 50%  { opacity: 1; }
+  52%, 57%  { opacity: 0; }
+  59%, 67%  { opacity: 1; }
+  69%, 74%  { opacity: 0; }
+  76%, 86%  { opacity: 1; }
+  88%, 100% { opacity: 0; }
+}
+
+/* --- Stage switches. Anything with .on-N fades in when the truck
+       reaches stop N and out when the loop resets. The muted copy of
+       each marker, icon and label sits underneath, always visible. --- */
+.on-1, .on-2, .on-3, .on-4, .on-5, .on-6 {
+  opacity: 0;
+  animation-duration: 18s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+.on-1 { animation-name: on-1; }
+.on-2 { animation-name: on-2; }
+.on-3 { animation-name: on-3; }
+.on-4 { animation-name: on-4; }
+.on-5 { animation-name: on-5; }
+.on-6 { animation-name: on-6; }
+
+@keyframes on-1 { 0%, 2%  { opacity: 0; } 4%  { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+@keyframes on-2 { 0%, 17% { opacity: 0; } 19% { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+@keyframes on-3 { 0%, 34% { opacity: 0; } 36% { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+@keyframes on-4 { 0%, 51% { opacity: 0; } 53% { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+@keyframes on-5 { 0%, 68% { opacity: 0; } 70% { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+@keyframes on-6 { 0%, 87% { opacity: 0; } 89% { opacity: 1; } 96% { opacity: 1; } 99%, 100% { opacity: 0; } }
+
+/* --- Little scenes at the stops. --- */
+
+/* 01 Request: the phone rings - two arcs pulse outward. */
+.ring-wave {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: ring-wave 1.4s ease-out infinite;
+}
+
+.ring-wave-2 { animation-delay: 0.35s; }
+
+@keyframes ring-wave {
+  0%   { opacity: 0; transform: scale(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+
+/* 02 Loading: boxes slide into the truck while it waits. */
+.box-load {
+  opacity: 0;
+  animation: box-load 18s ease-in-out infinite;
+}
+
+@keyframes box-load {
+  0%, 11%   { opacity: 0; transform: translateX(-18px); }
+  13%       { opacity: 1; transform: translateX(-18px); }
+  21%       { opacity: 1; transform: translateX(0); }
+  23%, 100% { opacity: 0; transform: translateX(0); }
+}
+
+/* 04 Arriving: the destination pin pulses once as the truck pulls in. */
+.pin-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: pin-pulse 18s ease-out infinite;
+}
+
+@keyframes pin-pulse {
+  0%, 51%   { opacity: 0; transform: scale(0.6); }
+  53%       { opacity: 0.8; transform: scale(0.8); }
+  60%       { opacity: 0; transform: scale(1.8); }
+  100%      { opacity: 0; transform: scale(1.8); }
+}
+
+/* 05 Unloading: boxes come back out of the truck. */
+.box-unload {
+  opacity: 0;
+  animation: box-unload 18s ease-in-out infinite;
+}
+
+@keyframes box-unload {
+  0%, 69%   { opacity: 0; transform: translateX(0); }
+  71%       { opacity: 1; transform: translateX(0); }
+  79%, 94%  { opacity: 1; transform: translateX(18px); }
+  97%, 100% { opacity: 0; transform: translateX(18px); }
+}
+
+/* 06 Delivered: the tick draws itself. */
+.tick-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tick-draw 18s ease-out infinite;
+}
+
+@keyframes tick-draw {
+  0%, 88%   { stroke-dashoffset: 1; }
+  92%, 96%  { stroke-dashoffset: 0; }
+  99%, 100% { stroke-dashoffset: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .route-road {
-    stroke-dashoffset: 0;
-    transition: none;
-  }
+  .route-road { stroke-dashoffset: 0; transition: none; }
 
+  .route-done,
   .route-truck,
-  .route-truck-v {
-    animation: none;
-    transform: none;
-  }
+  .route-truck-m,
+  .route-truck-v,
+  .route-done-v,
+  .truck-speed,
+  .on-1, .on-2, .on-3, .on-4, .on-5, .on-6,
+  .ring-wave,
+  .box-load,
+  .pin-pulse,
+  .box-unload,
+  .tick-draw { animation: none; }
+
+  .route-done { stroke-dashoffset: 0; }
+  .route-truck,
+  .route-truck-m { offset-distance: 100%; opacity: 1; }
+  .route-truck-v { transform: translateY(calc(100% - 44px)); opacity: 1; }
+  .route-done-v { transform: scaleY(1); }
+  .on-1, .on-2, .on-3, .on-4, .on-5, .on-6 { opacity: 1; }
+  .tick-draw { stroke-dashoffset: 0; }
+  .truck-speed, .box-load, .box-unload, .pin-pulse { opacity: 0; }
 }
+
 /* ---------------------------------------------------------------
    Micro-interactions.
 
-   These are the small movements that make a whole site feel alive:
-   buttons that lift, links that underline themselves, inputs that
-   respond to focus. All CSS, no JavaScript, applied by class.
+   The small movements that make a whole site feel alive: buttons
+   that lift, links that underline themselves, inputs that respond to
+   focus. All CSS, no JavaScript, applied by class.
    --------------------------------------------------------------- */
 
 /* Primary buttons: lift a little and deepen their shadow. */
@@ -368,8 +549,7 @@ body {
   50%      { transform: translateY(-10px); }
 }
 
-/* Large photography that settles slowly as it arrives. Cheaper than a
-   scroll listener and it reads the same. */
+/* Large photography that settles slowly as it arrives. */
 .js .photo-drift {
   transform: scale(1.06) translateY(12px);
   transition: transform 2.4s cubic-bezier(0.22, 0.8, 0.3, 1);
@@ -389,174 +569,7 @@ body {
     transition: none;
   }
 }
-/* ---------------------------------------------------------------
-   How It Works: the moving journey.
 
-   One 18 second loop runs everything. The truck drives, pausing for a
-   moment at each of the six stops the way a real one would, the solid
-   line fills in behind it, and each stage lights up as it arrives.
-   At the end the truck fades out and reappears at the start, so the
-   loop never visibly jumps.
-
-   All CSS, on the compositor: no JavaScript and no scroll listener.
-   --------------------------------------------------------------- */
-
-/* The dashed road draws itself once when the section arrives. */
-.route-road {
-  stroke-dasharray: 10 14;
-  stroke-dashoffset: 1800;
-  transition: stroke-dashoffset 2.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.route-road.is-visible { stroke-dashoffset: 0; }
-
-/* The solid line left behind the truck. pathLength="1" in the markup
-   keeps this maths in plain fractions. */
-.route-done {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: route-draw 18s ease-in-out infinite;
-}
-
-/* Desktop road. */
-.route-truck {
-  offset-path: path("M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70");
-  offset-rotate: 0deg;
-  offset-distance: 0%;
-  animation: route-travel 18s ease-in-out infinite;
-  will-change: offset-distance;
-}
-
-/* Phone road: the same six stops on a shorter, narrower curve. */
-.route-truck-m {
-  offset-path: path("M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50");
-  offset-rotate: 0deg;
-  offset-distance: 0%;
-  animation: route-travel 18s ease-in-out infinite;
-  will-change: offset-distance;
-}
-
-/* Drive, pause, drive. The pairs of percentages are the pauses. */
-@keyframes route-travel {
-  0%        { offset-distance: 0%;   opacity: 0; }
-  3%, 6%    { offset-distance: 0%;   opacity: 1; }
-  18%, 23%  { offset-distance: 20%;  opacity: 1; }
-  35%, 40%  { offset-distance: 40%;  opacity: 1; }
-  52%, 57%  { offset-distance: 60%;  opacity: 1; }
-  69%, 74%  { offset-distance: 80%;  opacity: 1; }
-  88%, 96%  { offset-distance: 100%; opacity: 1; }
-  100%      { offset-distance: 100%; opacity: 0; }
-}
-
-/* The line keeps pace with the truck rather than running ahead. */
-@keyframes route-draw {
-  0%, 6%    { stroke-dashoffset: 1; }
-  18%, 23%  { stroke-dashoffset: 0.8; }
-  35%, 40%  { stroke-dashoffset: 0.6; }
-  52%, 57%  { stroke-dashoffset: 0.4; }
-  69%, 74%  { stroke-dashoffset: 0.2; }
-  88%, 96%  { stroke-dashoffset: 0; }
-  100%      { stroke-dashoffset: 1; }
-}
-
-/* Stage states. Same 18s cycle for each, started later the further
-   along the road it sits, so they light up in order. */
-.journey-ring,
-.journey-dot,
-.journey-label,
-.box-load,
-.box-unload {
-  animation-duration: 18s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-fill-mode: both;
-}
-
-.journey-ring  { opacity: 0; animation-name: stage-ring; }
-.journey-dot   { animation-name: stage-dot; }
-.journey-label { animation-name: stage-label; }
-
-@keyframes stage-ring {
-  0%, 3%     { opacity: 0; }
-  6%, 92%    { opacity: 1; }
-  97%, 100%  { opacity: 0; }
-}
-
-@keyframes stage-dot {
-  0%, 3%     { fill: #DCE6FF; }
-  6%, 92%    { fill: #3156C6; }
-  97%, 100%  { fill: #DCE6FF; }
-}
-
-@keyframes stage-label {
-  0%, 3%     { opacity: 0.5; }
-  6%, 92%    { opacity: 1; }
-  97%, 100%  { opacity: 0.5; }
-}
-
-/* Delays: matched to when the truck reaches each stop. */
-.stage-1 { animation-delay: 0s; }
-.stage-2 { animation-delay: 3.4s; }
-.stage-3 { animation-delay: 6.6s; }
-.stage-4 { animation-delay: 9.8s; }
-.stage-5 { animation-delay: 13s; }
-.stage-6 { animation-delay: 16s; }
-
-/* The last stop confirms delivery in green rather than blue. */
-.journey-dot.stage-6 { animation-name: stage-dot-done; }
-
-@keyframes stage-dot-done {
-  0%, 3%     { fill: #DCE6FF; }
-  6%, 92%    { fill: #2F7D65; }
-  97%, 100%  { fill: #DCE6FF; }
-}
-
-/* Boxes: into the truck at Loading, back out at Unloading. */
-.box-load   { animation-name: box-in;  animation-delay: 3.4s; }
-.box-unload { animation-name: box-out; animation-delay: 13s; }
-
-@keyframes box-in {
-  0%, 2%    { opacity: 0; transform: translateX(-14px); }
-  8%, 88%   { opacity: 1; transform: translateX(0); }
-  96%, 100% { opacity: 0; transform: translateX(-14px); }
-}
-
-@keyframes box-out {
-  0%, 2%    { opacity: 0; transform: translateX(0); }
-  8%, 88%   { opacity: 1; transform: translateX(16px); }
-  96%, 100% { opacity: 0; transform: translateX(0); }
-}
-
-/* Hover pauses the markers only. The truck keeps driving, because a
-   truck that stops under the cursor reads as broken. */
-.journey:hover .journey-ring,
-.journey:hover .journey-dot,
-.journey:hover .journey-label {
-  animation-play-state: paused;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .route-road { stroke-dashoffset: 0; transition: none; }
-
-  .route-done,
-  .route-truck,
-  .route-truck-m,
-  .journey-ring,
-  .journey-dot,
-  .journey-label,
-  .box-load,
-  .box-unload { animation: none; }
-
-  .route-done { stroke-dashoffset: 0; }
-
-  .route-truck,
-  .route-truck-m { offset-distance: 100%; opacity: 1; }
-
-  .journey-ring { opacity: 1; }
-  .journey-dot  { fill: #3156C6; }
-  .journey-dot.stage-6 { fill: #2F7D65; }
-  .box-load, .box-unload { opacity: 1; }
-}
 /* --- Navbar condenses after the hero, one class toggle --- */
 .site-header {
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -568,12 +581,13 @@ body {
   border-color: var(--color-ink-100);
   box-shadow: 0 1px 0 rgb(24 34 56 / 0.05);
 }
+
 /* ---------------------------------------------------------------
    Hero photo crossfade.
 
    Four <img> layers stacked on top of each other. Each one fades in,
    drifts slowly wider, then fades out, and the animation delays are
-   staggered so only one is visible at a time. 32s cycle = 8s per image.
+   staggered so only one is visible at a time. 40s cycle = 10s each.
 
    No JavaScript: the browser runs this on the compositor, so it costs
    almost nothing even on a phone.
@@ -602,7 +616,7 @@ body {
 .hero-slide:nth-child(3) { animation-delay: 20s; }
 .hero-slide:nth-child(4) { animation-delay: 30s; }
 
-/* 10s per photo: 5s settling in, a long hold, then a slow handover. The
+/* 10s per photo: settling in, a long hold, then a slow handover. The
    gentle pan alongside the zoom is what stops it reading as a slideshow. */
 @keyframes hero-cycle {
   0%   { opacity: 0; transform: scale(1.03) translateX(0); }
@@ -611,6 +625,7 @@ body {
   27%  { opacity: 0; transform: scale(1.09) translateX(-1.5%); }
   100% { opacity: 0; transform: scale(1.03) translateX(0); }
 }
+
 /* --- Hero entrance: each element arrives in turn, not all at once --- */
 .js .hero-in {
   opacity: 0;
@@ -855,4 +870,56 @@ html:not(.js-steps) [data-nav-next] {
   .star-label:hover {
     transform: none;
   }
+}
+/* ---------------------------------------------------------------
+   Marquee: a slow, endless strip of words. The track holds the list
+   twice, so moving it left by exactly half lands the second copy
+   where the first began - the loop has no visible seam. Edges fade
+   out with a mask rather than being cut off.
+   --------------------------------------------------------------- */
+.marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 45s linear infinite;
+}
+
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* A soft ring that keeps pulsing outward from a central badge. */
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse-ring 2.6s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%   { opacity: 0.55; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(1.7); }
+}
+
+/* A tick that draws itself once its card has scrolled into view. */
+.tick-in {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.6s ease-out 0.35s;
+}
+
+.is-visible .tick-in { stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .pulse-ring { animation: none; }
+
+  .tick-in { stroke-dashoffset: 0; transition: none; }
 }

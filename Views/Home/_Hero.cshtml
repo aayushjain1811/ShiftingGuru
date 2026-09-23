@@ -1,7 +1,10 @@
 @inject IServiceCatalog Catalog
 
 @{
-    var heroPoints = new[] { "Verified professionals", "Multiple quotes", "Easy comparison", "Pan-India network" };
+    // Four short, true statements. "India and abroad" replaces the old
+    // "Pan-India network", which overstated things for a new company and
+    // left out the international service altogether.
+    var heroPoints = new[] { "Verified professionals", "Multiple quotes", "Easy comparison", "India and abroad" };
 
     var slides = new[] { "hero-1", "hero-2", "hero-3", "hero-4" };
 }
@@ -57,21 +60,46 @@
 
                 <p class="hero-in hero-in-3 mt-8 max-w-md text-lg leading-relaxed text-ink-700">
                     Compare moving professionals, receive quotes and choose the right
-                    option for your move.
+                    option for your move, across India or abroad.
                 </p>
 
                 <div class="hero-in hero-in-4 mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <a href="#get-quotes"
-                       class="inline-flex h-13 items-center justify-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 lg:hidden">
+                       class="lift inline-flex h-13 items-center justify-center bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 lg:hidden">
                         Get Free Quotes
                     </a>
                     <a href="/how-it-works"
-                       class="inline-flex h-13 items-center justify-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 shadow-card rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
+                       class="lift inline-flex h-13 items-center justify-center border border-ink-300 bg-white px-7 text-base font-semibold text-ink-900 shadow-card rounded-card transition-colors hover:border-jade-500 hover:text-jade-600">
                         How It Works
                     </a>
                 </div>
 
-                <ul class="hero-in hero-in-4 mt-12 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-ink-200 pt-8">
+                @* The two services we most want enquiries for, one tap from the
+                   first screen. Each goes to its own page, which then leads to
+                   the quote form with the service already chosen. *@
+                <div class="hero-in hero-in-4 mt-7 flex flex-wrap items-center gap-2.5">
+                    <span class="text-[13px] font-medium text-ink-500">Now offering:</span>
+
+                    <a href="/services/pet-relocation"
+                       class="lift group inline-flex items-center gap-2 border border-jade-100 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-jade-600 shadow-card rounded-full transition-colors hover:border-jade-500">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path d="M6 8.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM4 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm12 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-6 5c2 0 3.5-1.2 3.5-3s-1.6-3-3.5-3-3.5 1.2-3.5 3 1.5 3 3.5 3z"
+                                  stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Pet Relocation
+                    </a>
+
+                    <a href="/services/international-relocation"
+                       class="lift group inline-flex items-center gap-2 border border-jade-100 bg-white px-3.5 py-1.5 text-[13px] font-semibold text-jade-600 shadow-card rounded-full transition-colors hover:border-jade-500">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                            <path d="M10 17a7 7 0 100-14 7 7 0 000 14zM3 10h14M10 3c2 2.2 3 4.5 3 7s-1 4.8-3 7c-2-2.2-3-4.5-3-7s1-4.8 3-7z"
+                                  stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        International Moves
+                    </a>
+                </div>
+
+                <ul class="hero-in hero-in-4 mt-10 grid max-w-lg grid-cols-2 gap-x-8 gap-y-5 border-t border-ink-200 pt-8">
                     @foreach (var point in heroPoints)
                     {
                         <li class="flex items-start gap-2.5">
@@ -107,7 +135,7 @@
                         <div>
                             <label for="hero-service" class="block text-[13px] font-semibold tracking-wide text-ink-800">What service do you need?</label>
                             <select id="hero-service" name="service"
-                                    class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0">
+                                    class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0">
                                 <option value="">Select a service</option>
                                 @foreach (var service in Catalog.GetAll())
                                 {
@@ -119,25 +147,26 @@
                         <div class="grid gap-5 sm:grid-cols-2">
                             <div>
                                 <label for="hero-from" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving from</label>
-                                <input id="hero-from" name="from" type="text" autocomplete="address-level2" placeholder="Gurgaon"
-                                       class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
+                                <input id="hero-from" name="from" type="text" autocomplete="address-level2" placeholder="Gurugram"
+                                       class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
                             </div>
 
                             <div>
+                                @* The placeholder hints that a city abroad is fine too. *@
                                 <label for="hero-to" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving to</label>
-                                <input id="hero-to" name="to" type="text" autocomplete="address-level2" placeholder="Bangalore"
-                                       class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
+                                <input id="hero-to" name="to" type="text" autocomplete="address-level2" placeholder="Bengaluru or Dubai"
+                                       class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
                             </div>
                         </div>
 
                         <div>
                             <label for="hero-date" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving date</label>
                             <input id="hero-date" name="date" type="date" data-min-today="true"
-                                   class="mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0" />
+                                   class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0" />
                         </div>
 
                         <button type="submit"
-                                class="group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-jade-500 px-6 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+                                class="lift group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-jade-500 px-6 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
                             Get Free Quotes
                             <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
                                  viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

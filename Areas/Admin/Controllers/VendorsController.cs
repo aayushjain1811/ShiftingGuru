@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -5,6 +6,7 @@ using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services;
 using ShiftingGuru.Services.Notifications;
+using ShiftingGuru.Services.Storage;
 using ShiftingGuru.ViewModels.Admin;
 
 namespace ShiftingGuru.Areas.Admin.Controllers;
@@ -21,6 +23,7 @@ public class VendorsController : Controller
     private readonly IPartnerService _partners;
     private readonly INotificationService _notifications;
     private readonly IAuditService _audit;
+    private readonly IDocumentStorage _storage;
     private readonly ILogger<VendorsController> _logger;
 
     public VendorsController(
@@ -29,6 +32,7 @@ public class VendorsController : Controller
         IPartnerService partners,
         INotificationService notifications,
         IAuditService audit,
+        IDocumentStorage storage,
         ILogger<VendorsController> logger)
     {
         _db = db;
@@ -36,6 +40,7 @@ public class VendorsController : Controller
         _partners = partners;
         _notifications = notifications;
         _audit = audit;
+        _storage = storage;
         _logger = logger;
     }
 
@@ -108,6 +113,8 @@ public class VendorsController : Controller
         var vendor = await _db.Vendors
             .AsNoTracking()
             .Include(v => v.Services)
+            .Include(v => v.Documents)   // NEW
+            .AsSplitQuery()              // two collections: avoids one big joined result
             .FirstOrDefaultAsync(v => v.Id == id, ct);
 
         if (vendor is null) return View("NotFound");
@@ -119,6 +126,37 @@ public class VendorsController : Controller
             Vendor = vendor,
             AllowedTransitions = _partners.AllowedTransitionsFrom(vendor.Status)
         });
+    }
+
+    // NEW
+    // GET /admin/vendors/42/documents/7
+    // The ONLY way a partner document is ever shown. Admin-only (class-level
+    // [Authorize]), and the document must belong to that vendor - asking for
+    // vendor 42's document 7 when it belongs to vendor 43 is a 404.
+    [HttpGet("{id:int}/documents/{documentId:int}")]
+    public async Task<IActionResult> Document(int id, int documentId, CancellationToken ct)
+    {
+        var document = await _db.VendorDocuments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(d => d.Id == documentId && d.VendorId == id, ct);
+
+        if (document is null) return NotFound();
+
+        var content = await _storage.OpenReadAsync(document.StoragePath, ct);
+        if (content is null)
+        {
+            _logger.LogError("Document {DocumentId} for vendor {VendorId} is missing from storage.", documentId, id);
+            return NotFound();
+        }
+
+        // ID documents: never cached by the browser or anything in between,
+        // shown inline (not downloaded), and never "guessed" as another type.
+        Response.Headers.CacheControl = "no-store, private";
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        Response.Headers.ContentDisposition =
+            new ContentDispositionHeaderValue("inline") { FileNameStar = document.OriginalFileName }.ToString();
+
+        return File(content, document.ContentType);
     }
 
     // POST /admin/vendors/42/status

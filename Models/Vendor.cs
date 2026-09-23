@@ -16,12 +16,18 @@ public class Vendor
     public string IdentityUserId { get; set; } = "";
 
     public string BusinessName { get; set; } = "";
+
+    /// <summary>Shown as "Full name" on the sign-up form.</summary>
     public string ContactPerson { get; set; } = "";
+
     public string Phone { get; set; } = "";
     public string Email { get; set; } = "";
     public string City { get; set; } = "";
     public string Address { get; set; } = "";
+
+    /// <summary>Required for new applications. Older partners may not have one.</summary>
     public string? GstNumber { get; set; }
+
     public int YearsOfExperience { get; set; }
     public string? OperatingLocations { get; set; }
     public string? AdditionalInformation { get; set; }
@@ -32,7 +38,16 @@ public class Vendor
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
+    /// <summary>NEW: when the email code was confirmed. Null for partners from before this feature.</summary>
+    public DateTime? EmailVerifiedAt { get; set; }
+
+    /// <summary>NEW: when the mobile code was confirmed. Null for partners from before this feature.</summary>
+    public DateTime? PhoneVerifiedAt { get; set; }
+
     public ICollection<VendorService> Services { get; set; } = new List<VendorService>();
+
+    /// <summary>NEW: GST certificate, PAN, Aadhaar front/back and office photo.</summary>
+    public ICollection<VendorDocument> Documents { get; set; } = new List<VendorDocument>();
 
     /// <summary>Leads passed to this vendor.</summary>
     public ICollection<LeadAssignment> Assignments { get; set; } = new List<LeadAssignment>();

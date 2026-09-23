@@ -1,13 +1,12 @@
 @section Head {
-    @* Structured data placeholder. Replace the URL, logo and contact details
-       with real values before launch. In Razor, "@" must be written as "@@". *@
+    @* Structured data. In Razor, "@" must be written as "@@". *@
     <script type="application/ld+json">
         {
           "@@context": "https://schema.org",
           "@@type": "Organization",
           "name": "ShiftingGuru",
-          "url": "https://www.shiftingguru.com/",
-          "logo": "https://www.shiftingguru.com/images/logo.png",
+          "url": "https://shiftingguru.com/",
+          "logo": "https://shiftingguru.com/images/logo.png",
           "description": "A marketplace that connects customers with verified moving and logistics service providers across India."
         }
     </script>
@@ -16,17 +15,16 @@
 @* Each section lives in its own partial. Adding, removing or reordering a
    section on the homepage is a one-line change in this file.
 
-   Locations and routes are deliberately not here: long city lists on the
-   homepage dilute it. They live on /locations and /routes, which is where
-   people searching for a city actually land. *@
+   No statistics section: numbers go on the page once they are real and
+   can be backed up, not before. Locations and routes live on /locations
+   and /routes, and the footer links to both. *@
 
 <partial name="_Hero" />
 <partial name="_TrustStrip" />
-<partial name="_Cinematic" />
-<partial name="_Stats" />
 <partial name="_Services" />
 <partial name="_HowItWorks" />
 <partial name="_ValueSection" />
+<partial name="_Cinematic" />
 <partial name="_WhyUs" />
 <partial name="_Reviews" />
 <partial name="_Faq" />

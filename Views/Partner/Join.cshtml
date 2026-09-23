@@ -1,136 +1,301 @@
 @model ShiftingGuru.ViewModels.Partner.PartnerRegistrationViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
 
 @{
+    // Change this if your photo has a different file name (check wwwroot/images/services/).
+    const string heroPhoto = "/images/services/packers-and-movers.webp";
+
     var benefits = new (string Title, string Body)[]
     {
         ("Relevant enquiries", "Customers tell us what they're moving and where. You hear about the ones that match your services and routes."),
-        ("No listing fee to apply", "Registering your business and being reviewed costs nothing."),
+        ("No fee to apply", "Registering your business and being reviewed costs nothing."),
         ("You set your own price", "ShiftingGuru passes on the requirement. What you charge is between you and the customer."),
         ("Verified marketplace", "Every partner is checked before joining, which is what makes customers trust the platform.")
     };
+
+    var steps = new (string Title, string Body)[]
+    {
+        ("Apply", "Add your business details and upload your documents."),
+        ("Verify", "Confirm your email and mobile number with a one-time code."),
+        ("Get reviewed", "Our team checks your documents and business details."),
+        ("Receive enquiries", "Once approved, matching customer enquiries reach your dashboard.")
+    };
+
+    var formSections = new (string Id, string Title)[]
+    {
+        ("business", "Your business"),
+        ("services", "Services"),
+        ("documents", "Documents"),
+        ("verify", "Verify contact"),
+        ("password", "Password")
+    };
+
+    const string documentTypes = "image/jpeg,image/png,image/webp,application/pdf";
+    const string photoTypes = "image/jpeg,image/png,image/webp";
+
+    var documents = new (string Name, string Title, string Hint, string Accept, bool Wide)[]
+    {
+        (nameof(Model.GstCertificate), "GST certificate", "JPG, PNG or PDF, up to 5 MB", documentTypes, false),
+        (nameof(Model.PanCard), "PAN card", "JPG, PNG or PDF, up to 5 MB", documentTypes, false),
+        (nameof(Model.AadhaarFront), "Aadhaar card (front)", "JPG, PNG or PDF, up to 5 MB", documentTypes, false),
+        (nameof(Model.AadhaarBack), "Aadhaar card (back)", "JPG, PNG or PDF, up to 5 MB", documentTypes, false),
+        (nameof(Model.OfficePhoto), "Office photo", "A clear photo of your office or signboard, up to 5 MB", photoTypes, true)
+    };
+
+    var emailVerified = !string.IsNullOrEmpty(Model.EmailVerificationToken);
+    var phoneVerified = !string.IsNullOrEmpty(Model.PhoneVerificationToken);
 }
 
-<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-16 lg:pt-40 lg:pb-20">
-    @* Extremely faint arcs, the same decoration as the homepage hero. *@
+@* ================= HERO ================= *@
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-16 lg:pt-36 lg:pb-24">
     <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
          preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
         <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
         <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
     </svg>
 
-    <div class="relative mx-auto max-w-[1400px] px-5 sm:px-8">
-        <nav aria-label="Breadcrumb">
-            <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
-                <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
-                <li class="text-ink-300" aria-hidden="true">/</li>
-                <li><span class="font-medium text-ink-900" aria-current="page">Join as Partner</span></li>
-            </ol>
-        </nav>
+    <div class="relative mx-auto grid max-w-[1400px] gap-14 px-5 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-16">
 
-        <p class="mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
-            <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
-            For moving &amp; logistics businesses
-        </p>
+        <div class="lg:col-span-6">
+            <nav aria-label="Breadcrumb" class="hero-in-1">
+                <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-500">
+                    <li><a href="/" class="transition-colors hover:text-jade-500">Home</a></li>
+                    <li class="text-ink-300" aria-hidden="true">/</li>
+                    <li><span class="font-medium text-ink-900" aria-current="page">Become a Partner</span></li>
+                </ol>
+            </nav>
 
-        <h1 class="mt-6 max-w-3xl font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
-            Grow your business with ShiftingGuru
-        </h1>
-        <p class="mt-7 max-w-xl text-lg leading-relaxed text-ink-500">
-            Verified moving and logistics businesses receive relevant customer enquiries
-            through the platform. Tell us about your business and our team will review it.
-        </p>
+            <p class="hero-in-1 mt-10 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+                <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
+                For moving &amp; logistics businesses
+            </p>
+
+            <h1 class="hero-in-2 mt-6 max-w-2xl font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
+                Become a ShiftingGuru partner
+            </h1>
+
+            <p class="hero-in-3 mt-7 max-w-xl text-lg leading-relaxed text-ink-500">
+                Sign up your moving or logistics business, get verified by our team, and receive
+                customer enquiries that match your services and routes.
+            </p>
+
+            <div class="hero-in-4 mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+                <a href="#apply"
+                   class="lift group inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+                    Start your application
+                    <svg class="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
+                         viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                        <path d="M10 4v11M6 11l4 4 4-4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+                <a href="/partner/login" class="underline-grow text-[15px] font-medium text-ink-700 transition-colors hover:text-jade-500">
+                    Already a partner? Sign in
+                </a>
+            </div>
+
+            <ul class="hero-in-5 mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-600">
+                @foreach (var point in new[] { "No fee to apply", "Reviewed by our team", "You set your prices" })
+                {
+                    <li class="flex items-center gap-2">
+                        <svg class="h-4 w-4 text-jade-500" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                            <path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        @point
+                    </li>
+                }
+            </ul>
+        </div>
+
+        <div class="hero-in-3 relative lg:col-span-6">
+            <div class="relative aspect-[4/3] overflow-hidden border border-ink-100 shadow-card rounded-panel">
+                <img src="@heroPhoto" alt="ShiftingGuru moving team loading a truck"
+                     width="1200" height="900" fetchpriority="high"
+                     class="photo-drift h-full w-full object-cover" />
+            </div>
+
+            @* Floating card 1: what the application covers. *@
+            <div class="float-slow absolute -bottom-8 left-4 w-60 border border-ink-100 bg-white p-4 shadow-card rounded-card sm:-left-8 sm:w-64" aria-hidden="true">
+                <p class="font-display text-sm font-bold tracking-[-0.02em] text-ink-900">Your application</p>
+                <ul class="mt-3 space-y-2 text-[13px] text-ink-600">
+                    @foreach (var item in new[] { "Business details", "Documents uploaded", "Email and mobile verified" })
+                    {
+                        <li class="flex items-center gap-2">
+                            <span class="grid h-5 w-5 place-items-center rounded-full bg-jade-500 text-white">
+                                <svg class="h-3 w-3" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                                    <path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
+                            @item
+                        </li>
+                    }
+                    <li class="flex items-center gap-2 font-semibold text-ink-900">
+                        <span class="relative grid h-5 w-5 place-items-center">
+                            <span class="pulse-ring absolute inset-0 rounded-full bg-jade-500/30"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-jade-500"></span>
+                        </span>
+                        Under review
+                    </li>
+                </ul>
+            </div>
+
+            @* Floating card 2: what happens after approval. *@
+            <div class="float-slow-2 absolute -top-6 right-4 hidden max-w-[15rem] border border-ink-100 bg-white p-4 shadow-card rounded-card sm:block lg:-right-6" aria-hidden="true">
+                <p class="text-[12px] font-semibold text-jade-500">New enquiry</p>
+                <p class="mt-1 font-display text-sm font-bold tracking-[-0.02em] text-ink-900">Matches your services and routes</p>
+            </div>
+        </div>
     </div>
 </section>
 
+@* ================= WHY PARTNER ================= *@
 <section class="bg-paper">
-    <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8 lg:py-20">
-        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+    <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
+        <h2 class="reveal-up font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-[-0.04em] text-ink-900">
+            Why partner with us
+        </h2>
 
-            <div class="lg:col-span-4">
-                <div class="lg:sticky lg:top-28">
-                    <h2 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">Why partner with us</h2>
+        <ul class="stagger mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach (var benefit in benefits)
+            {
+                <li class="reveal-up lift border border-ink-200 bg-white p-6 shadow-card rounded-card">
+                    <span class="grid h-10 w-10 place-items-center bg-jade-50 text-jade-500 rounded-card" aria-hidden="true">
+                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <h3 class="mt-5 font-display text-base font-bold tracking-[-0.02em] text-ink-900">@benefit.Title</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-ink-500">@benefit.Body</p>
+                </li>
+            }
+        </ul>
+    </div>
+</section>
 
-                    <ul class="mt-7 space-y-6">
-                        @foreach (var benefit in benefits)
-                        {
-                            <li class="border-t border-ink-200 pt-5">
-                                <h3 class="font-display text-base font-bold tracking-[-0.02em] text-ink-900">@benefit.Title</h3>
-                                <p class="mt-2 max-w-sm text-sm leading-relaxed text-ink-500">@benefit.Body</p>
-                            </li>
-                        }
-                    </ul>
+@* ================= HOW JOINING WORKS ================= *@
+<section class="border-y border-ink-100 bg-white">
+    <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
+        <h2 class="reveal-up font-display text-[clamp(1.75rem,3.5vw,2.5rem)] font-extrabold tracking-[-0.04em] text-ink-900">
+            How joining works
+        </h2>
+
+        <div class="relative mt-12">
+            <div class="reveal-clip absolute inset-x-5 top-5 hidden h-px bg-jade-500/40 lg:block" aria-hidden="true"></div>
+
+            <ol class="stagger relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+                @for (var i = 0; i < steps.Length; i++)
+                {
+                    <li class="reveal-up">
+                        <span class="relative grid h-10 w-10 place-items-center rounded-full bg-jade-500 font-display text-sm font-bold text-white ring-8 ring-white">@(i + 1)</span>
+                        <h3 class="mt-5 font-display text-lg font-bold tracking-[-0.02em] text-ink-900">@steps[i].Title</h3>
+                        <p class="mt-2 max-w-xs text-sm leading-relaxed text-ink-500">@steps[i].Body</p>
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+</section>
+
+@* ================= APPLICATION FORM ================= *@
+<section id="apply" class="scroll-mt-16 bg-paper">
+    <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 lg:py-24">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-14">
+
+            @* Sticky section menu, desktop only. *@
+            <aside class="hidden lg:col-span-3 lg:block">
+                <div class="sticky top-28">
+                    <p class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Your application</p>
+                    <nav aria-label="Application sections" class="mt-5">
+                        <ol class="space-y-1">
+                            @for (var i = 0; i < formSections.Length; i++)
+                            {
+                                <li>
+                                    <a href="#@formSections[i].Id" data-section-link
+                                       class="group flex items-center gap-3 py-2 text-sm text-ink-500 transition-colors hover:text-ink-900 data-[active]:font-semibold data-[active]:text-ink-900">
+                                        <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-ink-200 bg-white text-xs font-semibold transition-colors group-data-[active]:border-jade-500 group-data-[active]:bg-jade-500 group-data-[active]:text-white">@(i + 1)</span>
+                                        @formSections[i].Title
+                                    </a>
+                                </li>
+                            }
+                        </ol>
+                    </nav>
 
                     <p class="mt-8 text-sm text-ink-500">
                         Already registered?
                         <a href="/partner/login" class="font-semibold text-jade-500 transition-colors hover:text-jade-600">Partner login</a>
                     </p>
                 </div>
-            </div>
+            </aside>
 
-            <div class="lg:col-span-8">
-                <form method="post" class="overflow-hidden border border-ink-200 bg-white shadow-card rounded-panel">
+            <div class="lg:col-span-9">
+                <form method="post" enctype="multipart/form-data" id="partner-form"
+                      data-fb-api-key="@Config["Firebase:ApiKey"]"
+                      data-fb-auth-domain="@Config["Firebase:AuthDomain"]"
+                      data-fb-project-id="@Config["Firebase:ProjectId"]"
+                      class="reveal-up overflow-hidden border border-ink-200 bg-white shadow-card rounded-panel">
+
+                    <div class="border-b border-ink-100 p-6 sm:px-9 sm:py-7">
+                        <h2 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">Partner application</h2>
+                        <p class="mt-1.5 text-sm text-ink-500">Keep your GST certificate, PAN card and Aadhaar card ready before you start.</p>
+                    </div>
 
                     <div asp-validation-summary="ModelOnly"
                          class="border-b border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700 empty:hidden"></div>
 
-                    <div class="space-y-8 p-6 sm:p-9">
+                    <div class="space-y-10 p-6 sm:p-9">
 
-                        <fieldset>
+                        @* ---------- 1. Business ---------- *@
+                        <fieldset id="business" class="scroll-mt-28">
                             <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Your business</legend>
 
                             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                 <div class="sm:col-span-2">
                                     <label asp-for="BusinessName" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="BusinessName" placeholder="e.g. Sharma Packers &amp; Movers"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="BusinessName" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
 
                                 <div>
                                     <label asp-for="ContactPerson" class="block text-[13px] font-semibold text-ink-800"></label>
-                                    <input asp-for="ContactPerson" autocomplete="name"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <input asp-for="ContactPerson" autocomplete="name" placeholder="As on your PAN card"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="ContactPerson" class="mt-1 block text-sm text-red-600"></span>
-                                </div>
-
-                                <div>
-                                    <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
-                                    <input asp-for="Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="9876543210"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
-                                    <span asp-validation-for="Phone" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
 
                                 <div>
                                     <label asp-for="City" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="City" placeholder="Gurgaon"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="City" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
 
                                 <div>
                                     <label asp-for="YearsOfExperience" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="YearsOfExperience" type="number" min="0" max="80"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="YearsOfExperience" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="GstNumber" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <input asp-for="GstNumber" maxlength="15" placeholder="07ABCDE1234F1Z5"
+                                           autocapitalize="characters" autocomplete="off" spellcheck="false"
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] uppercase text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500" />
+                                    <p class="mt-1.5 text-xs text-ink-500">15 characters, as shown on your GST certificate.</p>
+                                    <span asp-validation-for="GstNumber" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
 
                                 <div class="sm:col-span-2">
                                     <label asp-for="Address" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="Address"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="Address" class="mt-1 block text-sm text-red-600"></span>
-                                </div>
-
-                                <div>
-                                    <label asp-for="GstNumber" class="block text-[13px] font-semibold text-ink-800"></label>
-                                    <input asp-for="GstNumber"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
-                                    <span asp-validation-for="GstNumber" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
                             </div>
                         </fieldset>
 
-                        <fieldset class="border-t border-ink-100 pt-8">
+                        @* ---------- 2. Services ---------- *@
+                        <fieldset id="services" class="reveal-up scroll-mt-28 border-t border-ink-100 pt-10">
                             <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Services you offer</legend>
                             <p class="mt-1.5 text-sm text-ink-500">Select everything your business actually handles.</p>
 
@@ -141,9 +306,9 @@
                                     <label class="cursor-pointer">
                                         <input type="checkbox" name="ServicesOffered" value="@service.Slug"
                                                checked="@isChecked" class="peer sr-only" />
-<span class="flex h-full items-center rounded-card border border-ink-200 bg-white p-4 text-[15px] font-semibold text-ink-900 transition-colors peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
-    @service.Name
-</span>
+                                        <span class="flex h-full items-center rounded-card border border-ink-200 bg-white p-4 text-[15px] font-semibold text-ink-900 transition-colors peer-checked:border-jade-500 peer-checked:bg-jade-50 peer-checked:text-jade-600 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-jade-500">
+                                            @service.Name
+                                        </span>
                                     </label>
                                 }
                             </div>
@@ -152,34 +317,139 @@
                             <div class="mt-5">
                                 <label asp-for="OperatingLocations" class="block text-[13px] font-semibold text-ink-800"></label>
                                 <input asp-for="OperatingLocations" placeholder="e.g. Delhi NCR, Jaipur, Chandigarh"
-                                       class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                       class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500" />
                                 <span asp-validation-for="OperatingLocations" class="mt-1 block text-sm text-red-600"></span>
                             </div>
 
                             <div class="mt-5">
                                 <label asp-for="AdditionalInformation" class="block text-[13px] font-semibold text-ink-800"></label>
                                 <textarea asp-for="AdditionalInformation" rows="3" placeholder="Fleet size, warehouse capacity, anything that helps us understand your business"
-                                          class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card focus:border-jade-500"></textarea>
+                                          class="mt-2 block w-full border border-ink-200 px-3 py-2.5 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500"></textarea>
                                 <span asp-validation-for="AdditionalInformation" class="mt-1 block text-sm text-red-600"></span>
                             </div>
                         </fieldset>
 
-                        <fieldset class="border-t border-ink-100 pt-8">
-                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Sign-in details</legend>
-                            <p class="mt-1.5 text-sm text-ink-500">You'll use these to access your partner account once approved.</p>
+                        @* ---------- 3. Documents ---------- *@
+                        <fieldset id="documents" class="reveal-up scroll-mt-28 border-t border-ink-100 pt-10">
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Business documents</legend>
+                            <p class="mt-1.5 max-w-xl text-sm text-ink-500">
+                                Only our verification team sees these. Clear, uncropped photos or scans get approved faster.
+                            </p>
 
-                            <div class="mt-5 grid gap-5 sm:grid-cols-2">
-                                <div class="sm:col-span-2">
+                            <div class="stagger mt-5 grid gap-5 sm:grid-cols-2">
+                                @foreach (var doc in documents)
+                                {
+                                    <div data-upload class="reveal-up @(doc.Wide ? "sm:col-span-2" : "")">
+                                        <span class="block text-[13px] font-semibold text-ink-800">@doc.Title</span>
+
+                                        <label class="group mt-2 flex cursor-pointer items-center gap-4 border border-dashed border-ink-300 bg-paper p-4 rounded-card transition-colors hover:border-jade-500 data-[state=done]:border-solid data-[state=done]:border-jade-500 data-[state=done]:bg-jade-50 has-[:focus-visible]:border-jade-500 has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-jade-500">
+                                            <input type="file" id="@doc.Name" name="@doc.Name" accept="@doc.Accept"
+                                                   aria-label="@doc.Title" class="sr-only" />
+
+                                            <span data-upload-icon class="grid h-14 w-14 shrink-0 place-items-center border border-ink-200 bg-white text-ink-400 rounded-card transition-colors group-hover:text-jade-500">
+                                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                                    <path d="M10 13V4M6.5 7.5 10 4l3.5 3.5M4 13v3h12v-3" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </span>
+                                            <img data-upload-preview hidden alt=""
+                                                 class="h-14 w-14 shrink-0 border border-ink-200 object-cover rounded-card" />
+
+                                            <span class="min-w-0 flex-1">
+                                                <span data-upload-name class="block truncate text-sm font-semibold text-ink-900">Choose file</span>
+                                                <span class="mt-0.5 block text-xs text-ink-500">@doc.Hint</span>
+                                            </span>
+
+                                            <span class="hidden h-7 w-7 shrink-0 place-items-center rounded-full bg-jade-500 text-white group-data-[state=done]:grid" aria-hidden="true">
+                                                <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+                                                    <path d="M4.5 10.5l3.5 3.5 7.5-8" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </span>
+                                        </label>
+
+                                        <p data-upload-error class="mt-1 text-sm text-red-600" role="alert"></p>
+                                        @Html.ValidationMessage(doc.Name, new { @class = "mt-1 block text-sm text-red-600" })
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+
+                        @* ---------- 4. Contact verification ---------- *@
+                        <fieldset id="verify" class="reveal-up scroll-mt-28 border-t border-ink-100 pt-10">
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Verify your contact details</legend>
+                            <p class="mt-1.5 text-sm text-ink-500">We'll send a 6-digit code to each. Your email is also your partner login.</p>
+
+                            <div class="mt-5 grid gap-6">
+
+                                <div data-verify="email" data-state="@(emailVerified ? "ok" : null)" class="group">
                                     <label asp-for="Email" class="block text-[13px] font-semibold text-ink-800"></label>
-                                    <input asp-for="Email" type="email" autocomplete="email"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                    <div class="mt-2 flex gap-2">
+                                        <input asp-for="Email" type="email" autocomplete="email" data-verify-input
+                                               class="block h-12 w-full min-w-0 flex-1 border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card transition-colors focus:border-jade-500 group-data-[state=ok]:border-green-600" />
+                                        <button type="button" data-verify-send
+                                                class="h-12 shrink-0 border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600 disabled:cursor-not-allowed disabled:opacity-50">
+                                            Send code
+                                        </button>
+                                    </div>
                                     <span asp-validation-for="Email" class="mt-1 block text-sm text-red-600"></span>
+
+                                    <div data-verify-step hidden class="mt-3 flex gap-2">
+                                        <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+                                               placeholder="6-digit code" aria-label="Email verification code" data-verify-code
+                                               class="block h-12 w-40 border border-ink-200 px-3 text-[15px] tracking-[0.3em] text-ink-900 placeholder:tracking-normal placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                        <button type="button" data-verify-check
+                                                class="lift h-12 shrink-0 bg-jade-500 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-jade-600 disabled:opacity-50">
+                                            Verify
+                                        </button>
+                                    </div>
+
+                                    <p data-verify-status data-state="@(emailVerified ? "ok" : "idle")" role="status" aria-live="polite"
+                                       class="mt-1.5 text-xs text-ink-500 data-[state=error]:text-red-600 data-[state=ok]:font-semibold data-[state=ok]:text-green-700">@(emailVerified ? "✓ Email verified" : "")</p>
+                                    <input asp-for="EmailVerificationToken" type="hidden" data-verify-token />
+                                    <span asp-validation-for="EmailVerificationToken" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
 
+                                <div data-verify="phone" data-state="@(phoneVerified ? "ok" : null)" class="group">
+                                    <label asp-for="Phone" class="block text-[13px] font-semibold text-ink-800"></label>
+                                    <div class="mt-2 flex gap-2">
+                                        <span class="grid h-12 shrink-0 place-items-center border border-ink-200 bg-paper px-3 text-[15px] text-ink-500 rounded-card" aria-hidden="true">+91</span>
+                                        <input asp-for="Phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10"
+                                               placeholder="9876543210" data-verify-input
+                                               class="block h-12 w-full min-w-0 flex-1 border border-ink-200 px-3 text-[15px] text-ink-900 placeholder:text-ink-400 rounded-card transition-colors focus:border-jade-500 group-data-[state=ok]:border-green-600" />
+                                        <button type="button" data-verify-send
+                                                class="h-12 shrink-0 border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600 disabled:cursor-not-allowed disabled:opacity-50">
+                                            Send code
+                                        </button>
+                                    </div>
+                                    <span asp-validation-for="Phone" class="mt-1 block text-sm text-red-600"></span>
+
+                                    <div data-verify-step hidden class="mt-3 flex gap-2">
+                                        <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+                                               placeholder="6-digit code" aria-label="Mobile verification code" data-verify-code
+                                               class="block h-12 w-40 border border-ink-200 px-3 text-[15px] tracking-[0.3em] text-ink-900 placeholder:tracking-normal placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                        <button type="button" data-verify-check
+                                                class="lift h-12 shrink-0 bg-jade-500 px-5 text-sm font-semibold text-white rounded-card transition-colors hover:bg-jade-600 disabled:opacity-50">
+                                            Verify
+                                        </button>
+                                    </div>
+
+                                    <p data-verify-status data-state="@(phoneVerified ? "ok" : "idle")" role="status" aria-live="polite"
+                                       class="mt-1.5 text-xs text-ink-500 data-[state=error]:text-red-600 data-[state=ok]:font-semibold data-[state=ok]:text-green-700">@(phoneVerified ? "✓ Mobile number verified" : "")</p>
+                                    <input asp-for="PhoneVerificationToken" type="hidden" data-verify-token />
+                                    <span asp-validation-for="PhoneVerificationToken" class="mt-1 block text-sm text-red-600"></span>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        @* ---------- 5. Password ---------- *@
+                        <fieldset id="password" class="reveal-up scroll-mt-28 border-t border-ink-100 pt-10">
+                            <legend class="font-display text-lg font-bold tracking-[-0.02em] text-ink-900">Choose a password</legend>
+                            <p class="mt-1.5 text-sm text-ink-500">You'll use your email and this password to sign in once approved.</p>
+
+                            <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                 <div>
                                     <label asp-for="Password" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="Password" type="password" autocomplete="new-password"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="Password" class="mt-1 block text-sm text-red-600"></span>
                                     <p class="mt-1.5 text-xs text-ink-500">At least 12 characters, with a capital, a number and a symbol.</p>
                                 </div>
@@ -187,9 +457,21 @@
                                 <div>
                                     <label asp-for="ConfirmPassword" class="block text-[13px] font-semibold text-ink-800"></label>
                                     <input asp-for="ConfirmPassword" type="password" autocomplete="new-password"
-                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card focus:border-jade-500" />
+                                           class="mt-2 block h-12 w-full border border-ink-200 px-3 text-[15px] text-ink-900 rounded-card transition-colors focus:border-jade-500" />
                                     <span asp-validation-for="ConfirmPassword" class="mt-1 block text-sm text-red-600"></span>
                                 </div>
+                            </div>
+
+                            <div class="mt-8">
+                                <label class="flex cursor-pointer items-start gap-3">
+                                    <input asp-for="DocumentConsent" type="checkbox"
+                                           class="mt-0.5 h-5 w-5 shrink-0 accent-jade-500" />
+                                    <span class="text-sm leading-relaxed text-ink-700">
+                                        I confirm these documents belong to my business, and I agree that ShiftingGuru
+                                        may store them to verify my application.
+                                    </span>
+                                </label>
+                                <span asp-validation-for="DocumentConsent" class="mt-1 block text-sm text-red-600"></span>
                             </div>
                         </fieldset>
                     </div>
@@ -199,13 +481,21 @@
                             Submitting an application doesn't create an active account. Our team reviews
                             every business before approving it.
                         </p>
-                        <button type="submit"
-                                class="h-13 shrink-0 bg-jade-500 px-8 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
-                            Submit application
-                        </button>
+                        <div class="flex flex-col items-stretch gap-2 sm:items-end">
+                            <button type="submit" data-submit
+                                    class="lift h-13 shrink-0 bg-jade-500 px-8 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 disabled:cursor-not-allowed disabled:opacity-50">
+                                Submit application
+                            </button>
+                            <p data-submit-hint hidden class="text-xs text-ink-500">Verify your email and mobile number to submit.</p>
+                        </div>
                     </div>
+
+                    @* Firebase puts its invisible "are you a robot" check here. *@
+                    <div id="recaptcha-container"></div>
                 </form>
             </div>
         </div>
     </div>
 </section>
+
+<script type="module" src="~/js/partner-join.js" asp-append-version="true"></script>

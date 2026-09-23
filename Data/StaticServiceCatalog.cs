@@ -179,7 +179,7 @@ public class StaticServiceCatalog : IServiceCatalog
         new()
         {
             Id = 5,
-            Name = "Goods Transportation",
+            Name = "Domestic Goods Transportation",
             Slug = "goods-transportation",
             ShortDescription = "Part or full loads for commercial consignments.",
             IconPath = "M3 6h8v8H3V6zm8 3h3l3 3v2h-6V9zM6 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
@@ -257,92 +257,106 @@ public class StaticServiceCatalog : IServiceCatalog
                 new FaqItem { Question = "How are goods kept track of?", Answer = "Reputable providers inventory items on the way in and issue you a copy. Ask for it, and check it before you sign." }
             }
         },
-
         new()
         {
             Id = 7,
-            Name = "Packers & Movers",
-            Slug = "packers-movers",
-            ShortDescription = "Packing, loading, transit and unpacking.",
-            IconPath = "M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7",
-            HeroTitle = "The full job, handled end to end.",
-            HeroDescription = "When you'd rather hand the whole thing over: packing, loading, transport, unloading and unpacking arranged as one service.",
-            MetaTitle = "Packers & Movers",
-            MetaDescription = "Compare packers and movers quotes across India. Full-service packing, loading, transport and unpacking from verified providers.",
+            Name = "Pet Relocation",
+            Slug = "pet-relocation",
+            IsFeatured = true,
+            ShortDescription = "Dogs, cats and other pets moved safely, city to city or abroad.",
+            IconPath = "M6 8.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM4 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm12 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-6 5c2 0 3.5-1.2 3.5-3s-1.6-3-3.5-3-3.5 1.2-3.5 3 1.5 3 3.5 3z",
+            HeroTitle = "Your pet arrives calm, cared for and on time.",
+            HeroDescription = "Pet relocation within India or overseas, with the travel crate, health paperwork and airline or road arrangements handled by people who move animals regularly.",
+            MetaTitle = "Pet Relocation Services",
+            MetaDescription = "Compare pet relocation quotes in India and abroad. Travel crates, vet and health documentation, airline booking and door-to-door pet transport.",
             Overview = new[]
             {
-                "\"Packers and movers\" is the full-service option: you point at your belongings and a crew does the rest, from wrapping the crockery to putting the bed back together.",
-                "It costs more than transport alone. Whether it's worth it depends on how much you're moving and how much of your own time you want to spend on it."
+                "Moving a pet is not like moving furniture. Airlines have their own crate rules, many routes need vet certificates, and some countries require vaccinations or blood tests weeks before travel.",
+                "Tell us where your pet is going, the species and breed, and your travel date. Providers who handle pet relocation respond with what they'd arrange and what it costs, so you can compare before committing."
             },
             Features = new[]
             {
-                new ServiceItem { Title = "Professional packing", Body = "Materials and technique matched to each category of item." },
-                new ServiceItem { Title = "Labelled inventory", Body = "Cartons numbered and listed so you know what went where." },
-                new ServiceItem { Title = "Loading", Body = "Crews load in a planned order to protect fragile items in transit." },
-                new ServiceItem { Title = "Transportation", Body = "Vehicle sized to your consignment for a local or long-distance run." },
-                new ServiceItem { Title = "Unloading", Body = "Delivery into the right rooms rather than a pile at the door." },
-                new ServiceItem { Title = "Unpacking", Body = "Optional unpacking and debris removal at the destination." }
+                new ServiceItem { Title = "Travel crates", Body = "A crate of the right size and type for the airline or vehicle your pet travels in." },
+                new ServiceItem { Title = "Health paperwork", Body = "Vet check-ups, fitness-to-travel certificates and vaccination records organised in time." },
+                new ServiceItem { Title = "Domestic pet transport", Body = "City-to-city moves by road or air, with pickup and delivery at your door." },
+                new ServiceItem { Title = "International pet moves", Body = "Import permits, quarantine rules and airline bookings for pets travelling abroad." },
+                new ServiceItem { Title = "Airport handling", Body = "Check-in, cargo formalities and collection at the other end." },
+                new ServiceItem { Title = "Updates in transit", Body = "A point of contact to check on your pet while it travels." }
             },
             Benefits = new[]
             {
-                new ServiceItem { Title = "One provider, whole job", Body = "No coordinating a packer, a truck and labour separately." },
-                new ServiceItem { Title = "Fewer breakages", Body = "Most transit damage traces back to packing, not driving." },
-                new ServiceItem { Title = "Your time back", Body = "Packing a full household typically takes days spread over a fortnight." },
-                new ServiceItem { Title = "Comparable scope", Body = "Quotes spell out which of these stages are actually included." }
+                new ServiceItem { Title = "Specialists, not general movers", Body = "Your requirement goes to providers who actually move animals." },
+                new ServiceItem { Title = "Paperwork you can check", Body = "Quotes state which documents are handled and which you need to arrange." },
+                new ServiceItem { Title = "Plan around the rules", Body = "Some destinations need weeks of preparation. Comparing early gives you time." },
+                new ServiceItem { Title = "No booking fee", Body = "Collecting quotes through ShiftingGuru costs you nothing." }
             },
             Faqs = new[]
             {
-                new FaqItem { Question = "Is unpacking always included?", Answer = "No. It's often quoted as an add-on. Check the line items before you compare two prices." },
-                new FaqItem { Question = "Do they supply packing material?", Answer = "Yes, in a full-service quote. Material cost is usually built into the price rather than billed separately." },
-                new FaqItem { Question = "How long does packing take?", Answer = "A two-bedroom home is commonly packed in a day. Larger homes may need two, with loading the following morning." },
-                new FaqItem { Question = "Should I pack valuables myself?", Answer = "Yes. Jewellery, cash, documents and small electronics are best carried personally rather than loaded." }
+                new FaqItem { Question = "How early should I plan a pet move?", Answer = "For domestic moves, two to three weeks is usually enough. For international moves, start as early as you can: some countries need vaccinations or tests done months before travel." },
+                new FaqItem { Question = "Can my pet travel with me on the same flight?", Answer = "Sometimes. It depends on the airline, the route, and your pet's size and breed. Many pets travel as cargo, which is often safer on long routes. Providers will advise for your case." },
+                new FaqItem { Question = "What documents does my pet need?", Answer = "Typically a vaccination record and a vet's fitness-to-travel certificate. International moves can add microchipping, import permits and blood tests. Requirements vary by destination." },
+                new FaqItem { Question = "Are some breeds restricted?", Answer = "Yes. Some airlines don't carry snub-nosed breeds such as pugs or Persian cats, and some countries restrict certain dog breeds. Mention the breed in your enquiry." }
             }
         },
 
         new()
         {
             Id = 8,
-            Name = "Truck / Tempo",
-            Slug = "truck-tempo",
-            ShortDescription = "Hire a tempo or truck on demand for smaller jobs.",
-            IconPath = "M3 7h9v7H3V7zm9 2h2.5L17 12v2h-5V9zM6 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
-            HeroTitle = "Just need the vehicle? Book one.",
-            HeroDescription = "Tempo and truck hire for smaller shifts, single-item moves and one-off runs, with or without loading labour.",
-            MetaTitle = "Truck & Tempo Hire",
-            MetaDescription = "Compare tempo and truck hire quotes in India. On-demand vehicle hire for small moves, single items and one-off transport runs.",
+            Name = "International Relocation",
+            Slug = "international-relocation",
+            IsFeatured = true,
+            ShortDescription = "Home, office, car, bike, pets and cargo, moved abroad or back to India.",
+            IconPath = "M10 17a7 7 0 100-14 7 7 0 000 14zM3 10h14M10 3c2 2.2 3 4.5 3 7s-1 4.8-3 7c-2-2.2-3-4.5-3-7s1-4.8 3-7z",
+            HeroTitle = "Everything you own, moved across borders.",
+            HeroDescription = "Household goods, office equipment, cars, bikes, pets and commercial cargo, packed, shipped by sea or air, cleared through customs and delivered at the other end. One enquiry covers the whole move.",
+            MetaTitle = "International Relocation Services",
+            MetaDescription = "International packers and movers from India. Household and office moves abroad, car and bike shipping, pet relocation, cargo, customs clearance and door-to-door delivery.",
             Overview = new[]
             {
-                "Not every move needs a full packing crew. Shifting a few rooms across town, or sending one large item across the city, is often just a vehicle-and-labour job.",
-                "Pricing turns on vehicle size, distance and whether you want loading help. Say which you need and compare what comes back."
+                "Moving abroad rarely means moving one thing. There's the household, often a car, sometimes a pet, and for businesses, equipment and stock. Arranging each with a different company means different timelines and paperwork that doesn't line up.",
+                "Describe everything that's going, where from and where to. Providers who handle international moves respond with how they'd ship it, the timeline and what's included, so the whole move can be planned and compared together."
             },
             Features = new[]
             {
-                new ServiceItem { Title = "Vehicle choice", Body = "Small tempo through to larger trucks, matched to what you're shifting." },
-                new ServiceItem { Title = "On-demand booking", Body = "Single runs rather than a full relocation package." },
-                new ServiceItem { Title = "Optional labour", Body = "Add loading and unloading help, or handle it yourself and pay less." },
-                new ServiceItem { Title = "Local and intercity", Body = "Within-city runs as well as shorter intercity trips." },
-                new ServiceItem { Title = "Single-item moves", Body = "One sofa, one fridge, one machine, without paying for a full move." },
-                new ServiceItem { Title = "Flexible timing", Body = "Same-day and next-day slots are common where operators have capacity." }
+                new ServiceItem { Title = "Household moves abroad", Body = "Full homes packed to export standard and shipped to your new address overseas." },
+                new ServiceItem { Title = "Office relocation abroad", Body = "Furniture, IT equipment and records moved to an overseas office, on a planned schedule." },
+                new ServiceItem { Title = "International car shipping", Body = "Cars shipped by container or roll-on roll-off vessel, with export and import papers." },
+                new ServiceItem { Title = "International bike shipping", Body = "Two-wheelers crated and shipped, alone or inside your household consignment." },
+                new ServiceItem { Title = "Pet relocation abroad", Body = "Import permits, vet documentation, travel crates and airline bookings for your pet." },
+                new ServiceItem { Title = "Commercial cargo", Body = "Business goods, stock and machinery shipped by sea or air freight." },
+                new ServiceItem { Title = "Sea and air freight", Body = "Shared container, full container or air cargo, chosen to suit volume, budget and time." },
+                new ServiceItem { Title = "Customs clearance", Body = "Export clearance in India and import formalities at the destination." },
+                new ServiceItem { Title = "Storage at either end", Body = "Short or long-term storage while you wait for your new home to be ready." }
             },
             Benefits = new[]
             {
-                new ServiceItem { Title = "Pay for what you use", Body = "No packing charges on a job that doesn't need packing." },
-                new ServiceItem { Title = "Quick to arrange", Body = "Smaller jobs need far less notice than a full household relocation." },
-                new ServiceItem { Title = "Right vehicle size", Body = "Local operators know what fits, which avoids a second trip." },
-                new ServiceItem { Title = "Labour is optional", Body = "Decide once you can see what adding it costs." }
+                new ServiceItem { Title = "One move, not five companies", Body = "Household, vehicle and pet can be planned together, on one timeline." },
+                new ServiceItem { Title = "Compare the route, not just the price", Body = "Sea or air, shared or full container: quotes make the trade-off clear." },
+                new ServiceItem { Title = "Customs handled by specialists", Body = "Paperwork mistakes are the most expensive part of moving abroad." },
+                new ServiceItem { Title = "No booking fee", Body = "Collecting quotes through ShiftingGuru costs you nothing." }
             },
             Faqs = new[]
             {
-                new FaqItem { Question = "What size vehicle do I need?", Answer = "Describe what you're moving in your enquiry and providers will suggest a size. Guessing low usually ends in a second trip." },
-                new FaqItem { Question = "Is loading help included?", Answer = "Not by default. Ask for it explicitly so the quote reflects it." },
-                new FaqItem { Question = "Can I book for the same day?", Answer = "Often, for local runs, depending on the time of day and availability. Longer distances need more notice." },
-                new FaqItem { Question = "Is this cheaper than full packers and movers?", Answer = "For small jobs, usually. For a full household you'd typically end up paying for the labour separately anyway." }
+                new FaqItem { Question = "Can my car, pet and household go in one move?", Answer = "Yes. They usually travel separately - the pet by air, the household and car by sea - but they can be arranged together so the timing and paperwork line up. Mention everything in one enquiry." },
+                new FaqItem { Question = "Sea freight or air freight?", Answer = "Sea freight costs much less and suits full households, cars and large cargo, but takes weeks. Air freight is fast and more expensive, and suits smaller shipments and pets." },
+                new FaqItem { Question = "How long does an international move take?", Answer = "Air freight usually takes days to a couple of weeks. Sea freight is often four to ten weeks door to door, depending on the destination and customs." },
+                new FaqItem { Question = "Can I ship my car abroad?", Answer = "Usually, though many countries have rules on a vehicle's age, emissions and steering side, and import duty can be significant. Check the destination's rules before you decide." },
+                new FaqItem { Question = "What can't be shipped?", Answer = "It depends on the destination. Food, plants, certain electronics, some liquids and batteries are commonly restricted. Providers will list what applies to your route." },
+                new FaqItem { Question = "Do I have to pay customs duty?", Answer = "Many countries let used household goods in duty-free if you're moving there to live, but vehicles and commercial goods are often taxed. Rules vary by country, so ask each provider for your destination." }
             }
-        }
+        },
     };
 
+      /// <summary>
+    /// Featured services first, then the rest. OrderByDescending is a stable
+    /// sort, so within each group the order in the list above is kept -
+    /// reorder the entries there to change the order on the site.
+    /// </summary>
     public IReadOnlyList<Service> GetAll() =>
-        Items.Where(s => s.IsActive).ToList();
+        Items
+            .Where(s => s.IsActive)
+            .OrderByDescending(s => s.IsFeatured)
+            .ToList();
 
     public Service? GetBySlug(string slug) =>
         Items.FirstOrDefault(s =>

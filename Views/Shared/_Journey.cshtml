@@ -1,15 +1,15 @@
 @{
-    @* The six stages of a move. Used by the homepage and by every service
-       page, so the journey looks identical everywhere. The CSS for it lives
-       in app.css under "the moving journey". *@
+    @* The six stages of a move, told as a little story along a road. Used
+       by the homepage and every service page. All motion is in app.css
+       under "the moving journey"; nothing here runs JavaScript. *@
     var stages = new[] { "Request", "Loading", "In Transit", "Arriving", "Unloading", "Delivered" };
 }
 
 <div class="journey">
 
-    @* Desktop road. *@
-    <div class="mt-16 hidden lg:block" aria-hidden="true">
-        <svg class="block w-full" viewBox="0 0 1200 240" fill="none">
+    @* --- Desktop: icons above each stop, names below, truck on the road. --- *@
+    <div class="mt-14 hidden lg:block" aria-hidden="true">
+        <svg class="block w-full overflow-visible" viewBox="0 -60 1200 330" fill="none">
 
             <path class="route-road"
                   d="M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70"
@@ -19,35 +19,166 @@
                   d="M100,150 C180,150 220,95 300,95 S420,135 500,135 S620,80 700,80 S820,120 900,120 S1020,70 1100,70"
                   stroke="#3156C6" stroke-width="2.5" stroke-linecap="round" />
 
-            <circle class="journey-ring stage-1" cx="100" cy="150" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-1" cx="100" cy="150" r="6" fill="#DCE6FF" />
+            @* 01 Request - the phone rings *@
+            <g transform="translate(100,86)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 3h3l1.5 4-2 1.5a10 10 0 005 5L14 11.5 18 13v3a1 1 0 01-1.1 1A14 14 0 014 4.1 1 1 0 015 3z" />
+                </g>
+                <g class="on-1">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 3h3l1.5 4-2 1.5a10 10 0 005 5L14 11.5 18 13v3a1 1 0 01-1.1 1A14 14 0 014 4.1 1 1 0 015 3z" />
+                        <path class="ring-wave" d="M13 2.5a4.5 4.5 0 014.5 4.5" />
+                        <path class="ring-wave ring-wave-2" d="M13 -0.5a7.5 7.5 0 017.5 7.5" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="100" cy="150" r="6" fill="#DCE6FF" />
+            <g class="on-1">
+                <circle cx="100" cy="150" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="100" cy="150" r="6" fill="#3156C6" />
+            </g>
+            <text x="100" y="190" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">01</text>
+            <text x="100" y="212" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">Request</text>
+            <text x="100" y="212" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-1">Request</text>
 
-            <circle class="journey-ring stage-2" cx="300" cy="95" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-2" cx="300" cy="95" r="6" fill="#DCE6FF" />
+            @* 02 Loading - boxes go in *@
+            <g transform="translate(300,31)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7" />
+                </g>
+                <g class="on-2">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="300" cy="95" r="6" fill="#DCE6FF" />
+            <g class="on-2">
+                <circle cx="300" cy="95" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="300" cy="95" r="6" fill="#3156C6" />
+            </g>
+            <text x="300" y="135" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">02</text>
+            <text x="300" y="157" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">Loading</text>
+            <text x="300" y="157" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-2">Loading</text>
 
-            <circle class="journey-ring stage-3" cx="500" cy="135" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-3" cx="500" cy="135" r="6" fill="#DCE6FF" />
+            @* 03 In Transit - truck on the road *@
+            <g transform="translate(500,71)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 6h10v7H1V6zm10 2h3.5L18 11v2h-7V8z" /><circle cx="5" cy="15" r="1.7" /><circle cx="14.5" cy="15" r="1.7" />
+                </g>
+                <g class="on-3">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 6h10v7H1V6zm10 2h3.5L18 11v2h-7V8z" /><circle cx="5" cy="15" r="1.7" /><circle cx="14.5" cy="15" r="1.7" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="500" cy="135" r="6" fill="#DCE6FF" />
+            <g class="on-3">
+                <circle cx="500" cy="135" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="500" cy="135" r="6" fill="#3156C6" />
+            </g>
+            <text x="500" y="175" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">03</text>
+            <text x="500" y="197" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">In Transit</text>
+            <text x="500" y="197" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-3">In Transit</text>
 
-            <circle class="journey-ring stage-4" cx="700" cy="80" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-4" cx="700" cy="80" r="6" fill="#DCE6FF" />
+            @* 04 Arriving - the pin pulses *@
+            <g transform="translate(700,16)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle class="pin-pulse" r="24" fill="none" stroke="#3156C6" stroke-width="2" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 18s-6-5.2-6-10a6 6 0 1112 0c0 4.8-6 10-6 10z" /><circle cx="10" cy="8" r="2" />
+                </g>
+                <g class="on-4">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 18s-6-5.2-6-10a6 6 0 1112 0c0 4.8-6 10-6 10z" /><circle cx="10" cy="8" r="2" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="700" cy="80" r="6" fill="#DCE6FF" />
+            <g class="on-4">
+                <circle cx="700" cy="80" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="700" cy="80" r="6" fill="#3156C6" />
+            </g>
+            <text x="700" y="120" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">04</text>
+            <text x="700" y="142" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">Arriving</text>
+            <text x="700" y="142" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-4">Arriving</text>
 
-            <circle class="journey-ring stage-5" cx="900" cy="120" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-5" cx="900" cy="120" r="6" fill="#DCE6FF" />
+            @* 05 Unloading - boxes come out *@
+            <g transform="translate(900,56)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10l7-3 7 3v6l-7 3-7-3v-6z" /><path d="M10 1v4.5M8 3.5l2 2 2-2" />
+                </g>
+                <g class="on-5">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10l7-3 7 3v6l-7 3-7-3v-6z" /><path d="M10 1v4.5M8 3.5l2 2 2-2" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="900" cy="120" r="6" fill="#DCE6FF" />
+            <g class="on-5">
+                <circle cx="900" cy="120" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="900" cy="120" r="6" fill="#3156C6" />
+            </g>
+            <text x="900" y="160" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">05</text>
+            <text x="900" y="182" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">Unloading</text>
+            <text x="900" y="182" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-5">Unloading</text>
 
-            <circle class="journey-ring stage-6" cx="1100" cy="70" r="15" fill="none" stroke="#2F7D65" stroke-opacity="0.35" stroke-width="2" />
-            <circle class="journey-dot stage-6" cx="1100" cy="70" r="6" fill="#DCE6FF" />
+            @* 06 Delivered - home, and a tick that draws itself *@
+            <g transform="translate(1100,6)">
+                <line x1="0" y1="26" x2="0" y2="55" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" fill="none" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l7-6 7 6v8H3V9z" />
+                </g>
+                <g class="on-6">
+                    <circle r="24" fill="#2F7D65" />
+                    <g transform="translate(-10,-10)" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 9l7-6 7 6v8H3V9z" />
+                        <path class="tick-draw" pathLength="1" d="M7 12.5l2.2 2.2 4-4.4" />
+                    </g>
+                </g>
+            </g>
+            <circle cx="1100" cy="70" r="6" fill="#DCE6FF" />
+            <g class="on-6">
+                <circle cx="1100" cy="70" r="15" fill="none" stroke="#2F7D65" stroke-opacity="0.3" stroke-width="2" />
+                <circle cx="1100" cy="70" r="6" fill="#2F7D65" />
+            </g>
+            <text x="1100" y="110" text-anchor="middle" fill="#3156C6" font-size="12" font-weight="700" class="font-display">06</text>
+            <text x="1100" y="132" text-anchor="middle" fill="#98A2B3" font-size="17" font-weight="700" class="font-display">Delivered</text>
+            <text x="1100" y="132" text-anchor="middle" fill="#182238" font-size="17" font-weight="700" class="font-display on-6">Delivered</text>
 
+            @* Boxes going into the truck at Loading, and out at Unloading. *@
             <g class="box-load">
-                <rect x="262" y="78" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
-                <rect x="246" y="86" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
+                <rect x="252" y="84" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
+                <rect x="236" y="90" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#3156C6" stroke-width="1.4" />
             </g>
 
             <g class="box-unload">
-                <rect x="926" y="104" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
-                <rect x="944" y="112" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
+                <rect x="926" y="110" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
+                <rect x="944" y="116" width="10" height="10" rx="2" fill="#FFFFFF" stroke="#2F7D65" stroke-width="1.4" />
             </g>
 
+            @* The truck, with speed lines that only show while it moves. *@
             <g class="route-truck">
+                <g class="truck-speed" stroke="#3156C6" stroke-width="1.6" stroke-linecap="round" opacity="0.6">
+                    <line x1="-44" y1="-6" x2="-30" y2="-6" />
+                    <line x1="-48" y1="0"  x2="-28" y2="0" />
+                    <line x1="-42" y1="6"  x2="-30" y2="6" />
+                </g>
                 <circle r="20" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="1.5" />
                 <g transform="translate(-10,-8)" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="0" y="2" width="11" height="9" rx="1.5" fill="#1E2A44" stroke="#1E2A44" stroke-width="1.2" />
@@ -59,57 +190,135 @@
         </svg>
     </div>
 
-    @* The same journey on phones: a shorter curve, same six stops. *@
-    <div class="mt-12 lg:hidden" aria-hidden="true">
-        <svg class="block w-full" viewBox="0 0 600 150" fill="none">
+    @* --- Phones: the same road, left to right, sized for a narrow screen.
+           Icons alternate above and below the road so the names never
+           collide; the truck follows the same 18 second loop. --- *@
+    <div class="mt-10 lg:hidden" aria-hidden="true">
+        <svg class="block w-full overflow-visible" viewBox="0 0 600 380" fill="none">
 
             <path class="route-road"
-                  d="M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50"
+                  d="M50,205 C90,205 110,170 150,170 S210,210 250,210 S310,165 350,165 S410,205 450,205 S510,160 550,160"
                   stroke="#DCE6FF" stroke-width="3" stroke-linecap="round" />
 
             <path class="route-done" pathLength="1"
-                  d="M40,105 C80,105 105,60 145,60 S215,100 250,100 S320,55 355,55 S425,95 460,95 S530,50 560,50"
+                  d="M50,205 C90,205 110,170 150,170 S210,210 250,210 S310,165 350,165 S410,205 450,205 S510,160 550,160"
                   stroke="#3156C6" stroke-width="3" stroke-linecap="round" />
 
-            <circle class="journey-ring stage-1" cx="40" cy="105" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-1" cx="40" cy="105" r="6" fill="#DCE6FF" />
+            @* 01 Request (below the road) *@
+            <line x1="50" y1="219" x2="50" y2="245" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(50,269)">
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l1.5 4-2 1.5a10 10 0 005 5L14 11.5 18 13v3a1 1 0 01-1.1 1A14 14 0 014 4.1 1 1 0 015 3z" /></g>
+                <g class="on-1">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h3l1.5 4-2 1.5a10 10 0 005 5L14 11.5 18 13v3a1 1 0 01-1.1 1A14 14 0 014 4.1 1 1 0 015 3z" /><path class="ring-wave" d="M13 2.5a4.5 4.5 0 014.5 4.5" /><path class="ring-wave ring-wave-2" d="M13 -0.5a7.5 7.5 0 017.5 7.5" /></g>
+                </g>
+            </g>
+            <circle cx="50" cy="205" r="7" fill="#DCE6FF" />
+            <g class="on-1"><circle cx="50" cy="205" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" /><circle cx="50" cy="205" r="7" fill="#3156C6" /></g>
+            <text x="50" y="317" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">Request</text>
+            <text x="50" y="317" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-1">Request</text>
 
-            <circle class="journey-ring stage-2" cx="145" cy="60" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-2" cx="145" cy="60" r="6" fill="#DCE6FF" />
+            @* 02 Loading (above the road) *@
+            <line x1="150" y1="156" x2="150" y2="130" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(150,106)">
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7" /></g>
+                <g class="on-2">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l7-3 7 3-7 3-7-3zm0 0v6l7 3 7-3V7" /></g>
+                </g>
+            </g>
+            <circle cx="150" cy="170" r="7" fill="#DCE6FF" />
+            <g class="on-2"><circle cx="150" cy="170" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" /><circle cx="150" cy="170" r="7" fill="#3156C6" /></g>
+            <text x="150" y="70" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">Loading</text>
+            <text x="150" y="70" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-2">Loading</text>
 
-            <circle class="journey-ring stage-3" cx="250" cy="100" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-3" cx="250" cy="100" r="6" fill="#DCE6FF" />
+            @* 03 In Transit (below) *@
+            <line x1="250" y1="224" x2="250" y2="250" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(250,274)">
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10v7H1V6zm10 2h3.5L18 11v2h-7V8z" /><circle cx="5" cy="15" r="1.7" /><circle cx="14.5" cy="15" r="1.7" /></g>
+                <g class="on-3">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10v7H1V6zm10 2h3.5L18 11v2h-7V8z" /><circle cx="5" cy="15" r="1.7" /><circle cx="14.5" cy="15" r="1.7" /></g>
+                </g>
+            </g>
+            <circle cx="250" cy="210" r="7" fill="#DCE6FF" />
+            <g class="on-3"><circle cx="250" cy="210" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" /><circle cx="250" cy="210" r="7" fill="#3156C6" /></g>
+            <text x="250" y="322" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">In Transit</text>
+            <text x="250" y="322" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-3">In Transit</text>
 
-            <circle class="journey-ring stage-4" cx="355" cy="55" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-4" cx="355" cy="55" r="6" fill="#DCE6FF" />
+            @* 04 Arriving (above) *@
+            <line x1="350" y1="151" x2="350" y2="125" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(350,101)">
+                <circle class="pin-pulse" r="24" fill="none" stroke="#3156C6" stroke-width="2" />
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s-6-5.2-6-10a6 6 0 1112 0c0 4.8-6 10-6 10z" /><circle cx="10" cy="8" r="2" /></g>
+                <g class="on-4">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18s-6-5.2-6-10a6 6 0 1112 0c0 4.8-6 10-6 10z" /><circle cx="10" cy="8" r="2" /></g>
+                </g>
+            </g>
+            <circle cx="350" cy="165" r="7" fill="#DCE6FF" />
+            <g class="on-4"><circle cx="350" cy="165" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" /><circle cx="350" cy="165" r="7" fill="#3156C6" /></g>
+            <text x="350" y="65" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">Arriving</text>
+            <text x="350" y="65" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-4">Arriving</text>
 
-            <circle class="journey-ring stage-5" cx="460" cy="95" r="13" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" />
-            <circle class="journey-dot stage-5" cx="460" cy="95" r="6" fill="#DCE6FF" />
+            @* 05 Unloading (below) *@
+            <line x1="450" y1="219" x2="450" y2="245" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(450,269)">
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l7-3 7 3v6l-7 3-7-3v-6z" /><path d="M10 1v4.5M8 3.5l2 2 2-2" /></g>
+                <g class="on-5">
+                    <circle r="24" fill="#3156C6" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l7-3 7 3v6l-7 3-7-3v-6z" /><path d="M10 1v4.5M8 3.5l2 2 2-2" /></g>
+                </g>
+            </g>
+            <circle cx="450" cy="205" r="7" fill="#DCE6FF" />
+            <g class="on-5"><circle cx="450" cy="205" r="15" fill="none" stroke="#3156C6" stroke-opacity="0.3" stroke-width="2" /><circle cx="450" cy="205" r="7" fill="#3156C6" /></g>
+            <text x="450" y="317" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">Unloading</text>
+            <text x="450" y="317" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-5">Unloading</text>
 
-            <circle class="journey-ring stage-6" cx="560" cy="50" r="13" fill="none" stroke="#2F7D65" stroke-opacity="0.35" stroke-width="2" />
-            <circle class="journey-dot stage-6" cx="560" cy="50" r="6" fill="#DCE6FF" />
+            @* 06 Delivered (above) *@
+            <line x1="550" y1="146" x2="550" y2="120" stroke="#E6E8ED" stroke-width="1.5" stroke-dasharray="3 4" />
+            <g transform="translate(550,96)">
+                <circle r="24" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l7-6 7 6v8H3V9z" /></g>
+                <g class="on-6">
+                    <circle r="24" fill="#2F7D65" />
+                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l7-6 7 6v8H3V9z" /><path class="tick-draw" pathLength="1" d="M7 12.5l2.2 2.2 4-4.4" /></g>
+                </g>
+            </g>
+            <circle cx="550" cy="160" r="7" fill="#DCE6FF" />
+            <g class="on-6"><circle cx="550" cy="160" r="15" fill="none" stroke="#2F7D65" stroke-opacity="0.3" stroke-width="2" /><circle cx="550" cy="160" r="7" fill="#2F7D65" /></g>
+            <text x="550" y="60" text-anchor="middle" fill="#98A2B3" font-size="21" font-weight="700" class="font-display">Delivered</text>
+            <text x="550" y="60" text-anchor="middle" fill="#182238" font-size="21" font-weight="700" class="font-display on-6">Delivered</text>
 
+            @* The truck, with speed lines while it moves. *@
             <g class="route-truck-m">
-                <circle r="17" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="1.5" />
-                <g transform="translate(-9,-7)" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="0" y="2" width="10" height="8" rx="1.5" fill="#1E2A44" stroke="#1E2A44" stroke-width="1.2" />
-                    <path d="M10,4.5h3L15.5,7v3h-5.5z" fill="#3156C6" stroke="#3156C6" stroke-width="1.2" />
-                    <circle cx="3.5" cy="11" r="1.6" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
-                    <circle cx="12" cy="11" r="1.6" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
+                <g class="truck-speed" stroke="#3156C6" stroke-width="2" stroke-linecap="round" opacity="0.6">
+                    <line x1="-40" y1="-6" x2="-28" y2="-6" />
+                    <line x1="-44" y1="0"  x2="-26" y2="0" />
+                    <line x1="-38" y1="6"  x2="-28" y2="6" />
+                </g>
+                <circle r="19" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="1.5" />
+                <g transform="translate(-10,-8)" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="0" y="2" width="11" height="9" rx="1.5" fill="#1E2A44" stroke="#1E2A44" stroke-width="1.2" />
+                    <path d="M11,5h3.2L17,8v3h-6z" fill="#3156C6" stroke="#3156C6" stroke-width="1.2" />
+                    <circle cx="4" cy="12.5" r="1.8" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
+                    <circle cx="13.5" cy="12.5" r="1.8" fill="#FFFFFF" stroke="#1E2A44" stroke-width="1.2" />
                 </g>
             </g>
         </svg>
     </div>
 
-    <ol class="relative mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:mt-2 lg:grid-cols-6 lg:gap-6">
-        @for (var i = 0; i < stages.Length; i++)
+    @* Screen readers get the stages as a plain list, since the drawing is
+       decorative. *@
+    <ol class="sr-only">
+        @foreach (var stage in stages)
         {
-            <li class="block">
-                <p class="font-display text-[13px] font-bold text-jade-500">@($"0{i + 1}")</p>
-                <p class="journey-label stage-@(i + 1) mt-1.5 font-display text-lg font-bold tracking-[-0.03em] text-ink-900">
-                    @stages[i]
-                </p>
-            </li>
+            <li>@stage</li>
         }
     </ol>
 </div>

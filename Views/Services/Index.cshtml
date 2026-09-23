@@ -1,6 +1,12 @@
 @model ServicesIndexViewModel
 
-<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-20 lg:pt-40 lg:pb-28">
+@{
+    // The six services shown in the hero network. Featured ones come first
+    // because the catalog already orders them that way.
+    var network = Model.Services.Take(6).ToList();
+}
+
+<section class="relative overflow-hidden border-b border-ink-100 bg-hero pt-28 pb-20 lg:pt-40 lg:pb-24">
 
     @* Extremely faint arcs, the same decoration as the homepage hero. *@
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -19,31 +25,227 @@
             </ol>
         </nav>
 
-        <h1 class="hero-in hero-in-1 mt-10 max-w-3xl font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
-            Moving &amp; Logistics Services
-        </h1>
-        <p class="hero-in hero-in-2 mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
-            Whatever you're moving, ShiftingGuru helps you find the right professionals.
-        </p>
+        <div class="mt-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
 
-        <a href="/quote"
-           class="lift hero-in hero-in-3 group mt-9 inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
-            Get Free Quotes
-            <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
-                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-        </a>
+            <div class="lg:col-span-6">
+                <p class="hero-in hero-in-1 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+                    <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
+                    @Model.Services.Count() services, one enquiry
+                </p>
+
+                <h1 class="hero-in hero-in-2 mt-7 max-w-3xl font-display text-[clamp(2.5rem,6.5vw,4.75rem)] font-extrabold leading-[0.98] tracking-[-0.045em] text-ink-900">
+                    Moving &amp; Logistics Services
+                </h1>
+                <p class="hero-in hero-in-3 mt-7 max-w-xl text-lg leading-relaxed text-ink-700">
+                    Whatever you're moving, across the city or abroad, ShiftingGuru helps you
+                    find the right professionals.
+                </p>
+
+                <a href="/quote"
+                   class="lift hero-in hero-in-4 group mt-9 inline-flex h-13 items-center gap-2 bg-jade-500 px-7 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
+                    Get Free Quotes
+                    <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5"
+                         viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                        <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </a>
+            </div>
+
+            @* The network: ShiftingGuru in the middle, reaching out to every
+               kind of move. Spokes draw themselves once; each service lights
+               up in turn on the same 18 second loop as the journey.
+               Each block is wrapped in <g>: inside an @if, Razor would
+               otherwise read <text> as its own special tag and fail. *@
+            <div class="hero-in hero-in-5 hidden lg:col-span-6 lg:block" aria-hidden="true">
+                @* The wrapper is exactly the SVG's size, so a logo placed at
+                   50% / 50% lands dead centre on the white disc at any width. *@
+                <div class="relative mx-auto w-full max-w-[560px]">
+                    <svg class="block w-full overflow-visible" viewBox="0 0 560 460" fill="none">
+
+                        @if (network.Count > 0)
+                        {
+                            var s0 = network[0];
+                            <g>
+                                <path class="route-road" d="M280,230 L280,64" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(280,64)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s0.IconPath" /></g>
+                                    <g class="on-1">
+                                        <circle r="32" fill="#3156C6" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s0.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="280" y="18" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s0.Name</text>
+                            </g>
+                        }
+                        @if (network.Count > 1)
+                        {
+                            var s1 = network[1];
+                            <g>
+                                <path class="route-road" d="M280,230 L446,146" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(446,146)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s1.IconPath" /></g>
+                                    <g class="on-2">
+                                        <circle r="32" fill="#3156C6" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s1.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="446" y="200" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s1.Name</text>
+                            </g>
+                        }
+                        @if (network.Count > 2)
+                        {
+                            var s2 = network[2];
+                            <g>
+                                <path class="route-road" d="M280,230 L446,316" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(446,316)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s2.IconPath" /></g>
+                                    <g class="on-3">
+                                        <circle r="32" fill="#3156C6" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s2.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="446" y="370" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s2.Name</text>
+                            </g>
+                        }
+                        @if (network.Count > 3)
+                        {
+                            var s3 = network[3];
+                            <g>
+                                <path class="route-road" d="M280,230 L280,398" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(280,398)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s3.IconPath" /></g>
+                                    <g class="on-4">
+                                        <circle r="32" fill="#3156C6" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s3.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="280" y="452" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s3.Name</text>
+                            </g>
+                        }
+                        @if (network.Count > 4)
+                        {
+                            var s4 = network[4];
+                            <g>
+                                <path class="route-road" d="M280,230 L114,316" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(114,316)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s4.IconPath" /></g>
+                                    <g class="on-5">
+                                        <circle r="32" fill="#3156C6" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s4.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="114" y="370" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s4.Name</text>
+                            </g>
+                        }
+                        @if (network.Count > 5)
+                        {
+                            var s5 = network[5];
+                            <g>
+                                <path class="route-road" d="M280,230 L114,146" stroke="#DCE6FF" stroke-width="2" stroke-linecap="round" />
+                                <g transform="translate(114,146)">
+                                    <circle r="32" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                    <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#98A2B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s5.IconPath" /></g>
+                                    <g class="on-6">
+                                        <circle r="32" fill="#2F7D65" />
+                                        <g transform="translate(-11,-11) scale(1.1)" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="@s5.IconPath" /></g>
+                                    </g>
+                                </g>
+                                <text x="114" y="200" text-anchor="middle" fill="#182238" font-size="15" font-weight="700" class="font-display">@s5.Name</text>
+                            </g>
+                        }
+
+                        @* The centre: ShiftingGuru itself, with every service
+                           branching out from it. A white disc keeps the logo in
+                           its own colours, and the ring keeps pulsing outward. *@
+                        <circle class="pulse-ring" cx="280" cy="230" r="54" fill="none" stroke="#3156C6" stroke-width="2" />
+                        <circle cx="280" cy="230" r="54" fill="#FFFFFF" stroke="#DCE6FF" stroke-width="2" />
+
+                        @* The name sits on a small white pill, so the line to the
+                           bottom service doesn't run through the letters. *@
+                        <rect x="204" y="296" width="152" height="32" rx="16" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                        <text x="280" y="318" text-anchor="middle" fill="#182238" font-size="17" font-weight="800" class="font-display">ShiftingGuru</text>
+                    </svg>
+
+                    @* The logo sits on top of the SVG as a normal image, so it
+                       keeps its own proportions instead of being squeezed
+                       into a square. Height is fixed; width follows the logo. *@
+                                        <div class="pointer-events-none absolute"
+                         style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                        <partial name="_Logo" model="@("h-14 w-auto max-w-[76px] object-contain")" />
+                    </div>
+                </div>
+            </div>
+
+            @* --- Phones: the same idea, sized for a narrow screen. The logo
+                   sits in a pulsing disc, and the first six services light up
+                   one after another on the same 18 second loop. --- *@
+            <div class="hero-in hero-in-5 lg:hidden" aria-hidden="true">
+                <div class="flex flex-col items-center">
+                    <div class="relative grid h-24 w-24 place-items-center rounded-full border-2 border-jade-100 bg-white shadow-float">
+                        <span class="pulse-ring absolute inset-0 rounded-full border-2 border-jade-500"></span>
+                        <partial name="_Logo" model="@("h-12 w-auto max-w-[64px] object-contain")" />
+                    </div>
+                    <span class="mt-3 border border-ink-200 bg-white px-4 py-1.5 font-display text-[15px] font-extrabold tracking-[-0.02em] text-ink-900 shadow-card rounded-full">
+                        ShiftingGuru
+                    </span>
+                </div>
+
+                <ul class="mt-7 grid grid-cols-2 gap-3">
+                    @for (var i = 0; i < network.Count; i++)
+                    {
+                        var item = network[i];
+                        var colour = i == 5 ? "#2F7D65" : "#3156C6";
+
+                        <li class="flex items-center gap-3 border border-ink-200 bg-white p-3 shadow-card rounded-card">
+                            <svg class="h-10 w-10 shrink-0" viewBox="-20 -20 40 40" fill="none">
+                                <circle r="19" fill="#FFFFFF" stroke="#E6E8ED" stroke-width="1.5" />
+                                <g transform="translate(-10,-10)" stroke="#98A2B3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="@item.IconPath" /></g>
+                                <g class="on-@(i + 1)">
+                                    <circle r="19" fill="@colour" />
+                                    <g transform="translate(-10,-10)" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="@item.IconPath" /></g>
+                                </g>
+                            </svg>
+                            <span class="font-display text-[14px] font-bold leading-tight tracking-[-0.02em] text-ink-900">@item.Name</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
     </div>
 </section>
+
+@* A slow strip of every service name. Decorative: the real links are the
+   cards below, so it is hidden from screen readers. *@
+<div class="border-b border-ink-100 bg-white py-5" aria-hidden="true">
+    <div class="marquee">
+        <div class="marquee-track">
+            @for (var copy = 0; copy < 2; copy++)
+            {
+                foreach (var service in Model.Services)
+                {
+                    <span class="flex shrink-0 items-center gap-3 px-6 font-display text-lg font-bold tracking-[-0.02em] text-ink-900">
+                        <svg class="h-5 w-5 text-jade-500" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <path d="@service.IconPath" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        @service.Name
+                        <span class="ml-3 h-1.5 w-1.5 rounded-full bg-ink-300"></span>
+                    </span>
+                }
+            }
+        </div>
+    </div>
+</div>
 
 <section class="bg-paper" aria-labelledby="all-services-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-24">
 
         <h2 id="all-services-heading" class="sr-only">All services</h2>
 
-        @* Separate photo cards, matching the homepage. The old hairline panel
-           is gone: each tile now carries its own image and shadow. *@
         <ul class="stagger grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-5">
             @foreach (var service in Model.Services)
             {

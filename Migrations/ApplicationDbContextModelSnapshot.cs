@@ -28,6 +28,25 @@ namespace ShiftingGuru.Migrations
 
             modelBuilder.HasSequence("vendor_number_seq");
 
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -312,6 +331,55 @@ namespace ShiftingGuru.Migrations
                         .IsUnique();
 
                     b.ToTable("CustomerAccessTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftingGuru.Models.EmailVerification", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CodeHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("Email", "CreatedAt");
+
+                    b.ToTable("EmailVerifications", (string)null);
                 });
 
             modelBuilder.Entity("ShiftingGuru.Models.Faq", b =>
@@ -993,6 +1061,9 @@ namespace ShiftingGuru.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
+                    b.Property<DateTime?>("EmailVerifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("GstNumber")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
@@ -1010,6 +1081,9 @@ namespace ShiftingGuru.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime?>("PhoneVerifiedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1046,6 +1120,51 @@ namespace ShiftingGuru.Migrations
                         .IsUnique();
 
                     b.ToTable("Vendors", (string)null);
+                });
+
+            modelBuilder.Entity("ShiftingGuru.Models.VendorDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StoragePath")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("VendorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VendorId", "Type")
+                        .IsUnique();
+
+                    b.ToTable("VendorDocuments", (string)null);
                 });
 
             modelBuilder.Entity("ShiftingGuru.Models.VendorService", b =>
@@ -1251,6 +1370,17 @@ namespace ShiftingGuru.Migrations
                     b.Navigation("Vendor");
                 });
 
+            modelBuilder.Entity("ShiftingGuru.Models.VendorDocument", b =>
+                {
+                    b.HasOne("ShiftingGuru.Models.Vendor", "Vendor")
+                        .WithMany("Documents")
+                        .HasForeignKey("VendorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Vendor");
+                });
+
             modelBuilder.Entity("ShiftingGuru.Models.VendorService", b =>
                 {
                     b.HasOne("ShiftingGuru.Models.Vendor", "Vendor")
@@ -1290,6 +1420,8 @@ namespace ShiftingGuru.Migrations
             modelBuilder.Entity("ShiftingGuru.Models.Vendor", b =>
                 {
                     b.Navigation("Assignments");
+
+                    b.Navigation("Documents");
 
                     b.Navigation("Quotes");
 

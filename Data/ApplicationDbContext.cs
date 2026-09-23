@@ -1,5 +1,4 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +10,19 @@ namespace ShiftingGuru.Data;
 /// One context for the whole application. Now inherits IdentityDbContext so
 /// the Identity tables live alongside Leads - a second DbContext would mean a
 /// second connection and no shared transactions.
+///
+/// Also implements IDataProtectionKeyContext: the keys that sign login cookies
+/// and form tokens are stored here, so every Cloud Run instance shares them
+/// and they survive restarts and deploys.
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtectionKeyContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
 
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
+    public DbSet<VendorDocument> VendorDocuments => Set<VendorDocument>();
     public DbSet<VendorService> VendorServices => Set<VendorService>();
     public DbSet<LeadAssignment> LeadAssignments => Set<LeadAssignment>();
     public DbSet<Quote> Quotes => Set<Quote>();
@@ -29,6 +33,12 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<MovingRoute> Routes => Set<MovingRoute>();
     public DbSet<Faq> Faqs => Set<Faq>();
     public DbSet<AdminAuditLog> AdminAuditLogs => Set<AdminAuditLog>();
+
+    // NEW: one-time codes from the partner sign-up form.
+    public DbSet<EmailVerification> EmailVerifications => Set<EmailVerification>();
+
+    // NEW: shared encryption keys (see the class comment).
+    public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -148,6 +158,33 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
                   .WithOne(s => s.Vendor!)
                   .HasForeignKey(s => s.VendorId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            // NEW: when the email and mobile codes were confirmed at sign-up.
+            vendor.Property(v => v.EmailVerifiedAt).HasColumnType("timestamp with time zone");
+            vendor.Property(v => v.PhoneVerifiedAt).HasColumnType("timestamp with time zone");
+
+            // NEW: uploaded KYC documents. The files themselves live in storage;
+            // these rows only say where.
+            vendor.HasMany(v => v.Documents)
+                  .WithOne(d => d.Vendor!)
+                  .HasForeignKey(d => d.VendorId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // NEW
+        builder.Entity<VendorDocument>(document =>
+        {
+            document.ToTable("VendorDocuments");
+            document.HasKey(d => d.Id);
+
+            document.Property(d => d.Type).IsRequired().HasMaxLength(30).HasConversion<string>();
+            document.Property(d => d.StoragePath).IsRequired().HasMaxLength(300);
+            document.Property(d => d.ContentType).IsRequired().HasMaxLength(60);
+            document.Property(d => d.OriginalFileName).IsRequired().HasMaxLength(200);
+            document.Property(d => d.UploadedAt).IsRequired().HasColumnType("timestamp with time zone");
+
+            // One document of each type per vendor.
+            document.HasIndex(d => new { d.VendorId, d.Type }).IsUnique();
         });
 
         builder.Entity<VendorService>(service =>
@@ -459,6 +496,29 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             audit.HasIndex(a => a.CreatedAt);
             audit.HasIndex(a => new { a.EntityType, a.EntityId });
             audit.HasIndex(a => a.AdminUserId);
+        });
+
+        // NEW
+        builder.Entity<EmailVerification>(verification =>
+        {
+            verification.ToTable("EmailVerifications");
+            verification.HasKey(e => e.Id);
+
+            verification.Property(e => e.Email).IsRequired().HasMaxLength(120);
+            verification.Property(e => e.CodeHash).IsRequired().HasMaxLength(64);
+            verification.Property(e => e.TokenHash).HasMaxLength(64);
+
+            verification.Property(e => e.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
+            verification.Property(e => e.ExpiresAt).IsRequired().HasColumnType("timestamp with time zone");
+            verification.Property(e => e.VerifiedAt).HasColumnType("timestamp with time zone");
+            verification.Property(e => e.UsedAt).HasColumnType("timestamp with time zone");
+
+            // "Latest code for this email" and the rate-limit counts.
+            verification.HasIndex(e => new { e.Email, e.CreatedAt });
+            verification.HasIndex(e => e.CreatedAt);
+
+            // Proof tokens are looked up by hash. PostgreSQL allows many NULLs here.
+            verification.HasIndex(e => e.TokenHash).IsUnique();
         });
     }
 }

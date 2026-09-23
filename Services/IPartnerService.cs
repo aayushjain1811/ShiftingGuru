@@ -3,20 +3,30 @@ using ShiftingGuru.ViewModels.Partner;
 
 namespace ShiftingGuru.Services;
 
-public record PartnerRegistrationResult(bool Succeeded, Vendor? Vendor, IReadOnlyList<string> Errors)
+public record PartnerRegistrationResult(
+    bool Succeeded,
+    Vendor? Vendor,
+    IReadOnlyList<string> Errors,
+    bool ResetEmailVerification = false,
+    bool ResetPhoneVerification = false)
 {
     public static PartnerRegistrationResult Ok(Vendor vendor) =>
         new(true, vendor, Array.Empty<string>());
 
     public static PartnerRegistrationResult Fail(params string[] errors) =>
         new(false, null, errors);
+
+    /// <summary>NEW: a verification proof was rejected, so the form must ask for it again.</summary>
+    public static PartnerRegistrationResult VerificationFailed(bool email, bool phone, string error) =>
+        new(false, null, new[] { error }, email, phone);
 }
 
 public interface IPartnerService
 {
     /// <summary>
-    /// Creates the Identity user, assigns the Vendor role and writes the
-    /// Vendor + VendorServices rows. Status is always Pending.
+    /// Checks the email and mobile proofs and the documents, then creates the
+    /// Identity user, assigns the Vendor role, stores the documents and writes
+    /// the Vendor + VendorServices + VendorDocuments rows. Status is always Pending.
     /// </summary>
     Task<PartnerRegistrationResult> RegisterAsync(
         PartnerRegistrationViewModel model, CancellationToken ct = default);
