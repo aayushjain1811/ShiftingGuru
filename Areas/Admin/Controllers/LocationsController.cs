@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Content;
 using ShiftingGuru.Services.Seo;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.ViewModels.Admin;
@@ -340,7 +341,8 @@ public class LocationsController : Controller
         location.Country = model.Country.Trim();
         location.H1 = model.H1!.Trim();
         location.ShortDescription = model.ShortDescription!.Trim();
-        location.Content = model.Content!.Trim();
+        // CHANGED: cleaned before saving, so only simple formatting reaches the database.
+        location.Content = RichContent.ToSafeHtml(model.Content);
         location.MetaTitle = model.MetaTitle!.Trim();
         location.MetaDescription = model.MetaDescription!.Trim();
         location.OgTitle = Normalise(model.OgTitle);
