@@ -128,18 +128,73 @@
 </div>
 
 <!-- ============ 3. About this city ============ -->
+@{
+    // Content formatting, written in the admin "Content" box:
+    //   a blank line  = new block
+    //   "## Heading"  = small heading
+    //   "- item"      = tick list (one item per line)
+    //   anything else = paragraph (the first one is shown larger)
+    var text = (location.Content ?? "").Replace("\r\n", "\n").Trim();
+    var blocks = text.Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+
+    // Forgiving: if nobody left blank lines, treat each line as its own block.
+    if (blocks.Count == 1 && blocks[0].Contains('\n'))
+    {
+        blocks = blocks[0].Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    }
+
+    var introShown = false;
+}
 <section class="bg-white" aria-labelledby="about-heading">
     <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
         <div class="grid gap-10 lg:grid-cols-12">
-            <h2 id="about-heading"
-                class="reveal-left lg:col-span-4 font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
-                Moving in @location.Name
-            </h2>
 
-            <div class="reveal-right lg:col-span-7 lg:col-start-6">
-                @foreach (var paragraph in Model.Paragraphs)
+            <div class="lg:col-span-4">
+                <h2 id="about-heading"
+                    class="reveal-left font-display text-[clamp(2rem,4.2vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900 lg:sticky lg:top-28">
+                    Moving in @location.Name
+                </h2>
+            </div>
+
+            <div class="lg:col-span-7 lg:col-start-6">
+                @foreach (var block in blocks)
                 {
-                    <p class="mb-6 max-w-[62ch] text-lg leading-relaxed text-ink-700 last:mb-0">@paragraph</p>
+                    var lines = block.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+                    if (block.StartsWith("## "))
+                    {
+                        <h3 class="reveal-up mt-12 font-display text-xl font-bold tracking-[-0.03em] text-ink-900 first:mt-0 lg:text-2xl">
+                            @block[3..].Trim()
+                        </h3>
+                    }
+                    else if (lines.All(l => l.StartsWith("- ")))
+                    {
+                        <ul class="stagger mt-5 space-y-3">
+                            @foreach (var line in lines)
+                            {
+                                <li class="reveal-up flex items-start gap-3 border border-ink-100 bg-paper p-4 rounded-card">
+                                    <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                        <circle cx="10" cy="10" r="9" fill="#EBF5F1" />
+                                        <path d="M6 10.5l2.5 2.5 5.5-6" stroke="#2F7D65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span class="text-[15px] leading-relaxed text-ink-700">@line[2..].Trim()</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else if (!introShown)
+                    {
+                        introShown = true;
+                        <p class="reveal-up max-w-[60ch] text-xl leading-relaxed text-ink-900 lg:text-[22px]">
+                            @string.Join(" ", lines)
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="reveal-up mt-5 max-w-[62ch] text-[17px] leading-relaxed text-ink-600">
+                            @string.Join(" ", lines)
+                        </p>
+                    }
                 }
             </div>
         </div>
@@ -202,35 +257,6 @@
     </div>
 </section>
 
-<!-- ============ 7. Routes (only when some exist) ============ -->
-@if (Model.Routes.Count > 0)
-{
-    <section class="bg-white" aria-labelledby="routes-heading">
-        <div class="mx-auto max-w-[1400px] px-5 py-20 sm:px-8 lg:py-28">
-            <h2 id="routes-heading"
-                class="reveal-up max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
-                Routes from and to @location.Name
-            </h2>
-
-            <ul class="stagger mt-14 border-t border-ink-200">
-                @foreach (var route in Model.Routes)
-                {
-                    <li class="reveal-up border-b border-ink-200">
-                        <a href="@route.Url" class="group flex items-center justify-between gap-4 py-6">
-                            <span class="font-display text-[clamp(1.25rem,3vw,2rem)] font-bold leading-none tracking-[-0.04em] text-ink-900 transition-colors group-hover:text-jade-500">
-                                @route.Label
-                            </span>
-                            <svg class="h-4 w-4 shrink-0 text-ink-300 transition-all duration-200 group-hover:translate-x-2 group-hover:text-jade-500"
-                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-    </section>
-}
 
 <!-- ============ 8. FAQs ============ -->
 <partial name="_Faqs" model="Model.Faqs" />
