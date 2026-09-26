@@ -4,6 +4,7 @@ using ShiftingGuru.Services.Email;
 using ShiftingGuru.Data;
 using ShiftingGuru.Services;
 using ShiftingGuru.Services.Notifications;
+using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels;
 
 namespace ShiftingGuru.Controllers;
@@ -15,6 +16,8 @@ public class QuoteController : Controller
     private readonly ILeadService _leads;
     private readonly ICustomerAccessService _access;
     private readonly INotificationService _notifications;
+    private readonly IPhoneVerificationService _phoneVerification;
+    private readonly IConfiguration _config;
     private readonly AppOptions _app;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<QuoteController> _logger;
@@ -24,6 +27,8 @@ public class QuoteController : Controller
         ILeadService leads,
         ICustomerAccessService access,
         INotificationService notifications,
+        IPhoneVerificationService phoneVerification,
+        IConfiguration config,
         IOptions<AppOptions> app,
         IWebHostEnvironment environment,
         ILogger<QuoteController> logger)
@@ -32,10 +37,19 @@ public class QuoteController : Controller
         _leads = leads;
         _access = access;
         _notifications = notifications;
+        _phoneVerification = phoneVerification;
+        _config = config;
         _app = app.Value;
         _environment = environment;
         _logger = logger;
     }
+
+    /// <summary>
+    /// NEW: mobile OTP on the quote form. ON unless the setting
+    /// Quote:RequirePhoneOtp is "false" - an emergency switch in case SMS
+    /// delivery fails and customers can't get their code.
+    /// </summary>
+    private bool RequirePhoneOtp => _config.GetValue("Quote:RequirePhoneOtp", true);
 
     // GET /quote
     // GET /quote?service=home-shifting&from=Gurgaon&to=Pune
@@ -79,6 +93,24 @@ public class QuoteController : Controller
         if (!ModelState.IsValid)
         {
             return View(Prepare(model));
+        }
+
+        // NEW: the browser can't be trusted to say "verified", so ask Firebase
+        // directly whether this exact number was verified.
+        if (RequirePhoneOtp)
+        {
+            var digits = LeadService.MobileDigits(model.Phone);
+            var verified = digits is not null
+                && await _phoneVerification.IsVerifiedAsync(model.PhoneVerificationToken, digits, ct);
+
+            if (!verified)
+            {
+                ModelState.Remove(nameof(model.PhoneVerificationToken));
+                model.PhoneVerificationToken = null;
+                ModelState.AddModelError(nameof(model.PhoneVerificationToken),
+                    "Please verify your mobile number with the code we send you.");
+                return View(Prepare(model));
+            }
         }
 
         try
@@ -140,7 +172,6 @@ public class QuoteController : Controller
         ViewData["LeadNumber"] = leadNumber;
         ViewData["SubmittedService"] = TempData["SubmittedService"] as string;
         ViewData["AccessLink"] = TempData["AccessLink"] as string;
-        ViewData["AccessLink"] = TempData["AccessLink"] as string;
 
         return View();
     }
@@ -154,6 +185,7 @@ public class QuoteController : Controller
             "Tell ShiftingGuru what you're moving and compare options from verified "
             + "moving and logistics professionals across India.";
         ViewData["Canonical"] = "https://www.shiftingguru.com/quote";
+        ViewData["RequirePhoneOtp"] = RequirePhoneOtp;
 
         return model;
     }

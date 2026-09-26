@@ -17,7 +17,9 @@ public class LeadService : ILeadService
     public async Task<Lead> CreateLeadAsync(
         QuoteRequestViewModel model, Service service, CancellationToken ct = default)
     {
-        var phone = Normalise(model.Phone) ?? "";
+        // CHANGED: stored as the plain 10 digits, so "+91 98765 43210" and
+        // "9876543210" are the same customer.
+        var phone = MobileDigits(model.Phone) ?? Normalise(model.Phone) ?? "";
 
         // Double-click / refresh guard. If the same number sent the same
         // service in the last couple of minutes, return that lead instead of
@@ -43,7 +45,6 @@ public class LeadService : ILeadService
             CustomerName = Normalise(model.CustomerName) ?? "",
             Phone = phone,
             Email = Normalise(model.Email),
-            PreferredContactMethod = Normalise(model.PreferredContactMethod),
             AdditionalRequirements = Normalise(model.AdditionalRequirements),
 
             MovingDate = model.MovingDate.HasValue
@@ -55,7 +56,17 @@ public class LeadService : ILeadService
             CreatedAt = DateTime.UtcNow
         };
 
-        ApplyServiceFields(lead, model, service.Slug);
+        // CHANGED: the short form has one "from" box. For storage it means
+        // "where do you need storage", which is kept in StorageLocation as before.
+        if (service.Slug == QuoteRequestViewModel.StorageSlug)
+        {
+            lead.StorageLocation = Normalise(model.MovingFrom);
+        }
+        else
+        {
+            lead.MovingFrom = Normalise(model.MovingFrom);
+            lead.MovingTo = Normalise(model.MovingTo);
+        }
 
         _db.Leads.Add(lead);
         await _db.SaveChangesAsync(ct);
@@ -64,60 +75,8 @@ public class LeadService : ILeadService
     }
 
     /// <summary>
-    /// Copies across only the fields that belong to the chosen service, so a
-    /// car-transport lead never carries a stray PropertyType.
-    /// </summary>
-    private static void ApplyServiceFields(Lead lead, QuoteRequestViewModel model, string slug)
-    {
-        if (slug == "warehouse-storage")
-        {
-            lead.StorageLocation = Normalise(model.StorageLocation);
-            lead.StorageType = Normalise(model.StorageType);
-            lead.StorageSize = Normalise(model.StorageSize);
-            lead.StorageDuration = Normalise(model.StorageDuration);
-            return;
-        }
-
-        lead.MovingFrom = Normalise(model.MovingFrom);
-        lead.MovingTo = Normalise(model.MovingTo);
-
-        switch (slug)
-        {
-            case "home-shifting":
-            case "packers-movers":
-                lead.PropertyType = Normalise(model.PropertyType);
-                lead.MoveSize = Normalise(model.MoveSize);
-                break;
-
-            case "office-shifting":
-                lead.OfficeSize = Normalise(model.OfficeSize);
-                lead.DeskCount = Normalise(model.DeskCount);
-                break;
-
-            case "car-transportation":
-                lead.VehicleType = Normalise(model.VehicleType);
-                lead.VehicleModel = Normalise(model.VehicleModel);
-                lead.VehicleCondition = Normalise(model.VehicleCondition);
-                break;
-
-            case "bike-transportation":
-                lead.VehicleType = Normalise(model.VehicleType);
-                lead.VehicleModel = Normalise(model.VehicleModel);
-                break;
-
-            case "goods-transportation":
-            case "truck-tempo":
-                lead.GoodsType = Normalise(model.GoodsType);
-                lead.LoadDetails = Normalise(model.LoadDetails);
-                lead.VehicleRequirement = Normalise(model.VehicleRequirement);
-                break;
-        }
-    }
-
-    /// <summary>
     /// SG-yyyyMMdd-#####. The counter comes from a PostgreSQL sequence, which
     /// is atomic - two simultaneous submissions cannot produce the same number.
-    /// A timestamp alone could, which is why this is not timestamp-only.
     /// </summary>
     private async Task<string> NextLeadNumberAsync(CancellationToken ct)
     {
@@ -126,6 +85,14 @@ public class LeadService : ILeadService
             .SingleAsync(ct);
 
         return $"SG-{DateTime.UtcNow:yyyyMMdd}-{next:D5}";
+    }
+
+    /// <summary>Last 10 digits of an Indian mobile number, or null if it isn't one.</summary>
+    public static string? MobileDigits(string? value)
+    {
+        var digits = new string((value ?? "").Where(char.IsAsciiDigit).ToArray());
+        if (digits.Length > 10) digits = digits[^10..];
+        return digits.Length == 10 && digits[0] >= '6' ? digits : null;
     }
 
     private static string? Normalise(string? value) =>

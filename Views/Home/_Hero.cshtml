@@ -1,12 +1,17 @@
 @inject IServiceCatalog Catalog
+@inject Microsoft.Extensions.Configuration.IConfiguration Config
 
 @{
-    // Four short, true statements. "India and abroad" replaces the old
-    // "Pan-India network", which overstated things for a new company and
-    // left out the international service altogether.
+    // Four short, true statements.
     var heroPoints = new[] { "Verified professionals", "Multiple quotes", "Easy comparison", "India and abroad" };
 
     var slides = new[] { "hero-1", "hero-2", "hero-3", "hero-4" };
+
+    // Same switch as the /quote page: Quote:RequirePhoneOtp (on unless set to false).
+    var requireOtp = Config.GetValue("Quote:RequirePhoneOtp", true);
+
+    const string lineField = "field-line mt-1.5 block h-11 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0";
+    const string labelClasses = "block text-[13px] font-semibold tracking-wide text-ink-800";
 }
 
 <section class="relative overflow-hidden bg-hero pt-28 lg:pt-36">
@@ -31,8 +36,7 @@
        whole photo instead, because there is no room beside it. *@
     <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(254,253,251,0.94)_0%,rgba(254,253,251,0.82)_55%,rgba(254,253,251,0.65)_100%)] lg:bg-[linear-gradient(90deg,rgba(254,253,251,1)_0%,rgba(254,253,251,0.97)_34%,rgba(254,253,251,0.72)_52%,rgba(254,253,251,0)_80%)]" aria-hidden="true"></div>
 
-    @* Soft vignette: pulls the corners down so the photo sits back rather
-       than shouting. *@
+    @* Soft vignette. *@
     <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_40%,transparent_0%,rgba(24,34,56,0.12)_100%)]" aria-hidden="true"></div>
 
     @* Band under the navbar, so the menu stays readable over any photo. *@
@@ -45,8 +49,8 @@
 
         <div class="grid gap-12 lg:grid-cols-12 lg:gap-10">
 
-            <!-- Message -->
-            <div class="lg:col-span-7 lg:pb-28 xl:col-span-7">
+            <!-- Message (7 of 12 columns on desktop) -->
+            <div class="lg:col-span-7 lg:pb-28">
 
                 <p class="hero-in hero-in-1 flex items-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
                     <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
@@ -74,9 +78,6 @@
                     </a>
                 </div>
 
-                @* The two services we most want enquiries for, one tap from the
-                   first screen. Each goes to its own page, which then leads to
-                   the quote form with the service already chosen. *@
                 <div class="hero-in hero-in-4 mt-7 flex flex-wrap items-center gap-2.5">
                     <span class="text-[13px] font-medium text-ink-500">Now offering:</span>
 
@@ -113,29 +114,76 @@
                 </ul>
             </div>
 
-            @* The form card drops below the hero's bottom edge on desktop.
-               That overlap is what ties the photograph to the page below it. *@
-            <div class="lg:col-span-5 lg:-mb-24 lg:pt-4">
+            @* The full short quote form (5 of 12 columns on desktop). It posts
+               straight to /quote, so the customer never has to open another page.
+               It sits fully inside the hero, so nothing gets cut off. *@
+            <div class="lg:col-span-5 lg:pb-16 lg:pt-2">
                 <div id="get-quotes"
-                     class="hero-in hero-in-5 scroll-mt-28 border border-ink-200 bg-white p-6 shadow-float rounded-panel sm:p-8">
+                     class="hero-in hero-in-5 scroll-mt-28 border border-ink-200 bg-white p-6 shadow-float rounded-panel sm:p-7">
 
                     <div class="flex items-baseline justify-between">
-                        <h2 class="font-display text-[22px] font-bold tracking-[-0.03em] text-ink-900">Start your move</h2>
+                        <h2 class="font-display text-[22px] font-bold tracking-[-0.03em] text-ink-900">
+                            Get your <span class="text-jade-500">free</span> quote
+                        </h2>
                         <span class="text-xs font-medium text-ink-500">Takes a minute</span>
                     </div>
-                    <p class="mt-2 text-[15px] leading-relaxed text-ink-500">
-                        Tell us the basics. We'll match you with relevant professionals.
-                    </p>
 
-                    @* A GET hand-off, not a post. Whatever is filled in here arrives
-                       at /quote as query parameters and pre-fills the first two
-                       steps. One conversion path, nothing submitted from here. *@
-                    <form action="/quote" method="get" class="mt-7 space-y-5">
+                    <form id="quote-form" method="post" action="/quote" asp-antiforgery="true" novalidate
+                          data-require-otp="@(requireOtp ? "true" : "false")"
+                          data-fb-api-key="@Config["Firebase:ApiKey"]"
+                          data-fb-auth-domain="@Config["Firebase:AuthDomain"]"
+                          data-fb-project-id="@Config["Firebase:ProjectId"]"
+                          class="mt-5 grid gap-x-5 gap-y-4 sm:grid-cols-2">
 
                         <div>
-                            <label for="hero-service" class="block text-[13px] font-semibold tracking-wide text-ink-800">What service do you need?</label>
-                            <select id="hero-service" name="service"
-                                    class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0">
+                            <label for="hero-name" class="@labelClasses">Full name</label>
+                            <input id="hero-name" name="CustomerName" type="text" autocomplete="name" placeholder="Your name" required class="@lineField" />
+                        </div>
+
+                        <div>
+                            <label for="hero-email" class="@labelClasses">Email address</label>
+                            <input id="hero-email" name="Email" type="email" autocomplete="email" placeholder="you@@example.com" required class="@lineField" />
+                        </div>
+
+                        @* Mobile + OTP, full width *@
+                        <div data-verify="phone" class="group sm:col-span-2">
+                            <label for="hero-phone" class="@labelClasses">Mobile number</label>
+                            <div class="mt-1.5 flex items-end gap-2">
+                                <span class="pb-2.5 text-[15px] text-ink-500" aria-hidden="true">+91</span>
+                                <input id="hero-phone" name="Phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="10"
+                                       placeholder="9876543210" required data-verify-input
+                                       class="field-line block h-11 w-full min-w-0 flex-1 border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0 group-data-[state=ok]:border-green-600" />
+                                @if (requireOtp)
+                                {
+                                    <button type="button" data-verify-send
+                                            class="h-10 shrink-0 border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 rounded-card transition-colors hover:border-jade-500 hover:text-jade-600 disabled:cursor-not-allowed disabled:opacity-50">
+                                        Verify
+                                    </button>
+                                }
+                            </div>
+
+                            @if (requireOtp)
+                            {
+                                <div data-verify-step hidden class="mt-3 flex gap-2">
+                                    <input type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"
+                                           placeholder="6-digit code" aria-label="Mobile verification code" data-verify-code
+                                           class="block h-10 w-36 border border-ink-200 px-3 text-[15px] tracking-[0.3em] text-ink-900 placeholder:tracking-normal placeholder:text-ink-400 rounded-card focus:border-jade-500" />
+                                    <button type="button" data-verify-check
+                                            class="lift h-10 shrink-0 bg-jade-500 px-4 text-sm font-semibold text-white rounded-card transition-colors hover:bg-jade-600 disabled:opacity-50">
+                                        Confirm
+                                    </button>
+                                </div>
+
+                                <p data-verify-status data-state="idle" role="status" aria-live="polite"
+                                   class="mt-1.5 text-xs text-ink-500 data-[state=error]:text-red-600 data-[state=ok]:font-semibold data-[state=ok]:text-green-700"></p>
+                                <input type="hidden" name="PhoneVerificationToken" data-verify-token />
+                            }
+                        </div>
+
+                        <div>
+                            <label for="hero-service" class="@labelClasses">Service</label>
+                            <select id="hero-service" name="ServiceSlug" required
+                                    class="field-line mt-1.5 block h-11 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0">
                                 <option value="">Select a service</option>
                                 @foreach (var service in Catalog.GetAll())
                                 {
@@ -144,40 +192,51 @@
                             </select>
                         </div>
 
-                        <div class="grid gap-5 sm:grid-cols-2">
-                            <div>
-                                <label for="hero-from" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving from</label>
-                                <input id="hero-from" name="from" type="text" autocomplete="address-level2" placeholder="Gurugram"
-                                       class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
-                            </div>
-
-                            <div>
-                                @* The placeholder hints that a city abroad is fine too. *@
-                                <label for="hero-to" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving to</label>
-                                <input id="hero-to" name="to" type="text" autocomplete="address-level2" placeholder="Bengaluru or Dubai"
-                                       class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 placeholder:text-ink-400 focus:border-jade-500 focus:ring-0" />
-                            </div>
+                        <div>
+                            <label for="hero-date" class="@labelClasses">Moving date <span class="font-normal text-ink-500">(optional)</span></label>
+                            <input id="hero-date" name="MovingDate" type="date" class="@lineField" />
                         </div>
 
                         <div>
-                            <label for="hero-date" class="block text-[13px] font-semibold tracking-wide text-ink-800">Moving date</label>
-                            <input id="hero-date" name="date" type="date" data-min-today="true"
-                                   class="field-line mt-2 block h-12 w-full border-0 border-b border-ink-200 bg-transparent px-0 text-[15px] text-ink-900 focus:border-jade-500 focus:ring-0" />
+                            <label for="hero-from" data-from-label class="@labelClasses">Moving from</label>
+                            <input id="hero-from" name="MovingFrom" type="text" autocomplete="address-level2" placeholder="Gurugram" required class="@lineField" />
                         </div>
 
-                        <button type="submit"
-                                class="lift group mt-3 flex h-14 w-full items-center justify-center gap-2 bg-jade-500 px-6 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600">
-                            Get Free Quotes
-                            <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                                 viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </button>
+                        <div data-to-field>
+                            @* The placeholder hints that a city abroad is fine too. *@
+                            <label for="hero-to" class="@labelClasses">Moving to</label>
+                            <input id="hero-to" name="MovingTo" type="text" autocomplete="address-level2" placeholder="Bengaluru or Dubai" class="@lineField" />
+                        </div>
 
-                        <p class="text-center text-xs text-ink-500">Free to use. No obligation to book.</p>
+                        <div class="sm:col-span-2">
+                            <button type="submit" data-submit
+                                    class="lift group mt-2 flex h-14 w-full items-center justify-center gap-2 bg-jade-500 px-6 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 disabled:cursor-not-allowed disabled:opacity-50">
+                                Get Free Quotes
+                                <svg class="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+                                     viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path d="M4 10h11M11 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+
+                            @if (requireOtp)
+                            {
+                                <p data-submit-hint hidden class="mt-2 text-center text-xs font-medium text-ink-700">Verify your mobile number to continue.</p>
+                            }
+
+                            <p class="mt-3 text-center text-[11px] leading-relaxed text-ink-500">
+                                By clicking Get Free Quotes, you agree that ShiftingGuru and its verified partners may
+                                contact you about this request by call, SMS, WhatsApp or email. Free, no obligation to book.
+                            </p>
+                        </div>
+
+                        @* Firebase puts its invisible "are you a robot" check here. *@
+                        <div id="recaptcha-container"></div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+@* The same script as the /quote page: OTP, storage switch, no past dates. *@
+<script type="module" src="~/js/quote.js" asp-append-version="true"></script>

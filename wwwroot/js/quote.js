@@ -1,387 +1,282 @@
-/* ---------------------------------------------------------------
-   ShiftingGuru - quote.js
-   Drives the multi-step quote form. Without this file the form still
-   works: every step is visible and it submits as one long form.
-   --------------------------------------------------------------- */
-(function () {
-  "use strict";
+// ShiftingGuru - quote.js (short quote form)
+//
+// 1. Mobile OTP (Firebase), with the Get Free Quotes button locked until
+//    the number is verified (when OTP is switched on)
+// 2. Storage: "Moving to" isn't needed, and "Moving from" becomes "Storage location"
+// 3. No past dates, and no double submits
 
-  var form = document.getElementById("quote-form");
-  if (!form) return;
+const FIREBASE_VERSION = "10.12.2";
 
-  // Switching this class on is what collapses the form into steps. It is
-  // added by JavaScript, so no-JS users never see a half-hidden form.
-  document.documentElement.classList.add("js-steps");
+const form = document.getElementById("quote-form");
 
-  var LAST_STEP = 5;          // step 5 is the review panel
-  var current = 1;
+if (form) {
+    const requireOtp = form.dataset.requireOtp === "true";
+    setUpService();
+    setUpDate();
+    if (requireOtp) setUpPhone();
+    setUpSubmit(requireOtp);
+}
 
-  var panels = {};
-  form.querySelectorAll("[data-step]").forEach(function (panel) {
-    panels[panel.dataset.step] = panel;
-  });
+// ---------------------------------------------------------------------------
+// Service: storage needs one location, everything else needs two
+// ---------------------------------------------------------------------------
 
-  var backBtn = form.querySelector("[data-nav-back]");
-  var nextBtn = form.querySelector("[data-nav-next]");
-  var submitBtn = form.querySelector("[data-nav-submit]");
-  var stepCurrent = document.querySelector("[data-step-current]");
-  var stepBar = document.querySelector("[data-step-bar]");
-  var markers = document.querySelectorAll("[data-step-marker]");
-  var summary = form.querySelector("[data-summary]");
+function setUpService() {
+    const select = form.querySelector('[name="ServiceSlug"]');
+    const toField = form.querySelector("[data-to-field]");
+    const fromLabel = form.querySelector("[data-from-label]");
+    if (!select || !toField || !fromLabel) return;
 
-  /* -------------------------------------------------------------
-     Which service is selected
-     ------------------------------------------------------------- */
-  function selectedService() {
-    var checked = form.querySelector("[data-service-option]:checked");
-    return checked ? checked.value : null;
-  }
+    const apply = () => {
+        const storage = select.value === "warehouse-storage";
+        toField.hidden = storage;
+        toField.querySelector("input").disabled = storage;
+        fromLabel.textContent = storage ? "Storage location" : "Moving from";
+    };
 
-  function selectedServiceName() {
-    var checked = form.querySelector("[data-service-option]:checked");
-    if (!checked) return "";
-    var label = checked.closest("label");
-    var name = label ? label.querySelector(".font-display") : null;
-    return name ? name.textContent.trim() : checked.value;
-  }
+    select.addEventListener("change", apply);
+    apply();
+}
 
-  /* -------------------------------------------------------------
-     Show only the field groups that belong to the chosen service
-     ------------------------------------------------------------- */
-  function applyServiceFields() {
-    var slug = selectedService();
-    var isStorage = slug === "warehouse-storage";
+// ---------------------------------------------------------------------------
+// Date: nothing in the past
+// ---------------------------------------------------------------------------
 
-    form.querySelectorAll("[data-location-group]").forEach(function (group) {
-      var wanted = group.dataset.locationGroup === (isStorage ? "storage" : "route");
-      group.hidden = !wanted;
-      disableInside(group, !wanted);
-    });
+function setUpDate() {
+    const date = form.querySelector('[name="MovingDate"]');
+    if (!date) return;
 
-    form.querySelectorAll("[data-requirements-group]").forEach(function (group) {
-      var wanted = group.dataset.requirementsGroup === slug;
-      group.hidden = !wanted;
-      disableInside(group, !wanted);
-    });
+    const today = new Date();
+    date.min = today.getFullYear() + "-"
+        + String(today.getMonth() + 1).padStart(2, "0") + "-"
+        + String(today.getDate()).padStart(2, "0");
+}
 
-    // The date means something different for storage.
-    var dateLabel = form.querySelector("[data-date-label]");
-    if (dateLabel) {
-      dateLabel.textContent = isStorage ? "Storage start date" : "Moving date";
-    }
-  }
+// ---------------------------------------------------------------------------
+// Mobile OTP (Firebase)
+// ---------------------------------------------------------------------------
 
-  // Hidden fields are disabled so the browser skips them and the server
-  // never receives values from a service the user didn't pick.
-  function disableInside(group, disabled) {
-    group.querySelectorAll("input, select, textarea").forEach(function (field) {
-      field.disabled = disabled;
-    });
-  }
+function setUpPhone() {
+    const box = form.querySelector('[data-verify="phone"]');
+    if (!box) return;
 
-  /* -------------------------------------------------------------
-     Step navigation
-     ------------------------------------------------------------- */
-  function show(step, moveFocus) {
-    current = step;
+    const input = box.querySelector("[data-verify-input]");
+    const send = box.querySelector("[data-verify-send]");
+    const step = box.querySelector("[data-verify-step]");
+    const code = box.querySelector("[data-verify-code]");
+    const check = box.querySelector("[data-verify-check]");
+    const statusEl = box.querySelector("[data-verify-status]");
+    const token = box.querySelector("[data-verify-token]");
 
-    Object.keys(panels).forEach(function (key) {
-      panels[key].hidden = Number(key) !== step;
-    });
+    let verifier = null;
+    let confirmation = null;
+    let timer = null;
 
-    backBtn.hidden = step === 1;
-    nextBtn.hidden = step === LAST_STEP;
-    submitBtn.hidden = step !== LAST_STEP;
+    const status = (text, state = "idle") => {
+        statusEl.textContent = text;
+        statusEl.dataset.state = state;
+    };
 
-    var displayStep = Math.min(step, 4);
-    if (stepCurrent) stepCurrent.textContent = displayStep;
-    if (stepBar) stepBar.style.width = (displayStep * 25) + "%";
+    const changed = () => form.dispatchEvent(new Event("verification-change"));
 
-    markers.forEach(function (marker) {
-      var n = Number(marker.dataset.stepMarker);
-      marker.classList.toggle("is-active", n === displayStep);
-      marker.classList.toggle("is-done", n < displayStep);
-    });
+    const cooldown = (seconds = 30) => {
+        clearInterval(timer);
+        let left = seconds;
+        send.disabled = true;
+        send.textContent = `Resend in ${left}s`;
+        timer = setInterval(() => {
+            left -= 1;
+            if (left > 0) {
+                send.textContent = `Resend in ${left}s`;
+                return;
+            }
+            clearInterval(timer);
+            send.disabled = false;
+            send.textContent = "Resend code";
+        }, 1000);
+    };
 
-    if (step === LAST_STEP) buildSummary();
+    const verified = (idToken) => {
+        clearInterval(timer);
+        token.value = idToken;
+        step.hidden = true;
+        send.disabled = true;
+        send.textContent = "Verified";
+        box.dataset.state = "ok";
+        status("✓ Mobile number verified", "ok");
+        changed();
+    };
 
-    // Focus the panel so screen readers announce the new step.
-    if (moveFocus !== false) panels[step].focus();
-  }
+    const reset = () => {
+        if (!token.value && step.hidden) return;
+        clearInterval(timer);
+        token.value = "";
+        confirmation = null;
+        step.hidden = true;
+        code.value = "";
+        send.disabled = false;
+        send.textContent = "Verify";
+        delete box.dataset.state;
+        status("");
+        changed();
+    };
 
-  /* -------------------------------------------------------------
-     Per-step validation. Deliberately shallow: it only blocks obvious
-     gaps. The server re-checks everything on submit.
-     ------------------------------------------------------------- */
-  function validateStep(step) {
-    var panel = panels[step];
-    var problems = [];
-
-    if (step === 1 && !selectedService()) {
-      problems.push({ field: null, message: "Please choose a service." });
-    }
-
-    if (step === 2) {
-      requireText(panel, "MovingFrom", "Enter the city you are moving from.", problems);
-      requireText(panel, "MovingTo", "Enter the city you are moving to.", problems);
-      requireText(panel, "StorageLocation", "Where do you need storage?", problems);
-      requireText(panel, "MovingDate", "Pick an approximate date.", problems);
-    }
-
-    if (step === 3) {
-      requireGroup(panel, "PropertyType", "Select your property type.", problems);
-      requireGroup(panel, "OfficeSize", "Select your office size.", problems);
-      requireGroup(panel, "VehicleType", "Select the vehicle type.", problems);
-      requireGroup(panel, "GoodsType", "Select the type of goods.", problems);
-      requireGroup(panel, "StorageType", "Select the storage type.", problems);
-      requireGroup(panel, "StorageDuration", "Select how long you need it.", problems);
+    // Came back from the server with the number already verified.
+    if (token.value) {
+        send.disabled = true;
+        send.textContent = "Verified";
+        box.dataset.state = "ok";
     }
 
-    if (step === 4) {
-      requireText(panel, "CustomerName", "Please enter your name.", problems);
+    input.addEventListener("input", reset);
 
-      var phone = panel.querySelector('[name="Phone"]');
-      if (phone && !phone.disabled) {
-        var value = phone.value.trim();
-        if (!value) {
-          setError(phone, "Please enter your mobile number.");
-          problems.push({ field: phone });
-        } else if (!/^(\+?91[\s\-]?|0)?[6-9]\d{9}$/.test(value)) {
-          setError(phone, "Enter a valid 10-digit Indian mobile number.");
-          problems.push({ field: phone });
-        } else {
-          clearError(phone);
+    code.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        check.click();
+    });
+
+    send.addEventListener("click", async () => {
+        const digits = input.value.replace(/\D/g, "").slice(-10);
+        if (!/^[6-9]\d{9}$/.test(digits)) {
+            status("Enter a valid 10-digit mobile number first.", "error");
+            return;
         }
-      }
 
-      var email = panel.querySelector('[name="Email"]');
-      if (email && email.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
-        setError(email, "Enter a valid email address.");
-        problems.push({ field: email });
-      } else if (email) {
-        clearError(email);
-      }
-    }
+        send.disabled = true;
+        status("Sending code…");
 
-    if (problems.length) {
-      var first = problems[0].field;
-      if (first) first.focus();
-      else panel.focus();
-      return false;
-    }
+        try {
+            const { auth, fb } = await loadFirebase();
+            verifier ??= new fb.RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+            confirmation = await fb.signInWithPhoneNumber(auth, `+91${digits}`, verifier);
 
-    return true;
-  }
-
-  // A text field only counts if it is actually in play (not disabled by
-  // the service-field switching above).
-  function requireText(panel, name, message, problems) {
-    var field = panel.querySelector('[name="' + name + '"]');
-    if (!field || field.disabled) return;
-
-    if (!field.value.trim()) {
-      setError(field, message);
-      problems.push({ field: field });
-    } else {
-      clearError(field);
-    }
-  }
-
-  function requireGroup(panel, name, message, problems) {
-    var options = panel.querySelectorAll('[name="' + name + '"]');
-    if (!options.length || options[0].disabled) return;
-
-    var chosen = panel.querySelector('[name="' + name + '"]:checked');
-    if (!chosen) {
-      var fieldset = options[0].closest("fieldset");
-      if (fieldset) setGroupError(fieldset, message);
-      problems.push({ field: options[0] });
-    } else {
-      var fs = options[0].closest("fieldset");
-      if (fs) clearGroupError(fs);
-    }
-  }
-
-  /* -------------------------------------------------------------
-     Error display. Reuses the same <span> the server writes into, so
-     client and server errors look identical.
-     ------------------------------------------------------------- */
-  function errorSpanFor(field) {
-    var container = field.closest("div, fieldset");
-    return container ? container.querySelector("span.text-red-600") : null;
-  }
-
-  function setError(field, message) {
-    field.setAttribute("aria-invalid", "true");
-    field.classList.add("border-red-500");
-    var span = errorSpanFor(field);
-    if (span) span.textContent = message;
-  }
-
-  function clearError(field) {
-    field.removeAttribute("aria-invalid");
-    field.classList.remove("border-red-500");
-    var span = errorSpanFor(field);
-    if (span) span.textContent = "";
-  }
-
-  function setGroupError(fieldset, message) {
-    var span = fieldset.querySelector("span.text-red-600");
-    if (span) span.textContent = message;
-  }
-
-  function clearGroupError(fieldset) {
-    var span = fieldset.querySelector("span.text-red-600");
-    if (span) span.textContent = "";
-  }
-
-  /* -------------------------------------------------------------
-     Review summary
-     ------------------------------------------------------------- */
-  function buildSummary() {
-    if (!summary) return;
-    summary.textContent = "";
-
-    var rows = [["Service", selectedServiceName()]];
-
-    var isStorage = selectedService() === "warehouse-storage";
-    if (isStorage) {
-      rows.push(["Location", valueOf("StorageLocation")]);
-      rows.push(["Start date", formatDate(valueOf("MovingDate"))]);
-      rows.push(["Storage type", checkedValue("StorageType")]);
-      rows.push(["Duration", checkedValue("StorageDuration")]);
-    } else {
-      rows.push(["From", valueOf("MovingFrom")]);
-      rows.push(["To", valueOf("MovingTo")]);
-      rows.push(["Date", formatDate(valueOf("MovingDate"))]);
-    }
-
-    ["PropertyType", "OfficeSize", "VehicleType", "GoodsType"].forEach(function (name) {
-      var value = checkedValue(name);
-      if (value) rows.push(["Requirements", value]);
+            step.hidden = false;
+            code.value = "";
+            code.focus();
+            status(`We sent a 6-digit code to +91 ${digits}.`);
+            cooldown();
+        } catch (error) {
+            console.error("Firebase could not send the code:", error?.code, error?.message);
+            verifier?.clear();
+            verifier = null;
+            send.disabled = false;
+            status(firebaseMessage(error), "error");
+        }
     });
 
-    rows.push(["Name", valueOf("CustomerName")]);
-    rows.push(["Phone", valueOf("Phone")]);
+    check.addEventListener("click", async () => {
+        const value = code.value.trim();
+        if (!/^\d{6}$/.test(value)) {
+            status("Enter the 6-digit code from the SMS.", "error");
+            return;
+        }
+        if (!confirmation) {
+            status("Tap Verify to get a code first.", "error");
+            return;
+        }
 
-    var email = valueOf("Email");
-    if (email) rows.push(["Email", email]);
-
-    rows.forEach(function (row) {
-      if (!row[1]) return;
-
-      var wrapper = document.createElement("div");
-      wrapper.className = "flex flex-wrap items-baseline justify-between gap-4 py-4";
-
-      var term = document.createElement("dt");
-      term.className = "text-sm text-ink-500";
-      term.textContent = row[0];
-
-      var value = document.createElement("dd");
-      value.className = "font-display text-base font-semibold tracking-[-0.02em] text-ink-900";
-      value.textContent = row[1];
-
-      wrapper.appendChild(term);
-      wrapper.appendChild(value);
-      summary.appendChild(wrapper);
+        check.disabled = true;
+        try {
+            const { auth, fb } = await loadFirebase();
+            const result = await confirmation.confirm(value);
+            const idToken = await result.user.getIdToken();
+            await fb.signOut(auth);
+            verified(idToken);
+        } catch (error) {
+            status(firebaseMessage(error), "error");
+        } finally {
+            check.disabled = false;
+        }
     });
-  }
+}
 
-  function valueOf(name) {
-    var field = form.querySelector('[name="' + name + '"]');
-    return field && !field.disabled ? field.value.trim() : "";
-  }
+let firebasePromise = null;
 
-  function checkedValue(name) {
-    var chosen = form.querySelector('[name="' + name + '"]:checked');
-    return chosen && !chosen.disabled ? chosen.value : "";
-  }
+function loadFirebase() {
+    firebasePromise ??= (async () => {
+        const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}`;
+        const [appModule, authModule] = await Promise.all([
+            import(`${base}/firebase-app.js`),
+            import(`${base}/firebase-auth.js`)
+        ]);
 
-  function formatDate(iso) {
-    if (!iso) return "";
-    var parts = iso.split("-");
-    if (parts.length !== 3) return iso;
-    var date = new Date(parts[0], parts[1] - 1, parts[2]);
-    if (isNaN(date.getTime())) return iso;
-    return date.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-  }
+        const app = appModule.initializeApp({
+            apiKey: form.dataset.fbApiKey,
+            authDomain: form.dataset.fbAuthDomain,
+            projectId: form.dataset.fbProjectId
+        });
 
-  /* -------------------------------------------------------------
-     Wiring
-     ------------------------------------------------------------- */
-  nextBtn.addEventListener("click", function () {
-    if (!validateStep(current)) return;
-    if (current < LAST_STEP) show(current + 1);
-  });
+        const auth = authModule.getAuth(app);
+        auth.languageCode = "en";
 
-  backBtn.addEventListener("click", function () {
-    if (current > 1) show(current - 1);
-  });
+        // Local testing only: the invisible reCAPTCHA check fails on localhost,
+        // so skip it there. While this is on, ONLY Firebase test numbers work.
+        if (location.hostname === "localhost") {
+            auth.settings.appVerificationDisabledForTesting = true;
+        }
 
-  // Choosing a service updates step 2 and 3 immediately.
-  form.addEventListener("change", function (event) {
-    if (event.target.matches("[data-service-option]")) applyServiceFields();
-  });
-
-  // Swap the two city fields.
-  var swap = form.querySelector("[data-swap-locations]");
-  if (swap) {
-    swap.addEventListener("click", function () {
-      var from = form.querySelector('[name="MovingFrom"]');
-      var to = form.querySelector('[name="MovingTo"]');
-      if (!from || !to) return;
-      var held = from.value;
-      from.value = to.value;
-      to.value = held;
-      from.focus();
+        return { auth, fb: authModule };
+    })().catch((error) => {
+        firebasePromise = null;
+        throw error;
     });
-  }
 
-  // Double-submit guard. The button is disabled the moment the form is
-  // submitted, so an impatient double-click sends one request, not two.
-  // The server has its own check as well - this is only the first line.
-  var submitting = false;
-  form.addEventListener("submit", function (event) {
-    if (submitting) {
-      event.preventDefault();
-      return;
+    return firebasePromise;
+}
+
+function firebaseMessage(error) {
+    switch (error?.code) {
+        case "auth/invalid-verification-code":
+            return "That code isn't right. Check it and try again.";
+        case "auth/code-expired":
+            return "That code has expired. Tap Resend code.";
+        case "auth/too-many-requests":
+            return "Too many attempts from this device. Wait a while, then try again.";
+        case "auth/invalid-phone-number":
+            return "That mobile number doesn't look right.";
+        case "auth/network-request-failed":
+            return "No connection. Check your internet and try again.";
+        default:
+            return "Couldn't send the code right now. Please try again.";
     }
-    submitting = true;
-    submitBtn.disabled = true;
-    submitBtn.classList.add("opacity-60", "cursor-not-allowed");
-    submitBtn.textContent = "Sending your request...";
-  });
+}
 
-  // If the server sends the page back with errors, the button must work again.
-  window.addEventListener("pageshow", function () {
-    submitting = false;
-    submitBtn.disabled = false;
-    submitBtn.classList.remove("opacity-60", "cursor-not-allowed");
-    submitBtn.textContent = "Submit Request";
-  });
+// ---------------------------------------------------------------------------
+// Submit
+// ---------------------------------------------------------------------------
 
-  // Stop past dates being picked.
-  var dateField = form.querySelector('[data-min-today="true"]');
-  if (dateField) {
-    var today = new Date();
-    dateField.min = today.getFullYear() +
-      "-" + String(today.getMonth() + 1).padStart(2, "0") +
-      "-" + String(today.getDate()).padStart(2, "0");
-  }
+function setUpSubmit(requireOtp) {
+    const button = form.querySelector("[data-submit]");
+    const hint = form.querySelector("[data-submit-hint]");
+    const token = form.querySelector('[name="PhoneVerificationToken"]');
+    const label = button.innerHTML;
+    let submitting = false;
 
-  /* -------------------------------------------------------------
-     Opening state
-     ------------------------------------------------------------- */
-  applyServiceFields();
+    const refresh = () => {
+        const ready = !requireOtp || Boolean(token && token.value);
+        button.disabled = !ready;
+        if (hint) hint.hidden = ready;
+    };
 
-  // If the server sent the page back with errors, open the step holding
-  // the first one rather than dumping the user at step 1.
-  var firstError = form.querySelector("span.text-red-600:not(:empty)");
-  if (firstError) {
-    var panel = firstError.closest("[data-step]");
-    show(panel ? Number(panel.dataset.step) : 1, true);
-  } else {
-    // Arriving with ?service=... already chosen skips step 1.
-    show(selectedService() ? 2 : 1, false);
-  }
-})();
+    form.addEventListener("verification-change", refresh);
+
+    form.addEventListener("submit", (event) => {
+        if (submitting) {
+            event.preventDefault();
+            return;
+        }
+        submitting = true;
+        button.disabled = true;
+        button.textContent = "Sending your request…";
+    });
+
+    // If the page is shown again (back button, server error), the button must work.
+    window.addEventListener("pageshow", () => {
+        submitting = false;
+        button.innerHTML = label;
+        refresh();
+    });
+
+    refresh();
+}
