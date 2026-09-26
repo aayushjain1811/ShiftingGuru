@@ -112,7 +112,13 @@ builder.Services.AddDataProtection()
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    options.Password.RequiredLength = 12;
+    // CHANGED: simpler rule - at least 8 characters including a number.
+    // Capitals and symbols are allowed but not required.
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
     options.User.RequireUniqueEmail = true;

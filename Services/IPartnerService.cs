@@ -7,26 +7,28 @@ public record PartnerRegistrationResult(
     bool Succeeded,
     Vendor? Vendor,
     IReadOnlyList<string> Errors,
-    bool ResetEmailVerification = false,
-    bool ResetPhoneVerification = false)
+    bool IsResume = false)
 {
     public static PartnerRegistrationResult Ok(Vendor vendor) =>
         new(true, vendor, Array.Empty<string>());
 
+    /// <summary>
+    /// NEW: this email + mobile already has an unpaid application. Nothing new
+    /// is created; the partner is sent to pay for the one they already started.
+    /// </summary>
+    public static PartnerRegistrationResult Resume(Vendor vendor) =>
+        new(true, vendor, Array.Empty<string>(), IsResume: true);
+
     public static PartnerRegistrationResult Fail(params string[] errors) =>
         new(false, null, errors);
-
-    /// <summary>NEW: a verification proof was rejected, so the form must ask for it again.</summary>
-    public static PartnerRegistrationResult VerificationFailed(bool email, bool phone, string error) =>
-        new(false, null, new[] { error }, email, phone);
 }
 
 public interface IPartnerService
 {
     /// <summary>
-    /// Checks the email and mobile proofs and the documents, then creates the
-    /// Identity user, assigns the Vendor role, stores the documents and writes
-    /// the Vendor + VendorServices + VendorDocuments rows. Status is always Pending.
+    /// Creates the Identity user, assigns the Vendor role, stores any documents
+    /// and writes the Vendor rows with status AwaitingPayment. The application
+    /// only becomes Pending (visible for review) once the fee is paid.
     /// </summary>
     Task<PartnerRegistrationResult> RegisterAsync(
         PartnerRegistrationViewModel model, CancellationToken ct = default);

@@ -8,7 +8,6 @@ using ShiftingGuru.Models;
 using ShiftingGuru.Services;
 using ShiftingGuru.Services.Email;
 using ShiftingGuru.Services.Payments;
-using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
 
 namespace ShiftingGuru.Controllers;
@@ -17,8 +16,9 @@ namespace ShiftingGuru.Controllers;
 /// The public-facing partner pages. Signed-in partner functionality lives in
 /// the Partner area; this is just the front door.
 ///
-/// Flow: fill the form and verify email + mobile -> "Start 7-day free trial"
-/// saves the application -> payment page for the registration fee -> success.
+/// Flow: fill the form -> "Start 7-day free trial" saves it as AwaitingPayment
+/// -> payment page for the registration fee -> paid = Pending (for review) -> success.
+/// No email or mobile codes: the payment is the gate.
 /// </summary>
 public class PartnerController : Controller
 {
@@ -29,7 +29,6 @@ public class PartnerController : Controller
 
     private readonly IServiceCatalog _catalog;
     private readonly IPartnerService _partners;
-    private readonly IEmailVerificationService _emailVerification;
     private readonly IRegistrationPaymentService _payments;
     private readonly IEmailService _email;
     private readonly ApplicationDbContext _db;
@@ -40,7 +39,6 @@ public class PartnerController : Controller
     public PartnerController(
         IServiceCatalog catalog,
         IPartnerService partners,
-        IEmailVerificationService emailVerification,
         IRegistrationPaymentService payments,
         IEmailService email,
         ApplicationDbContext db,
@@ -50,7 +48,6 @@ public class PartnerController : Controller
     {
         _catalog = catalog;
         _partners = partners;
-        _emailVerification = emailVerification;
         _payments = payments;
         _email = email;
         _db = db;
@@ -78,21 +75,6 @@ public class PartnerController : Controller
 
         if (!result.Succeeded)
         {
-            // A rejected proof must be redone, so clear it and the page shows
-            // "Send code" again. ModelState.Remove is needed because the form
-            // re-displays the value it received rather than the model's.
-            if (result.ResetEmailVerification)
-            {
-                ModelState.Remove(nameof(model.EmailVerificationToken));
-                model.EmailVerificationToken = null;
-            }
-
-            if (result.ResetPhoneVerification)
-            {
-                ModelState.Remove(nameof(model.PhoneVerificationToken));
-                model.PhoneVerificationToken = null;
-            }
-
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error);
@@ -104,7 +86,11 @@ public class PartnerController : Controller
         var token = _linkProtector.Protect(vendor.Id.ToString(), PaymentLinkLifetime);
 
         // So the partner can come back and pay if they close the page.
-        await SendPaymentLinkAsync(vendor, token, ct);
+        // (Not re-sent when they're just resuming an application they started earlier.)
+        if (!result.IsResume)
+        {
+            await SendPaymentLinkAsync(vendor, token, ct);
+        }
 
         return Redirect($"/join-as-partner/payment?t={Uri.EscapeDataString(token)}");
     }
@@ -177,24 +163,6 @@ public class PartnerController : Controller
         return result.Succeeded
             ? Ok(new { redirect = $"/join-as-partner/success?t={Uri.EscapeDataString(request!.Token!)}" })
             : BadRequest(new { error = result.Error });
-    }
-
-    // POST /join-as-partner/email-code/send   (called by partner-join.js)
-    [HttpPost("/join-as-partner/email-code/send")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SendEmailCode([FromBody] EmailCodeRequest request, CancellationToken ct)
-    {
-        var result = await _emailVerification.SendCodeAsync(request?.Email ?? "", ct);
-        return result.Succeeded ? Ok() : BadRequest(new { error = result.Error });
-    }
-
-    // POST /join-as-partner/email-code/verify   (called by partner-join.js)
-    [HttpPost("/join-as-partner/email-code/verify")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> VerifyEmailCode([FromBody] EmailCodeRequest request, CancellationToken ct)
-    {
-        var result = await _emailVerification.VerifyCodeAsync(request?.Email ?? "", request?.Code ?? "", ct);
-        return result.Succeeded ? Ok(new { token = result.Token }) : BadRequest(new { error = result.Error });
     }
 
     // GET /join-as-partner/success?t=...
@@ -292,9 +260,6 @@ public class PartnerController : Controller
         return model;
     }
 }
-
-/// <summary>What partner-join.js sends to the two email-code endpoints.</summary>
-public record EmailCodeRequest(string? Email, string? Code);
 
 /// <summary>What the payment page sends to start a payment.</summary>
 public record PaymentStartRequest(string? Token);

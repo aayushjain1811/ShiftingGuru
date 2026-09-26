@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
+using ShiftingGuru.Services.Notifications;
 using ShiftingGuru.Services.Verification;
 
 namespace ShiftingGuru.Services.Payments;
@@ -41,17 +42,20 @@ public class RegistrationPaymentService : IRegistrationPaymentService
     private readonly ApplicationDbContext _db;
     private readonly IRazorpayClient _razorpay;
     private readonly RazorpayOptions _options;
+    private readonly INotificationService _notifications;
     private readonly ILogger<RegistrationPaymentService> _logger;
 
     public RegistrationPaymentService(
         ApplicationDbContext db,
         IRazorpayClient razorpay,
         IOptions<RazorpayOptions> options,
+        INotificationService notifications,
         ILogger<RegistrationPaymentService> logger)
     {
         _db = db;
         _razorpay = razorpay;
         _options = options.Value;
+        _notifications = notifications;
         _logger = logger;
     }
 
@@ -170,6 +174,8 @@ public class RegistrationPaymentService : IRegistrationPaymentService
         payment.PaidAt = now;
         payment.UsedAt = now;   // tied to its application from the start
 
+        Vendor? activated = null;
+
         if (payment.VendorId is int vendorId)
         {
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.Id == vendorId, ct);
@@ -177,8 +183,29 @@ public class RegistrationPaymentService : IRegistrationPaymentService
             {
                 vendor.RegistrationFeePaidAt = now;
             }
+
+            // CHANGED: paying is what turns a draft into a real application.
+            if (vendor is not null && vendor.Status == VendorStatus.AwaitingPayment)
+            {
+                vendor.Status = VendorStatus.Pending;
+                vendor.UpdatedAt = now;
+                activated = vendor;
+            }
         }
 
         await _db.SaveChangesAsync(ct);
+
+        // Only now does the team hear about the application - never for unpaid ones.
+        if (activated is not null)
+        {
+            try
+            {
+                await _notifications.PartnerRegisteredAsync(activated, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Vendor {VendorNumber} paid, but the notification failed.", activated.VendorNumber);
+            }
+        }
     }
 }

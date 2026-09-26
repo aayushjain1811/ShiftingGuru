@@ -74,5 +74,12 @@ public enum VendorStatus
     Pending,
     Approved,
     Rejected,
-    Suspended
+    Suspended,
+
+    /// <summary>
+    /// NEW: form submitted but the registration fee isn't paid yet. Hidden from
+    /// the normal admin list, can't be approved, can't use the partner area.
+    /// Paying moves it to Pending automatically.
+    /// </summary>
+    AwaitingPayment
 }

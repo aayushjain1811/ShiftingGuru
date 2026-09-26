@@ -39,8 +39,9 @@ public class PartnerRegistrationViewModel : IValidatableObject
     public string? Email { get; set; }
 
     [Required(ErrorMessage = "Choose a password.")]
-    [StringLength(100, MinimumLength = 12,
-        ErrorMessage = "Use at least 12 characters.")]
+    [StringLength(100, MinimumLength = 8,
+        ErrorMessage = "Use at least 8 characters.")]
+    [RegularExpression(@".*\d.*", ErrorMessage = "Include at least one number.")]
     [DataType(DataType.Password)]
     [Display(Name = "Password")]
     public string? Password { get; set; }
@@ -102,16 +103,6 @@ public class PartnerRegistrationViewModel : IValidatableObject
 
     [Display(Name = "Office photo")]
     public IFormFile? OfficePhoto { get; set; }
-
-    // ----- NEW: verification -----
-    // Filled in by partner-join.js after a correct code. The backend step
-    // checks these are genuine and match the email and number on the form.
-
-    [Required(ErrorMessage = "Verify your email address with the code we send you.")]
-    public string? EmailVerificationToken { get; set; }
-
-    [Required(ErrorMessage = "Verify your mobile number with the code we send you.")]
-    public string? PhoneVerificationToken { get; set; }
 
     // ----- Consent: only needed when at least one document is uploaded (checked in Validate) -----
 

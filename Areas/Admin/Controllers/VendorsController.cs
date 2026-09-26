@@ -71,6 +71,12 @@ public class VendorsController : Controller
         {
             query = query.Where(v => v.Status == status.Value);
         }
+        else
+        {
+            // NEW: unpaid drafts aren't real applications. Filter by
+            // "AwaitingPayment" to see them.
+            query = query.Where(v => v.Status != VendorStatus.AwaitingPayment);
+        }
 
         if (!string.IsNullOrWhiteSpace(service) && _catalog.GetBySlug(service) is { } matched)
         {

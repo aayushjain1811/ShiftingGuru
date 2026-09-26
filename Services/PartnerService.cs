@@ -2,21 +2,21 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
-using ShiftingGuru.Services.Notifications;
 using ShiftingGuru.Services.Storage;
-using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
 
 namespace ShiftingGuru.Services;
 
+/// <summary>
+/// Partner sign-up. No email or mobile codes: the registration fee is the gate.
+/// A new application is saved as AwaitingPayment and stays invisible to the
+/// review queue until it's paid (RegistrationPaymentService moves it to Pending).
+/// </summary>
 public class PartnerService : IPartnerService
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<IdentityUser> _users;
     private readonly IServiceCatalog _catalog;
-    private readonly INotificationService _notifications;
-    private readonly IEmailVerificationService _emailVerification;
-    private readonly IPhoneVerificationService _phoneVerification;
     private readonly IDocumentStorage _storage;
     private readonly ILogger<PartnerService> _logger;
 
@@ -24,18 +24,12 @@ public class PartnerService : IPartnerService
         ApplicationDbContext db,
         UserManager<IdentityUser> users,
         IServiceCatalog catalog,
-        INotificationService notifications,
-        IEmailVerificationService emailVerification,
-        IPhoneVerificationService phoneVerification,
         IDocumentStorage storage,
         ILogger<PartnerService> logger)
     {
         _db = db;
         _users = users;
         _catalog = catalog;
-        _notifications = notifications;
-        _emailVerification = emailVerification;
-        _phoneVerification = phoneVerification;
         _storage = storage;
         _logger = logger;
     }
@@ -57,14 +51,28 @@ public class PartnerService : IPartnerService
         // 1. Checks that change nothing. Cheapest first.
         // ---------------------------------------------------------------
 
-        if (await _users.FindByEmailAsync(email) is not null)
+        var existingUser = await _users.FindByEmailAsync(email);
+        if (existingUser is not null)
         {
+            // Started before but never paid, same email AND same mobile:
+            // send them back to pay for that application instead of blocking.
+            var unpaid = await _db.Vendors.AsNoTracking()
+                .FirstOrDefaultAsync(v => v.IdentityUserId == existingUser.Id
+                                       && v.Status == VendorStatus.AwaitingPayment, ct);
+
+            if (unpaid is not null && unpaid.Phone == phone)
+            {
+                return PartnerRegistrationResult.Resume(unpaid);
+            }
+
             return PartnerRegistrationResult.Fail(
                 "An account with that email already exists. Try signing in instead.");
         }
 
-        // EndsWith also catches older partners saved as "+91 ..." before this change.
-        if (await _db.Vendors.AsNoTracking().AnyAsync(v => v.Phone.EndsWith(phone), ct))
+        // Unpaid drafts don't block a number; real applications do.
+        // EndsWith also catches older partners saved as "+91 ...".
+        if (await _db.Vendors.AsNoTracking().AnyAsync(
+                v => v.Status != VendorStatus.AwaitingPayment && v.Phone.EndsWith(phone), ct))
         {
             return PartnerRegistrationResult.Fail(
                 "That mobile number is already registered with another partner account.");
@@ -84,8 +92,8 @@ public class PartnerService : IPartnerService
             return PartnerRegistrationResult.Fail("Select at least one service you provide.");
         }
 
-        // CHANGED: documents are optional. Every file that WAS chosen is checked
-        // by its real contents before anything is stored.
+        // Documents are optional. Every file that WAS chosen is checked by its
+        // real contents before anything is stored.
         var documents = new List<(VendorDocumentType Type, IFormFile File, InspectedFile Info)>();
         foreach (var (type, file) in DocumentsFrom(model))
         {
@@ -103,18 +111,8 @@ public class PartnerService : IPartnerService
             documents.Add((type, file, info));
         }
 
-        // Asks Firebase directly. Changes nothing, so it runs before the transaction.
-        if (!await _phoneVerification.IsVerifiedAsync(model.PhoneVerificationToken, phone, ct))
-        {
-            return PartnerRegistrationResult.VerificationFailed(
-                email: false, phone: true,
-                "Your mobile verification has expired or doesn't match this number. Please verify your mobile number again.");
-        }
-
         // ---------------------------------------------------------------
         // 2. Everything that writes, inside ONE database transaction.
-        //    If any step fails, the database is left exactly as it was:
-        //    no half-created user, and the email proof isn't used up.
         // ---------------------------------------------------------------
 
         var stored = new List<string>();   // files to clean up if something fails
@@ -124,21 +122,13 @@ public class PartnerService : IPartnerService
 
         try
         {
-            if (!await _emailVerification.ConsumeTokenAsync(email, model.EmailVerificationToken ?? "", ct))
-            {
-                await transaction.RollbackAsync(ct);
-                return PartnerRegistrationResult.VerificationFailed(
-                    email: true, phone: false,
-                    "Your email verification has expired or doesn't match this address. Please verify your email again.");
-            }
-
             var user = new IdentityUser
             {
                 UserName = email,
                 Email = email,
                 PhoneNumber = phone,
-                EmailConfirmed = true,        // proven by the email code
-                PhoneNumberConfirmed = true   // proven by the SMS code
+                EmailConfirmed = false,        // not verified by a code any more
+                PhoneNumberConfirmed = false
             };
 
             var created = await _users.CreateAsync(user, model.Password!);
@@ -175,11 +165,8 @@ public class PartnerService : IPartnerService
                 OperatingLocations = Normalise(model.OperatingLocations),
                 AdditionalInformation = Normalise(model.AdditionalInformation),
 
-                EmailVerifiedAt = now,
-                PhoneVerifiedAt = now,
-
-                // Server-controlled. Every application starts here.
-                Status = VendorStatus.Pending,
+                // CHANGED: not a real application until the fee is paid.
+                Status = VendorStatus.AwaitingPayment,
                 CreatedAt = now
             };
 
@@ -240,16 +227,8 @@ public class PartnerService : IPartnerService
                 "Sorry, we couldn't complete your registration. Please try again in a moment.");
         }
 
-        // After the commit - an email problem must never undo a saved application.
-        try
-        {
-            await _notifications.PartnerRegisteredAsync(vendor, ct);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Vendor {VendorNumber} saved, but the notification failed.", vendor.VendorNumber);
-        }
-
+        // CHANGED: no "new partner" email here any more. The team is told only
+        // after the fee is paid (see RegistrationPaymentService).
         return PartnerRegistrationResult.Ok(vendor);
     }
 
@@ -264,8 +243,8 @@ public class PartnerService : IPartnerService
 
     /// <summary>
     /// Legal status moves. Approving straight from Rejected is allowed so an
-    /// admin can reverse a decision; going back to Pending is not, because a
-    /// reviewed application shouldn't re-enter the queue.
+    /// admin can reverse a decision; going back to Pending is not. An unpaid
+    /// draft can only be rejected (to clean it up) - never approved.
     /// </summary>
     public IReadOnlyList<VendorStatus> AllowedTransitionsFrom(VendorStatus current) => current switch
     {
@@ -273,6 +252,7 @@ public class PartnerService : IPartnerService
         VendorStatus.Approved => new[] { VendorStatus.Suspended, VendorStatus.Rejected },
         VendorStatus.Suspended => new[] { VendorStatus.Approved, VendorStatus.Rejected },
         VendorStatus.Rejected => new[] { VendorStatus.Approved },
+        VendorStatus.AwaitingPayment => new[] { VendorStatus.Rejected },
         _ => Array.Empty<VendorStatus>()
     };
 
