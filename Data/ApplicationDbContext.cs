@@ -164,6 +164,11 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
             vendor.Property(v => v.EmailVerifiedAt).HasColumnType("timestamp with time zone");
             vendor.Property(v => v.PhoneVerifiedAt).HasColumnType("timestamp with time zone");
 
+            // NEW: registration fee and free trial.
+            vendor.Property(v => v.RegistrationFeePaidAt).HasColumnType("timestamp with time zone");
+            vendor.Property(v => v.TrialStartedAt).HasColumnType("timestamp with time zone");
+            vendor.Property(v => v.TrialEndsAt).HasColumnType("timestamp with time zone");
+
             // NEW: uploaded KYC documents. The files themselves live in storage;
             // these rows only say where.
             vendor.HasMany(v => v.Documents)

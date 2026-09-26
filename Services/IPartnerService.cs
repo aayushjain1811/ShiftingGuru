@@ -8,8 +8,7 @@ public record PartnerRegistrationResult(
     Vendor? Vendor,
     IReadOnlyList<string> Errors,
     bool ResetEmailVerification = false,
-    bool ResetPhoneVerification = false,
-    bool ResetPayment = false)
+    bool ResetPhoneVerification = false)
 {
     public static PartnerRegistrationResult Ok(Vendor vendor) =>
         new(true, vendor, Array.Empty<string>());
@@ -20,10 +19,6 @@ public record PartnerRegistrationResult(
     /// <summary>NEW: a verification proof was rejected, so the form must ask for it again.</summary>
     public static PartnerRegistrationResult VerificationFailed(bool email, bool phone, string error) =>
         new(false, null, new[] { error }, email, phone);
-
-    /// <summary>NEW: the registration fee couldn't be matched, so the form asks for it again.</summary>
-    public static PartnerRegistrationResult PaymentFailed(string error) =>
-        new(false, null, new[] { error }, ResetPayment: true);
 }
 
 public interface IPartnerService

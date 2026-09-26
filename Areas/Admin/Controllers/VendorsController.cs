@@ -121,10 +121,12 @@ public class VendorsController : Controller
 
         ViewData["Title"] = vendor.BusinessName;
 
-        // NEW: the registration fee paid with this application, if any.
+        // The registration fee paid for this application, if any.
         ViewData["RegistrationPayment"] = await _db.RegistrationPayments
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.VendorId == id, ct);
+            .Where(p => p.VendorId == id && p.Status == RegistrationPaymentStatus.Paid)
+            .OrderByDescending(p => p.PaidAt)
+            .FirstOrDefaultAsync(ct);
 
         return View(new AdminVendorDetailsViewModel
         {
@@ -185,6 +187,14 @@ public class VendorsController : Controller
 
         vendor.Status = status;
         vendor.UpdatedAt = DateTime.UtcNow;
+
+        // NEW: the free trial starts on the FIRST approval of a partner who has
+        // paid the registration fee. Re-approving later doesn't restart it.
+        if (status == VendorStatus.Approved && vendor.RegistrationFeePaidAt is not null && vendor.TrialStartedAt is null)
+        {
+            vendor.TrialStartedAt = vendor.UpdatedAt;
+            vendor.TrialEndsAt = vendor.UpdatedAt.Value.AddDays(Vendor.FreeTrialDays);
+        }
 
         try
         {

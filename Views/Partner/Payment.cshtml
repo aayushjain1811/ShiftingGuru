@@ -1,0 +1,197 @@
+@model ShiftingGuru.ViewModels.Partner.PartnerPaymentViewModel
+@{
+    var feeText = "₹" + Model.FeeRupees.ToString("0.##");
+    var digits = new string((Model.Phone ?? "").Where(char.IsAsciiDigit).ToArray());
+    var contact = digits.Length >= 10 ? "+91" + digits[^10..] : "";
+}
+
+<section class="relative overflow-hidden bg-hero pt-28 pb-20 lg:pt-36 lg:pb-28">
+    <svg class="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 1440 620"
+         preserveAspectRatio="xMidYMid slice" fill="none" aria-hidden="true">
+        <path d="M880 -60 A 560 560 0 0 0 1500 620" stroke="rgb(49 86 198 / 0.07)" stroke-width="1.5" />
+        <path d="M1000 -60 A 440 440 0 0 0 1500 460" stroke="rgb(49 86 198 / 0.05)" stroke-width="1.5" />
+    </svg>
+
+    <div class="relative mx-auto max-w-xl px-5 sm:px-8">
+
+        @if (Model.LinkExpired)
+        {
+            <div class="hero-in-1 border border-ink-200 bg-white p-8 text-center shadow-card rounded-panel">
+                <h1 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">This link has expired</h1>
+                <p class="mt-3 text-[15px] leading-relaxed text-ink-500">
+                    Payment links work for 7 days. Your application is still saved.
+                    Email <a href="mailto:support@shiftingguru.com" class="font-semibold text-jade-500">support@shiftingguru.com</a>
+                    and we'll send you a new one.
+                </p>
+            </div>
+        }
+        else
+        {
+            <p class="hero-in-1 flex items-center justify-center gap-3 text-[13px] font-semibold uppercase tracking-[0.14em] text-jade-500">
+                <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
+                Last step
+                <span class="h-px w-8 bg-jade-500" aria-hidden="true"></span>
+            </p>
+
+            <h1 class="hero-in-2 mt-5 text-center font-display text-[clamp(2rem,5vw,3rem)] font-extrabold leading-[1.02] tracking-[-0.04em] text-ink-900">
+                Complete your registration
+            </h1>
+            <p class="hero-in-3 mx-auto mt-5 max-w-md text-center text-[15px] leading-relaxed text-ink-500">
+                Your application is saved. Pay the one-time registration fee to send it for review.
+            </p>
+
+            <div class="hero-in-4 mt-10 overflow-hidden border border-ink-200 bg-white shadow-float rounded-panel">
+                <div class="border-b border-ink-100 p-6 sm:p-8">
+                    <p class="text-[13px] text-ink-500">Application</p>
+                    <p class="mt-0.5 font-display text-lg font-bold tracking-[-0.02em] text-ink-900">@Model.BusinessName</p>
+                    <p class="mt-0.5 font-mono text-xs text-ink-500">@Model.VendorNumber</p>
+                </div>
+
+                <div class="p-6 sm:p-8">
+                    <div class="flex items-end justify-between gap-4">
+                        <div>
+                            <p class="text-sm text-ink-500">Registration fee</p>
+                            <p class="font-display text-4xl font-extrabold tracking-[-0.03em] text-ink-900">@feeText</p>
+                        </div>
+                        <p class="text-right text-xs text-ink-500">One-time payment</p>
+                    </div>
+
+                    <ul class="mt-6 space-y-3">
+                        @foreach (var item in new[]
+                        {
+                            $"{Model.TrialDays}-day free trial, starting when your application is approved",
+                            "Your documents and business details reviewed by our team",
+                            "Secure payment by Razorpay: UPI, cards and net banking"
+                        })
+                        {
+                            <li class="flex items-start gap-3">
+                                <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <circle cx="10" cy="10" r="9" fill="#EBF5F1" />
+                                    <path d="M6 10.5l2.5 2.5 5.5-6" stroke="#2F7D65" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="text-[15px] leading-relaxed text-ink-700">@item</span>
+                            </li>
+                        }
+                    </ul>
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="button" id="pay-button"
+                            class="lift mt-8 inline-flex h-13 w-full items-center justify-center gap-2 bg-jade-500 text-base font-semibold text-white shadow-cta rounded-card transition-colors hover:bg-jade-600 disabled:cursor-not-allowed disabled:opacity-60">
+                        Pay @feeText
+                    </button>
+
+                    <p id="pay-status" role="status" aria-live="polite" data-state="idle"
+                       class="mt-3 min-h-[1.25rem] text-center text-sm text-ink-500 data-[state=error]:text-red-600"></p>
+
+                    <p class="mt-2 text-center text-xs leading-relaxed text-ink-500">
+                        We've also emailed you a link to this page, in case you want to pay later.
+                    </p>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@if (!Model.LinkExpired)
+{
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        (function () {
+            const button = document.getElementById("pay-button");
+            const statusEl = document.getElementById("pay-status");
+            const token = @Json.Serialize(Model.Token);
+            const payLabel = button.textContent.trim();
+            const prefill = {
+                name: @Json.Serialize(Model.ContactName),
+                email: @Json.Serialize(Model.Email),
+                contact: @Json.Serialize(contact)
+            };
+
+            const setStatus = (text, state) => {
+                statusEl.textContent = text;
+                statusEl.dataset.state = state || "idle";
+            };
+
+            const post = (url, body) => fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(body)
+            });
+
+            const readError = async (response, fallback) => {
+                try { const data = await response.json(); return data.error || fallback; }
+                catch { return fallback; }
+            };
+
+            const reset = (message) => {
+                button.disabled = false;
+                button.textContent = payLabel;
+                if (message) setStatus(message, "error");
+            };
+
+            async function confirm(result) {
+                setStatus("Confirming your payment…");
+                try {
+                    const response = await post("/join-as-partner/payment/confirm", {
+                        token: token,
+                        orderId: result.razorpay_order_id,
+                        paymentId: result.razorpay_payment_id,
+                        signature: result.razorpay_signature
+                    });
+                    if (!response.ok) throw new Error(await readError(response, "We couldn't confirm the payment yet."));
+
+                    const data = await response.json();
+                    window.location.href = data.redirect;
+                } catch (error) {
+                    reset(`${error.message} Payment ID: ${result.razorpay_payment_id}. You won't be charged twice if you click Pay again.`);
+                }
+            }
+
+            button.addEventListener("click", async () => {
+                button.disabled = true;
+                button.textContent = "Opening secure payment…";
+                setStatus("");
+
+                try {
+                    const response = await post("/join-as-partner/payment/start", { token: token });
+                    if (!response.ok) throw new Error(await readError(response, "Couldn't start the payment. Try again."));
+
+                    const data = await response.json();
+
+                    // Already paid (for example through the emailed link): go straight to success.
+                    if (data.alreadyPaid) {
+                        window.location.href = "/join-as-partner/success?t=" + encodeURIComponent(token);
+                        return;
+                    }
+
+                    if (!window.Razorpay) throw new Error("Couldn't load the payment window. Check your internet and try again.");
+
+                    const checkout = new window.Razorpay({
+                        key: data.keyId,
+                        order_id: data.orderId,
+                        amount: data.amountPaise,
+                        currency: "INR",
+                        name: "ShiftingGuru",
+                        description: "Partner registration fee",
+                        prefill: prefill,
+                        theme: { color: "#3156C6" },
+                        handler: confirm,
+                        modal: { ondismiss: () => reset("Payment not completed. You can try again.") }
+                    });
+
+                    checkout.on("payment.failed", (result) => {
+                        setStatus(result?.error?.description || "Payment failed. Please try again.", "error");
+                    });
+
+                    checkout.open();
+                } catch (error) {
+                    reset(error.message || "Couldn't start the payment. Try again.");
+                }
+            });
+        })();
+    </script>
+}

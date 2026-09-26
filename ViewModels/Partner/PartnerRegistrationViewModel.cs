@@ -86,25 +86,20 @@ public class PartnerRegistrationViewModel : IValidatableObject
     [Display(Name = "Anything else we should know?")]
     public string? AdditionalInformation { get; set; }
 
-    // ----- NEW: documents -----
+    // ----- Documents: OPTIONAL. Any that are chosen are still checked below. -----
 
-    [Required(ErrorMessage = "Upload your GST certificate.")]
     [Display(Name = "GST certificate")]
     public IFormFile? GstCertificate { get; set; }
 
-    [Required(ErrorMessage = "Upload your PAN card.")]
     [Display(Name = "PAN card")]
     public IFormFile? PanCard { get; set; }
 
-    [Required(ErrorMessage = "Upload the front of your Aadhaar card.")]
     [Display(Name = "Aadhaar (front)")]
     public IFormFile? AadhaarFront { get; set; }
 
-    [Required(ErrorMessage = "Upload the back of your Aadhaar card.")]
     [Display(Name = "Aadhaar (back)")]
     public IFormFile? AadhaarBack { get; set; }
 
-    [Required(ErrorMessage = "Upload a photo of your office.")]
     [Display(Name = "Office photo")]
     public IFormFile? OfficePhoto { get; set; }
 
@@ -118,18 +113,8 @@ public class PartnerRegistrationViewModel : IValidatableObject
     [Required(ErrorMessage = "Verify your mobile number with the code we send you.")]
     public string? PhoneVerificationToken { get; set; }
 
-    // ----- NEW: registration fee -----
-    // The Razorpay order id, filled in by partner-join.js after a confirmed
-    // payment. The backend checks it is really paid, for this email, and unused.
+    // ----- Consent: only needed when at least one document is uploaded (checked in Validate) -----
 
-    [Required(ErrorMessage = "Pay the registration fee to submit your application.")]
-    [StringLength(40)]
-    public string? RegistrationOrderId { get; set; }
-
-    // ----- NEW: consent -----
-
-    [Range(typeof(bool), "true", "true",
-        ErrorMessage = "Confirm this to submit your application.")]
     public bool DocumentConsent { get; set; }
 
     [BindNever, ValidateNever]
@@ -154,9 +139,17 @@ public class PartnerRegistrationViewModel : IValidatableObject
             (OfficePhoto, nameof(OfficePhoto), PhotoExtensions)
         };
 
+        // CHANGED: documents are optional, but anyone who uploads one must agree
+        // that we can store it.
+        if (uploads.Any(u => u.File is { Length: > 0 }) && !DocumentConsent)
+        {
+            yield return new ValidationResult(
+                "Confirm that we can store your documents, or remove them.", new[] { nameof(DocumentConsent) });
+        }
+
         foreach (var (file, field, allowed) in uploads)
         {
-            if (file is null) continue; // [Required] already reports a missing file
+            if (file is null) continue; // optional: nothing chosen is fine
 
             if (file.Length == 0 || file.Length > MaxFileBytes)
             {

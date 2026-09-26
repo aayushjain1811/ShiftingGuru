@@ -7,6 +7,9 @@ namespace ShiftingGuru.Models;
 /// </summary>
 public class Vendor
 {
+    /// <summary>NEW: length of the free trial, which starts when an admin first approves the partner.</summary>
+    public const int FreeTrialDays = 7;
+
     public int Id { get; set; }
 
     /// <summary>Public reference, e.g. SG-V-20260911-00001. Unique.</summary>
@@ -43,6 +46,13 @@ public class Vendor
 
     /// <summary>NEW: when the mobile code was confirmed. Null for partners from before this feature.</summary>
     public DateTime? PhoneVerifiedAt { get; set; }
+
+    /// <summary>NEW: when the registration fee was paid. Null = not paid (or joined before the fee existed).</summary>
+    public DateTime? RegistrationFeePaidAt { get; set; }
+
+    /// <summary>NEW: the free trial, set when an admin first approves a partner who has paid.</summary>
+    public DateTime? TrialStartedAt { get; set; }
+    public DateTime? TrialEndsAt { get; set; }
 
     public ICollection<VendorService> Services { get; set; } = new List<VendorService>();
 

@@ -4,9 +4,8 @@
 //   1. GST number shown in capitals while typing
 //   2. Document upload tiles (preview, type and size check)
 //   3. Email + mobile verification with a one-time code
-//   4. Registration fee through Razorpay (after both are verified)
-//   5. Submit button stays locked until verified AND paid
-//   6. Side menu highlights the form section you're in (desktop)
+//   4. Submit button stays locked until both are verified
+//   5. Side menu highlights the form section you're in (desktop)
 //
 // Firebase is only downloaded when someone asks for a mobile code,
 // so the rest of the page still works if Google's CDN is slow or blocked.
@@ -21,7 +20,6 @@ if (form) {
     setUpUploads();
     setUpEmail();
     setUpPhone();
-    setUpPayment();
     setUpSubmit();
     setUpSectionNav();
 }
@@ -344,7 +342,7 @@ function loadFirebase() {
             projectId: form.dataset.fbProjectId
         });
 
-               const auth = authModule.getAuth(app);
+        const auth = authModule.getAuth(app);
         auth.languageCode = "en";
 
         // Local testing only: the invisible reCAPTCHA check fails on localhost,
@@ -389,191 +387,22 @@ function setUpSubmit() {
     const hint = form.querySelector("[data-submit-hint]");
     const emailToken = form.querySelector('[name="EmailVerificationToken"]');
     const phoneToken = form.querySelector('[name="PhoneVerificationToken"]');
-    const paymentToken = form.querySelector('[name="RegistrationOrderId"]');
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const refresh = () => {
-        const ready = Boolean(emailToken.value && phoneToken.value && (!paymentToken || paymentToken.value));
+        const ready = Boolean(emailToken.value && phoneToken.value);
         button.disabled = !ready;
         hint.hidden = ready;
     };
 
     form.addEventListener("verification-change", refresh);
 
-    form.addEventListener("submit", (event) => {
-        // Catch missing files here, because the browser empties file boxes
-        // whenever the server sends the page back with an error.
-        const missing = [...form.querySelectorAll('[data-upload] input[type="file"]')]
-            .filter((input) => input.files.length === 0);
-
-        missing.forEach((input) => {
-            input.closest("[data-upload]").querySelector("[data-upload-error]").textContent = "Choose a file.";
-        });
-
-        if (missing.length > 0) {
-            event.preventDefault();
-            missing[0].closest("[data-upload]").scrollIntoView({
-                behavior: reduceMotion ? "auto" : "smooth",
-                block: "center"
-            });
-            return;
-        }
-
+    // Documents are optional, so an empty file box never blocks submitting.
+    form.addEventListener("submit", () => {
         button.disabled = true;
         button.textContent = "Submitting application…";
     });
 
     refresh();
-}
-
-// ---------------------------------------------------------------------------
-// 4b. Registration fee (Razorpay)
-// ---------------------------------------------------------------------------
-//
-// The amount is decided by the server, never here. The server also checks the
-// payment with Razorpay before it counts, so this code can't be tricked into
-// marking an unpaid application as paid.
-
-function setUpPayment() {
-    const box = form.querySelector("[data-payment]");
-    if (!box) return;
-
-    const button = box.querySelector("[data-pay]");
-    const statusEl = form.querySelector("[data-payment-status]");
-    const orderInput = form.querySelector("[data-payment-token]");
-    const emailInput = form.querySelector('[name="Email"]');
-    const phoneInput = form.querySelector('[name="Phone"]');
-    const nameInput = form.querySelector('[name="ContactPerson"]');
-    const emailToken = form.querySelector('[name="EmailVerificationToken"]');
-    const phoneToken = form.querySelector('[name="PhoneVerificationToken"]');
-    const payLabel = button.textContent.trim();
-
-    const setStatus = (text, state = "idle") => {
-        statusEl.textContent = text;
-        statusEl.dataset.state = state;
-    };
-
-    // The fee is tied to the verified email, so once paid, the email and
-    // mobile can't be changed on this page.
-    const markPaid = (orderId, text) => {
-        orderInput.value = orderId;
-        box.dataset.state = "paid";
-        button.disabled = true;
-        button.textContent = "Paid";
-        emailInput.readOnly = true;
-        phoneInput.readOnly = true;
-        setStatus(`✓ ${text}`, "ok");
-        form.dispatchEvent(new Event("verification-change"));
-    };
-
-    const refreshButton = () => {
-        if (orderInput.value) return;
-        button.disabled = !(emailToken.value && phoneToken.value);
-    };
-
-    form.addEventListener("verification-change", refreshButton);
-
-    if (orderInput.value) {
-        markPaid(orderInput.value, "Registration fee paid");
-    } else {
-        refreshButton();
-    }
-
-    button.addEventListener("click", async () => {
-        button.disabled = true;
-        setStatus("Opening secure payment…");
-
-        try {
-            const response = await postJson("/join-as-partner/payment/start", {
-                email: emailInput.value.trim(),
-                emailToken: emailToken.value
-            });
-            if (!response.ok) throw new Error(await readError(response, "Couldn't start the payment. Try again."));
-
-            const data = await response.json();
-
-            // Paid earlier (closed the tab, came back): nothing to pay again.
-            if (data.alreadyPaid) {
-                markPaid(data.orderId, "Registration fee already paid");
-                return;
-            }
-
-            await loadRazorpay();
-
-            const checkout = new window.Razorpay({
-                key: data.keyId,
-                order_id: data.orderId,
-                amount: data.amountPaise,
-                currency: "INR",
-                name: "ShiftingGuru",
-                description: "Partner registration fee",
-                prefill: {
-                    name: nameInput ? nameInput.value.trim() : "",
-                    email: emailInput.value.trim(),
-                    contact: "+91" + phoneInput.value.replace(/\D/g, "").slice(-10)
-                },
-                theme: { color: "#3156C6" },
-                handler: (result) => confirmPayment(result),
-                modal: {
-                    ondismiss: () => {
-                        if (orderInput.value) return;
-                        button.disabled = false;
-                        button.textContent = payLabel;
-                        setStatus("Payment not completed. You can try again.", "error");
-                    }
-                }
-            });
-
-            checkout.on("payment.failed", (result) => {
-                setStatus(result?.error?.description || "Payment failed. Please try again.", "error");
-            });
-
-            checkout.open();
-            setStatus("");
-        } catch (error) {
-            button.disabled = false;
-            setStatus(error.message || "Couldn't start the payment. Try again.", "error");
-        }
-    });
-
-    async function confirmPayment(result) {
-        setStatus("Confirming your payment…");
-
-        try {
-            const response = await postJson("/join-as-partner/payment/confirm", {
-                orderId: result.razorpay_order_id,
-                paymentId: result.razorpay_payment_id,
-                signature: result.razorpay_signature
-            });
-            if (!response.ok) throw new Error(await readError(response, "We couldn't confirm the payment yet."));
-
-            markPaid(result.razorpay_order_id, "Registration fee paid");
-        } catch (error) {
-            button.disabled = false;
-            button.textContent = payLabel;
-            setStatus(
-                `${error.message} Payment ID: ${result.razorpay_payment_id}. You won't be charged twice if you click Pay again.`,
-                "error");
-        }
-    }
-}
-
-let razorpayPromise = null;
-
-// Razorpay's own checkout script, loaded only when someone clicks Pay.
-function loadRazorpay() {
-    razorpayPromise ??= new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.onload = resolve;
-        script.onerror = () => {
-            razorpayPromise = null;
-            reject(new Error("Couldn't load the payment window. Check your internet and try again."));
-        };
-        document.head.appendChild(script);
-    });
-
-    return razorpayPromise;
 }
 
 // ---------------------------------------------------------------------------

@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services.Notifications;
-using ShiftingGuru.Services.Payments;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
@@ -19,7 +18,6 @@ public class PartnerService : IPartnerService
     private readonly IEmailVerificationService _emailVerification;
     private readonly IPhoneVerificationService _phoneVerification;
     private readonly IDocumentStorage _storage;
-    private readonly IRegistrationPaymentService _payments;
     private readonly ILogger<PartnerService> _logger;
 
     public PartnerService(
@@ -30,7 +28,6 @@ public class PartnerService : IPartnerService
         IEmailVerificationService emailVerification,
         IPhoneVerificationService phoneVerification,
         IDocumentStorage storage,
-        IRegistrationPaymentService payments,
         ILogger<PartnerService> logger)
     {
         _db = db;
@@ -40,7 +37,6 @@ public class PartnerService : IPartnerService
         _emailVerification = emailVerification;
         _phoneVerification = phoneVerification;
         _storage = storage;
-        _payments = payments;
         _logger = logger;
     }
 
@@ -88,14 +84,12 @@ public class PartnerService : IPartnerService
             return PartnerRegistrationResult.Fail("Select at least one service you provide.");
         }
 
-        // Every file is checked by its real contents before anything is stored.
+        // CHANGED: documents are optional. Every file that WAS chosen is checked
+        // by its real contents before anything is stored.
         var documents = new List<(VendorDocumentType Type, IFormFile File, InspectedFile Info)>();
         foreach (var (type, file) in DocumentsFrom(model))
         {
-            if (file is null)
-            {
-                return PartnerRegistrationResult.Fail($"Upload your {Label(type)}.");
-            }
+            if (file is null || file.Length == 0) continue;
 
             var allowPdf = type != VendorDocumentType.OfficePhoto;
             var info = await DocumentInspector.InspectAsync(file, allowPdf, ct);
@@ -136,18 +130,6 @@ public class PartnerService : IPartnerService
                 return PartnerRegistrationResult.VerificationFailed(
                     email: true, phone: false,
                     "Your email verification has expired or doesn't match this address. Please verify your email again.");
-            }
-
-            // NEW: the registration fee must be paid, for this email, and not
-            // already used. Inside the transaction, so a failed submission
-            // leaves the payment unused and the partner can simply try again.
-            var payment = await _payments.ConsumeAsync(email, model.RegistrationOrderId ?? "", ct);
-            if (payment is null)
-            {
-                await transaction.RollbackAsync(ct);
-                return PartnerRegistrationResult.PaymentFailed(
-                    "We couldn't match your registration fee payment to this email. Please pay again, "
-                    + "or if money was already deducted, contact support@shiftingguru.com with your payment ID.");
             }
 
             var user = new IdentityUser
@@ -231,9 +213,6 @@ public class PartnerService : IPartnerService
                     UploadedAt = now
                 });
             }
-
-            // NEW: links the fee to this application (saved together below).
-            payment.Vendor = vendor;
 
             _db.Vendors.Add(vendor);
             await _db.SaveChangesAsync(ct);

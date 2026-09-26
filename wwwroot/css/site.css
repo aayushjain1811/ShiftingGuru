@@ -841,6 +841,9 @@
   .min-h-11 {
     min-height: calc(var(--spacing) * 11);
   }
+  .min-h-\[1\.25rem\] {
+    min-height: 1.25rem;
+  }
   .min-h-\[380px\] {
     min-height: 380px;
   }
@@ -1905,10 +1908,6 @@
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
   }
-  .text-3xl {
-    font-size: var(--text-3xl);
-    line-height: var(--tw-leading, var(--text-3xl--line-height));
-  }
   .text-4xl {
     font-size: var(--text-4xl);
     line-height: var(--tw-leading, var(--text-4xl--line-height));
@@ -2007,6 +2006,9 @@
   }
   .text-\[clamp\(2rem\,4\.5vw\,3\.5rem\)\] {
     font-size: clamp(2rem, 4.5vw, 3.5rem);
+  }
+  .text-\[clamp\(2rem\,5vw\,3rem\)\] {
+    font-size: clamp(2rem, 5vw, 3rem);
   }
   .text-\[clamp\(3rem\,13vw\,11rem\)\] {
     font-size: clamp(3rem, 13vw, 11rem);
@@ -2435,9 +2437,6 @@
   .group-data-\[state\=ok\]\:border-green-600:is(:where(.group)[data-state="ok"] *) {
     border-color: var(--color-green-600);
   }
-  .group-data-\[state\=paid\]\:bg-green-700:is(:where(.group)[data-state="paid"] *) {
-    background-color: var(--color-green-700);
-  }
   .peer-checked\:border-jade-500:is(:where(.peer):checked ~ *) {
     border-color: var(--color-jade-500);
   }
@@ -2509,9 +2508,6 @@
   }
   .last\:mb-0:last-child {
     margin-bottom: 0px;
-  }
-  .read-only\:bg-paper:read-only {
-    background-color: var(--color-paper);
   }
   .empty\:hidden:empty {
     display: none;
@@ -2629,6 +2625,9 @@
   .disabled\:opacity-50:disabled {
     opacity: 50%;
   }
+  .disabled\:opacity-60:disabled {
+    opacity: 60%;
+  }
   .has-\[\:focus-visible\]\:border-jade-500:has(:is(:focus-visible)) {
     border-color: var(--color-jade-500);
   }
@@ -2672,12 +2671,6 @@
   }
   .data-\[state\=ok\]\:text-green-700[data-state="ok"] {
     color: var(--color-green-700);
-  }
-  .data-\[state\=paid\]\:border-green-600[data-state="paid"] {
-    border-color: var(--color-green-600);
-  }
-  .data-\[state\=paid\]\:bg-green-50[data-state="paid"] {
-    background-color: var(--color-green-50);
   }
   @media (width >= 40rem) {
     .sm\:-left-8 {
@@ -2769,6 +2762,9 @@
     }
     .sm\:py-8 {
       padding-block: calc(var(--spacing) * 8);
+    }
+    .sm\:text-right {
+      text-align: right;
     }
     .sm\:text-3xl {
       font-size: var(--text-3xl);
