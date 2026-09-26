@@ -121,6 +121,11 @@ public class VendorsController : Controller
 
         ViewData["Title"] = vendor.BusinessName;
 
+        // NEW: the registration fee paid with this application, if any.
+        ViewData["RegistrationPayment"] = await _db.RegistrationPayments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.VendorId == id, ct);
+
         return View(new AdminVendorDetailsViewModel
         {
             Vendor = vendor,

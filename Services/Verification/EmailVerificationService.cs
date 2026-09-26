@@ -162,8 +162,21 @@ public class EmailVerificationService : IEmailVerificationService
 
     public async Task<bool> ConsumeTokenAsync(string email, string token, CancellationToken ct = default)
     {
+        var row = await FindUsableTokenAsync(email, token, ct);
+        if (row is null) return false;
+
+        row.UsedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<bool> IsTokenValidAsync(string email, string token, CancellationToken ct = default) =>
+        await FindUsableTokenAsync(email, token, ct) is not null;
+
+    private async Task<EmailVerification?> FindUsableTokenAsync(string email, string token, CancellationToken ct)
+    {
         var address = Normalize(email);
-        if (address is null || string.IsNullOrWhiteSpace(token)) return false;
+        if (address is null || string.IsNullOrWhiteSpace(token)) return null;
 
         var hash = Hash(token.Trim());
         var row = await _db.EmailVerifications.FirstOrDefaultAsync(e => e.TokenHash == hash, ct);
@@ -175,12 +188,10 @@ public class EmailVerificationService : IEmailVerificationService
             row.VerifiedAt is null ||
             row.VerifiedAt < now - TokenLifetime)
         {
-            return false;
+            return null;
         }
 
-        row.UsedAt = now;
-        await _db.SaveChangesAsync(ct);
-        return true;
+        return row;
     }
 
     // -----------------------------------------------------------------

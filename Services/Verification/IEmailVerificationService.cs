@@ -19,4 +19,10 @@ public interface IEmailVerificationService
     /// belongs to this email, is recent, and hasn't been used before. Marks it used.
     /// </summary>
     Task<bool> ConsumeTokenAsync(string email, string token, CancellationToken ct = default);
+
+    /// <summary>
+    /// NEW: the same checks as ConsumeTokenAsync, but without using the token up.
+    /// Used before taking the registration fee: only verified emails can pay.
+    /// </summary>
+    Task<bool> IsTokenValidAsync(string email, string token, CancellationToken ct = default);
 }

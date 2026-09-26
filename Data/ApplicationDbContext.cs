@@ -23,6 +23,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
     public DbSet<VendorDocument> VendorDocuments => Set<VendorDocument>();
+    public DbSet<RegistrationPayment> RegistrationPayments => Set<RegistrationPayment>();
     public DbSet<VendorService> VendorServices => Set<VendorService>();
     public DbSet<LeadAssignment> LeadAssignments => Set<LeadAssignment>();
     public DbSet<Quote> Quotes => Set<Quote>();
@@ -499,6 +500,36 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
             audit.HasIndex(a => a.CreatedAt);
             audit.HasIndex(a => new { a.EntityType, a.EntityId });
             audit.HasIndex(a => a.AdminUserId);
+        });
+
+        // NEW: partner registration fee payments (Razorpay).
+        builder.Entity<RegistrationPayment>(payment =>
+        {
+            payment.ToTable("RegistrationPayments");
+            payment.HasKey(p => p.Id);
+
+            payment.Property(p => p.Email).IsRequired().HasMaxLength(120);
+            payment.Property(p => p.RazorpayOrderId).IsRequired().HasMaxLength(40);
+            payment.Property(p => p.RazorpayPaymentId).HasMaxLength(40);
+            payment.Property(p => p.Amount).HasColumnType("decimal(18,2)").IsRequired();
+            payment.Property(p => p.Currency).IsRequired().HasMaxLength(3);
+            payment.Property(p => p.Status).IsRequired().HasMaxLength(20).HasConversion<string>();
+
+            payment.Property(p => p.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
+            payment.Property(p => p.PaidAt).HasColumnType("timestamp with time zone");
+            payment.Property(p => p.UsedAt).HasColumnType("timestamp with time zone");
+
+            // One row per Razorpay order; the webhook and the browser both look it up.
+            payment.HasIndex(p => p.RazorpayOrderId).IsUnique();
+            payment.HasIndex(p => new { p.Email, p.CreatedAt });
+            payment.HasIndex(p => p.Status);
+            payment.HasIndex(p => p.VendorId);
+
+            // Restrict: payment history is kept even if a vendor record is removed.
+            payment.HasOne(p => p.Vendor)
+                   .WithMany()
+                   .HasForeignKey(p => p.VendorId)
+                   .OnDelete(DeleteBehavior.Restrict);
         });
 
         // NEW

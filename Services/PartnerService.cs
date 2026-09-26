@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services.Notifications;
+using ShiftingGuru.Services.Payments;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
@@ -18,6 +19,7 @@ public class PartnerService : IPartnerService
     private readonly IEmailVerificationService _emailVerification;
     private readonly IPhoneVerificationService _phoneVerification;
     private readonly IDocumentStorage _storage;
+    private readonly IRegistrationPaymentService _payments;
     private readonly ILogger<PartnerService> _logger;
 
     public PartnerService(
@@ -28,6 +30,7 @@ public class PartnerService : IPartnerService
         IEmailVerificationService emailVerification,
         IPhoneVerificationService phoneVerification,
         IDocumentStorage storage,
+        IRegistrationPaymentService payments,
         ILogger<PartnerService> logger)
     {
         _db = db;
@@ -37,6 +40,7 @@ public class PartnerService : IPartnerService
         _emailVerification = emailVerification;
         _phoneVerification = phoneVerification;
         _storage = storage;
+        _payments = payments;
         _logger = logger;
     }
 
@@ -134,6 +138,18 @@ public class PartnerService : IPartnerService
                     "Your email verification has expired or doesn't match this address. Please verify your email again.");
             }
 
+            // NEW: the registration fee must be paid, for this email, and not
+            // already used. Inside the transaction, so a failed submission
+            // leaves the payment unused and the partner can simply try again.
+            var payment = await _payments.ConsumeAsync(email, model.RegistrationOrderId ?? "", ct);
+            if (payment is null)
+            {
+                await transaction.RollbackAsync(ct);
+                return PartnerRegistrationResult.PaymentFailed(
+                    "We couldn't match your registration fee payment to this email. Please pay again, "
+                    + "or if money was already deducted, contact support@shiftingguru.com with your payment ID.");
+            }
+
             var user = new IdentityUser
             {
                 UserName = email,
@@ -215,6 +231,9 @@ public class PartnerService : IPartnerService
                     UploadedAt = now
                 });
             }
+
+            // NEW: links the fee to this application (saved together below).
+            payment.Vendor = vendor;
 
             _db.Vendors.Add(vendor);
             await _db.SaveChangesAsync(ct);

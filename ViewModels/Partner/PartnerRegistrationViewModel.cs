@@ -118,6 +118,14 @@ public class PartnerRegistrationViewModel : IValidatableObject
     [Required(ErrorMessage = "Verify your mobile number with the code we send you.")]
     public string? PhoneVerificationToken { get; set; }
 
+    // ----- NEW: registration fee -----
+    // The Razorpay order id, filled in by partner-join.js after a confirmed
+    // payment. The backend checks it is really paid, for this email, and unused.
+
+    [Required(ErrorMessage = "Pay the registration fee to submit your application.")]
+    [StringLength(40)]
+    public string? RegistrationOrderId { get; set; }
+
     // ----- NEW: consent -----
 
     [Range(typeof(bool), "true", "true",

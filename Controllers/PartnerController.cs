@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ShiftingGuru.Data;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Payments;
 using ShiftingGuru.Services.Verification;
 using ShiftingGuru.ViewModels.Partner;
 
@@ -17,17 +18,20 @@ public class PartnerController : Controller
     private readonly IServiceCatalog _catalog;
     private readonly IPartnerService _partners;
     private readonly IEmailVerificationService _emailVerification;
+    private readonly IRegistrationPaymentService _payments;
     private readonly ILogger<PartnerController> _logger;
 
     public PartnerController(
         IServiceCatalog catalog,
         IPartnerService partners,
         IEmailVerificationService emailVerification,
+        IRegistrationPaymentService payments,
         ILogger<PartnerController> logger)
     {
         _catalog = catalog;
         _partners = partners;
         _emailVerification = emailVerification;
+        _payments = payments;
         _logger = logger;
     }
 
@@ -65,6 +69,12 @@ public class PartnerController : Controller
                 model.PhoneVerificationToken = null;
             }
 
+            if (result.ResetPayment)
+            {
+                ModelState.Remove(nameof(model.RegistrationOrderId));
+                model.RegistrationOrderId = null;
+            }
+
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error);
@@ -97,6 +107,40 @@ public class PartnerController : Controller
         return result.Succeeded ? Ok(new { token = result.Token }) : BadRequest(new { error = result.Error });
     }
 
+    // NEW
+    // POST /join-as-partner/payment/start   (called by partner-join.js)
+    // Creates the Razorpay order. Only for an email that has just been verified.
+    [HttpPost("/join-as-partner/payment/start")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> StartPayment([FromBody] PaymentStartRequest request, CancellationToken ct)
+    {
+        var result = await _payments.StartAsync(request?.Email ?? "", request?.EmailToken ?? "", ct);
+
+        if (!result.Succeeded) return BadRequest(new { error = result.Error });
+
+        return Ok(new
+        {
+            alreadyPaid = result.AlreadyPaid,
+            orderId = result.OrderId,
+            keyId = result.KeyId,
+            amountPaise = result.AmountPaise
+        });
+    }
+
+    // NEW
+    // POST /join-as-partner/payment/confirm   (called by partner-join.js)
+    [HttpPost("/join-as-partner/payment/confirm")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmPayment([FromBody] PaymentConfirmRequest request, CancellationToken ct)
+    {
+        var result = await _payments.ConfirmAsync(
+            request?.OrderId ?? "", request?.PaymentId ?? "", request?.Signature ?? "", ct);
+
+        return result.Succeeded
+            ? Ok(new { orderId = result.Token })
+            : BadRequest(new { error = result.Error });
+    }
+
     // GET /join-as-partner/success
     [HttpGet("/join-as-partner/success")]
     public IActionResult Success()
@@ -127,3 +171,9 @@ public class PartnerController : Controller
 
 /// <summary>What partner-join.js sends to the two email-code endpoints.</summary>
 public record EmailCodeRequest(string? Email, string? Code);
+
+/// <summary>NEW: what partner-join.js sends to start the registration fee payment.</summary>
+public record PaymentStartRequest(string? Email, string? EmailToken);
+
+/// <summary>NEW: what the Razorpay window hands back after a successful payment.</summary>
+public record PaymentConfirmRequest(string? OrderId, string? PaymentId, string? Signature);

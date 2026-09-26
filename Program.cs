@@ -8,6 +8,7 @@ using ShiftingGuru.Data;
 using ShiftingGuru.Services;
 using ShiftingGuru.Services.Email;
 using ShiftingGuru.Services.Notifications;
+using ShiftingGuru.Services.Payments;
 using ShiftingGuru.Services.Seo;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.Services.Verification;
@@ -38,6 +39,16 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 
 // NEW: email one-time codes for the partner sign-up form.
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
+
+// NEW: Razorpay, for the partner registration fee. The secret key and webhook
+// secret come from user secrets locally and Secret Manager on Cloud Run.
+builder.Services.Configure<RazorpayOptions>(
+    builder.Configuration.GetSection(RazorpayOptions.SectionName));
+builder.Services.AddHttpClient<IRazorpayClient, RazorpayClient>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+});
+builder.Services.AddScoped<IRegistrationPaymentService, RegistrationPaymentService>();
 
 // NEW: checks the mobile proof with Firebase. One instance is enough; it sets
 // Firebase up the first time it's needed.

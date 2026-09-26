@@ -18,6 +18,8 @@
     --color-amber-700: oklch(55.5% 0.163 48.998);
     --color-amber-800: oklch(47.3% 0.137 46.201);
     --color-amber-900: oklch(41.4% 0.112 45.904);
+    --color-green-50: oklch(98.2% 0.018 155.826);
+    --color-green-200: oklch(92.5% 0.084 155.995);
     --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-700: oklch(52.7% 0.154 150.069);
     --color-sky-50: oklch(97.7% 0.013 236.62);
@@ -1013,6 +1015,9 @@
   .min-w-9 {
     min-width: calc(var(--spacing) * 9);
   }
+  .min-w-\[760px\] {
+    min-width: 760px;
+  }
   .flex-1 {
     flex: 1;
   }
@@ -1380,6 +1385,9 @@
   .border-black {
     border-color: var(--color-black);
   }
+  .border-green-200 {
+    border-color: var(--color-green-200);
+  }
   .border-indigo-200 {
     border-color: var(--color-indigo-200);
   }
@@ -1442,6 +1450,9 @@
   }
   .bg-black {
     background-color: var(--color-black);
+  }
+  .bg-green-50 {
+    background-color: var(--color-green-50);
   }
   .bg-hero {
     background-color: var(--color-hero);
@@ -1884,12 +1895,19 @@
   .font-display {
     font-family: var(--font-display);
   }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
   .font-sans {
     font-family: var(--font-sans);
   }
   .text-2xl {
     font-size: var(--text-2xl);
     line-height: var(--tw-leading, var(--text-2xl--line-height));
+  }
+  .text-3xl {
+    font-size: var(--text-3xl);
+    line-height: var(--tw-leading, var(--text-3xl--line-height));
   }
   .text-4xl {
     font-size: var(--text-4xl);
@@ -2137,6 +2155,9 @@
   }
   .text-black {
     color: var(--color-black);
+  }
+  .text-green-700 {
+    color: var(--color-green-700);
   }
   .text-indigo-700 {
     color: var(--color-indigo-700);
@@ -2414,6 +2435,9 @@
   .group-data-\[state\=ok\]\:border-green-600:is(:where(.group)[data-state="ok"] *) {
     border-color: var(--color-green-600);
   }
+  .group-data-\[state\=paid\]\:bg-green-700:is(:where(.group)[data-state="paid"] *) {
+    background-color: var(--color-green-700);
+  }
   .peer-checked\:border-jade-500:is(:where(.peer):checked ~ *) {
     border-color: var(--color-jade-500);
   }
@@ -2485,6 +2509,9 @@
   }
   .last\:mb-0:last-child {
     margin-bottom: 0px;
+  }
+  .read-only\:bg-paper:read-only {
+    background-color: var(--color-paper);
   }
   .empty\:hidden:empty {
     display: none;
@@ -2645,6 +2672,12 @@
   }
   .data-\[state\=ok\]\:text-green-700[data-state="ok"] {
     color: var(--color-green-700);
+  }
+  .data-\[state\=paid\]\:border-green-600[data-state="paid"] {
+    border-color: var(--color-green-600);
+  }
+  .data-\[state\=paid\]\:bg-green-50[data-state="paid"] {
+    background-color: var(--color-green-50);
   }
   @media (width >= 40rem) {
     .sm\:-left-8 {

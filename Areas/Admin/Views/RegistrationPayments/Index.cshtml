@@ -1,0 +1,109 @@
+@model List<ShiftingGuru.Models.RegistrationPayment>
+@using ShiftingGuru.Models
+@{
+    var show = ViewData["Show"] as string ?? "";
+    var page = (int)(ViewData["Page"] ?? 1);
+    var hasNext = (bool)(ViewData["HasNext"] ?? false);
+    var unusedCount = (int)(ViewData["UnusedCount"] ?? 0);
+
+    var filters = new (string Value, string Label)[]
+    {
+        ("", "Paid and refunded"),
+        ("unused", $"Paid, no application ({unusedCount})"),
+        ("paid", "All paid"),
+        ("all", "Everything, including abandoned")
+    };
+}
+
+<div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+        <h1 class="font-display text-2xl font-bold tracking-[-0.03em] text-ink-900">Registration fees</h1>
+        <p class="mt-1 text-sm text-ink-500">Partner registration payments through Razorpay. Refunds are made in the Razorpay dashboard.</p>
+    </div>
+</div>
+
+@if (unusedCount > 0)
+{
+    <div class="mt-4 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 rounded-card">
+        @unusedCount @(unusedCount == 1 ? "person has" : "people have") paid but not submitted an application.
+        Contact them, or refund the fee in Razorpay.
+        <a href="?show=unused" class="font-semibold underline">Show them</a>
+    </div>
+}
+
+<div class="mt-4 flex flex-wrap gap-2">
+    @foreach (var filter in filters)
+    {
+        var active = filter.Value == show;
+        <a href="?show=@filter.Value"
+           class="inline-flex h-9 items-center border px-3 text-sm rounded-card transition-colors @(active ? "border-jade-500 bg-jade-50 font-semibold text-jade-600" : "border-ink-200 bg-white text-ink-700 hover:border-jade-500")">
+            @filter.Label
+        </a>
+    }
+</div>
+
+<div class="mt-4 overflow-x-auto border border-ink-200 bg-white shadow-card rounded-panel">
+    <table class="w-full min-w-[760px] text-left text-sm">
+        <thead class="border-b border-ink-200 bg-paper text-[13px] text-ink-500">
+            <tr>
+                <th class="px-4 py-3 font-semibold">Date</th>
+                <th class="px-4 py-3 font-semibold">Email</th>
+                <th class="px-4 py-3 font-semibold">Amount</th>
+                <th class="px-4 py-3 font-semibold">Status</th>
+                <th class="px-4 py-3 font-semibold">Razorpay payment ID</th>
+                <th class="px-4 py-3 font-semibold">Application</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="6" class="px-4 py-8 text-center text-ink-500">No payments to show.</td></tr>
+            }
+            @foreach (var p in Model)
+            {
+                var statusClasses = p.Status switch
+                {
+                    RegistrationPaymentStatus.Paid => "border-green-200 bg-green-50 text-green-700",
+                    RegistrationPaymentStatus.Refunded => "border-ink-200 bg-ink-50 text-ink-600",
+                    _ => "border-amber-200 bg-amber-50 text-amber-700"
+                };
+                var statusLabel = p.Status == RegistrationPaymentStatus.Created ? "Not paid" : p.Status.ToString();
+
+                <tr>
+                    <td class="whitespace-nowrap px-4 py-3 text-ink-700">@((p.PaidAt ?? p.CreatedAt).ToLocalTime().ToString("d MMM yyyy, HH:mm"))</td>
+                    <td class="px-4 py-3 text-ink-900">@p.Email</td>
+                    <td class="whitespace-nowrap px-4 py-3 text-ink-900">₹@p.Amount.ToString("0.##")</td>
+                    <td class="px-4 py-3">
+                        <span class="inline-flex border px-2 py-0.5 text-xs font-medium rounded-card @statusClasses">@statusLabel</span>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-xs text-ink-700">@(p.RazorpayPaymentId ?? "-")</td>
+                    <td class="px-4 py-3">
+                        @if (p.Vendor is not null)
+                        {
+                            <a href="/admin/vendors/@p.Vendor.Id" class="font-medium text-jade-500 hover:text-jade-600">@p.Vendor.VendorNumber</a>
+                        }
+                        else if (p.Status == RegistrationPaymentStatus.Paid)
+                        {
+                            <span class="font-semibold text-amber-700">No application yet</span>
+                        }
+                        else
+                        {
+                            <span class="text-ink-400">-</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4 flex gap-3">
+    @if (page > 1)
+    {
+        <a href="?show=@show&page=@(page - 1)" class="text-sm font-medium text-jade-500 hover:text-jade-600">← Newer</a>
+    }
+    @if (hasNext)
+    {
+        <a href="?show=@show&page=@(page + 1)" class="text-sm font-medium text-jade-500 hover:text-jade-600">Older →</a>
+    }
+</div>
