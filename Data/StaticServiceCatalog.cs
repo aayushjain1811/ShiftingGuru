@@ -179,7 +179,7 @@ public class StaticServiceCatalog : IServiceCatalog
         new()
         {
             Id = 5,
-            Name = "Domestic Goods Transportation",
+            Name = "Factory Goods Transportation",
             Slug = "goods-transportation",
             ShortDescription = "Part or full loads for commercial consignments.",
             IconPath = "M3 6h8v8H3V6zm8 3h3l3 3v2h-6V9zM6 17a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
