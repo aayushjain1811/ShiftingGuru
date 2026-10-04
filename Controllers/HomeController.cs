@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using ShiftingGuru.Models;
 
 namespace ShiftingGuru.Controllers;
 
@@ -63,7 +65,8 @@ public class HomeController : Controller
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error() => View();
+    public IActionResult Error() =>
+    View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 
     /// <summary>
     /// Reached via UseStatusCodePagesWithReExecute. Re-executing preserves the
@@ -78,7 +81,9 @@ public class HomeController : Controller
 
         Response.StatusCode = code;
 
-        return code == 404 ? View("NotFound") : View("Error");
+        return code == 404
+    ? View("NotFound")
+    : View("Error", new ErrorViewModel { RequestId = HttpContext.TraceIdentifier });
     }
 
     /// <summary>

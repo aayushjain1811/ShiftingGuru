@@ -1,11 +1,15 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using ShiftingGuru.Controllers;
 using ShiftingGuru.Data;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Auth;
 using ShiftingGuru.Services.Email;
 using ShiftingGuru.Services.Notifications;
 using ShiftingGuru.Services.Payments;
@@ -160,9 +164,39 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
+// ---------------------------------------------------------------
+// NEW (mobile API): token sign-in for the mobile apps.
+//
+// Same Identity users, passwords and roles as the website. The website keeps
+// its cookies; the apps get a signed token instead. Nothing here changes how
+// the website signs anyone in.
+// ---------------------------------------------------------------
+var jwt = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+
+// Refuse to start without a proper key, rather than run with a weak or empty
+// one. Locally: dotnet user-secrets set "Jwt:SigningKey" "...".
+// Cloud Run: the Jwt__SigningKey secret.
+if (string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Length < 32)
+{
+    throw new InvalidOperationException(
+        "Jwt:SigningKey is missing or shorter than 32 characters. " +
+        "Set it with user secrets locally and Secret Manager on Cloud Run.");
+}
+
+if (string.IsNullOrWhiteSpace(jwt.Issuer) || string.IsNullOrWhiteSpace(jwt.Audience) || jwt.AccessTokenMinutes <= 0)
+{
+    throw new InvalidOperationException("Jwt:Issuer, Jwt:Audience and Jwt:AccessTokenMinutes must be set.");
+}
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
+builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+
 // A second, separate cookie for customers. They have no password and are not
 // Identity users - the access link signs them in and the cookie carries one
 // claim: which lead they may see.
+//
+// IMPORTANT: AddAuthentication() stays EMPTY. Putting a scheme inside the
+// brackets would change the default and break the website's cookie sign-in.
 builder.Services.AddAuthentication()
     .AddCookie(CustomerPortalController.Scheme, options =>
     {
@@ -173,6 +207,32 @@ builder.Services.AddAuthentication()
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
         options.LoginPath = "/my-request/request-access";
+    })
+    // NEW (mobile API): only used by controllers that ask for it by name.
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        // Keep the short claim names ("sub", "role") exactly as written in
+        // the token, instead of renaming them to long URLs.
+        options.MapInboundClaims = false;
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SigningKey)),
+
+            // So [Authorize(Roles = ...)] and User.Identity.Name read our claims.
+            NameClaimType = ApiClaims.UserId,
+            RoleClaimType = ApiClaims.Role
+        };
     });
 
 var app = builder.Build();
@@ -189,13 +249,19 @@ if (!app.Environment.IsDevelopment())
 
 // Re-executes the request against /error/404 while keeping the original
 // status code. A 404 page served as 200 would let search engines index
-// every broken URL on the site.
-app.UseStatusCodePagesWithReExecute("/error/{0}");
+// every broken URL.
+//
+// CHANGED (mobile API): skipped for /api. Without this, an empty 401 from
+// the API would be replaced by the website's HTML error page, and the app
+// would receive a web page instead of a status it can read.
+app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/api"),
+    website => website.UseStatusCodePagesWithReExecute("/error/{0}"));
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthentication();   // reads the cookies and builds User
+app.UseAuthentication();   // reads the cookies (and API tokens) and builds User
 app.UseAuthorization();    // checks User against [Authorize]
 
 app.MapStaticAssets();
