@@ -8,8 +8,13 @@ using ShiftingGuru.Services.Places;
 namespace ShiftingGuru.Controllers.Api.V1;
 
 /// <summary>
-/// NEW (mobile API): city search for the request form.
-/// Signed-in people only, so strangers can't use your Google key through it.
+/// NEW (mobile API): city search for the request form, registration and profile.
+///
+/// CHANGED: open to everyone, because the registration screen needs it before
+/// anyone has signed in. Your Google bill stays protected by:
+///   - the rate limit in Program.cs (60 searches a minute per address)
+///   - no call to Google for under 2 or over 60 characters
+///   - the daily quota cap you set on the key in Google Cloud
 /// </summary>
 [ApiController]
 [Route("api/v1/places")]
@@ -23,6 +28,7 @@ public class PlacesController : ControllerBase
 
     // GET /api/v1/places/cities?q=gurg&session=abc123
     [HttpGet("cities")]
+    [AllowAnonymous]
     public async Task<IActionResult> Cities([FromQuery] string? q, [FromQuery] string? session, CancellationToken ct)
     {
         var input = (q ?? "").Trim();

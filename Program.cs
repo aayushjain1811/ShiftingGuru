@@ -224,7 +224,8 @@ builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 // NEW (mobile API): "stay signed in" tokens, stored in Identity's own
 // AspNetUserTokens table - no new table, no migration.
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
-
+// The website's partner "forgot password" pages (Areas/Partner/AccountController).
+builder.Services.AddScoped<IPartnerPasswordResetService, PartnerPasswordResetService>();
 // NEW (mobile API): the partner profile the app shows after sign-in and on /me.
 builder.Services.AddScoped<IPartnerProfileReader, PartnerProfileReader>();
 
