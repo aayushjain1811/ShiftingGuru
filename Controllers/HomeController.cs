@@ -71,7 +71,17 @@ public IActionResult RefundPolicy()
 
     return View();
 }
+// GET /delete-account
+[Route("/delete-account")]
+public IActionResult DeleteAccount()
+{
+    ViewData["Title"] = "Delete your account";
+    ViewData["MetaDescription"] =
+        "How to delete your ShiftingGuru account and everything in it.";
+    ViewData["Canonical"] = AbsoluteUrl("/delete-account");
 
+    return View();
+}
     // GET /how-it-works
     [Route("/how-it-works")]
     public IActionResult HowItWorks()
