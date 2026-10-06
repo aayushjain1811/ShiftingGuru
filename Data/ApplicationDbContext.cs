@@ -22,6 +22,15 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
 
     public DbSet<Lead> Leads => Set<Lead>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
+
+    // NEW (mobile app): customers who registered in the app.
+    public DbSet<Customer> Customers => Set<Customer>();
+
+    // NEW (mobile apps): phones that receive push notifications.
+    public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
+
+    // NEW (mobile apps): which kinds of push notification each person wants.
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
     public DbSet<VendorDocument> VendorDocuments => Set<VendorDocument>();
     public DbSet<RegistrationPayment> RegistrationPayments => Set<RegistrationPayment>();
     public DbSet<VendorService> VendorServices => Set<VendorService>();
@@ -117,6 +126,68 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
 
             // Supports admin search on customer name.
             lead.HasIndex(l => l.CustomerName);
+
+            // NEW (mobile app): the app customer this request belongs to, if any.
+            // SetNull: if a customer account is ever removed, their requests stay
+            // (the partner and admin history needs them), just without the link.
+            lead.HasIndex(l => l.CustomerId);
+            lead.HasOne(l => l.Customer)
+                .WithMany(c => c.Leads)
+                .HasForeignKey(l => l.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // NEW (mobile apps): phones that receive push notifications.
+        builder.Entity<DeviceToken>(device =>
+        {
+            device.ToTable("DeviceTokens");
+            device.HasKey(d => d.Id);
+
+            device.Property(d => d.IdentityUserId).IsRequired().HasMaxLength(450);
+            device.HasIndex(d => d.IdentityUserId);
+
+            device.Property(d => d.Token).IsRequired().HasMaxLength(200);
+            device.HasIndex(d => d.Token).IsUnique();
+
+            device.Property(d => d.Platform).IsRequired().HasMaxLength(10);
+            device.Property(d => d.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
+            device.Property(d => d.LastSeenAt).IsRequired().HasColumnType("timestamp with time zone");
+        });
+
+        // NEW (mobile apps): notification switches, one row per person.
+        builder.Entity<NotificationPreference>(preference =>
+        {
+            preference.ToTable("NotificationPreferences");
+            preference.HasKey(p => p.IdentityUserId);
+            preference.Property(p => p.IdentityUserId).HasMaxLength(450);
+            preference.Property(p => p.UpdatedAt).IsRequired().HasColumnType("timestamp with time zone");
+        });
+
+        // NEW (mobile app): customers who registered in the app.
+        builder.Entity<Customer>(customer =>
+        {
+            customer.ToTable("Customers");
+            customer.HasKey(c => c.Id);
+
+            // Same pattern as Vendor: one Identity user per customer.
+            customer.Property(c => c.IdentityUserId).IsRequired().HasMaxLength(450);
+            customer.HasIndex(c => c.IdentityUserId).IsUnique();
+
+            customer.Property(c => c.FullName).IsRequired().HasMaxLength(80);
+
+            // Plain 10 digits. One account per mobile number.
+            customer.Property(c => c.Phone).IsRequired().HasMaxLength(10);
+            customer.HasIndex(c => c.Phone).IsUnique();
+
+            customer.Property(c => c.Email).IsRequired().HasMaxLength(120);
+            customer.Property(c => c.City).IsRequired().HasMaxLength(80);
+
+            customer.Property(c => c.IsActive).IsRequired();
+
+            customer.Property(c => c.PhoneVerifiedAt).IsRequired().HasColumnType("timestamp with time zone");
+            customer.Property(c => c.TermsAcceptedAt).IsRequired().HasColumnType("timestamp with time zone");
+            customer.Property(c => c.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
+            customer.Property(c => c.UpdatedAt).HasColumnType("timestamp with time zone");
         });
 
         builder.Entity<Vendor>(vendor =>

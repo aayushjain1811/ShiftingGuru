@@ -2,7 +2,7 @@ namespace ShiftingGuru.Services.Auth;
 
 /// <summary>
 /// NEW (mobile API): settings for the tokens the mobile apps sign in with.
-/// Issuer, Audience and AccessTokenMinutes live in appsettings.json.
+/// Issuer, Audience and the lifetimes live in appsettings.json.
 /// SigningKey is a secret: user secrets locally, Secret Manager on Cloud Run.
 /// </summary>
 public class JwtOptions
@@ -18,8 +18,14 @@ public class JwtOptions
     /// <summary>The secret used to sign tokens. At least 32 characters.</summary>
     public string SigningKey { get; set; } = "";
 
-    /// <summary>How long a token works before the app must sign in again.</summary>
-    public int AccessTokenMinutes { get; set; } = 60;
+    /// <summary>How long an access token works. Short, because the app refreshes it quietly.</summary>
+    public int AccessTokenMinutes { get; set; } = 15;
+
+    /// <summary>
+    /// NEW: how long a refresh token works. Each refresh hands out a new one,
+    /// so a partner who opens the app at least once in this window stays signed in.
+    /// </summary>
+    public int RefreshTokenDays { get; set; } = 30;
 }
 
 /// <summary>

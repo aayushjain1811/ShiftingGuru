@@ -72,6 +72,15 @@ public class Lead
 
     public DateTime? ConvertedAt { get; set; }
 
+    // ---------- Customer account (mobile app) ----------
+    // NEW: set when the request belongs to a registered app customer - either
+    // made in the app, or an earlier website request with the same verified
+    // mobile number. Website requests without an account leave it empty, so
+    // the website keeps working without sign-in.
+
+    public int? CustomerId { get; set; }
+    public Customer? Customer { get; set; }
+
     public bool IsConverted => Status == LeadStatus.Converted;
 
     /// <summary>Vendors this lead has been passed to.</summary>

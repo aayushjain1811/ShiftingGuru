@@ -37,6 +37,40 @@ public class HomeController : Controller
 
         return View();
     }
+    // GET /terms
+[Route("/terms")]
+public IActionResult Terms()
+{
+    ViewData["Title"] = "Terms & Conditions";
+    ViewData["MetaDescription"] =
+        "The terms for using ShiftingGuru to request quotes and book moving and logistics partners.";
+    ViewData["Canonical"] = AbsoluteUrl("/terms");
+
+    return View();
+}
+
+// GET /privacy
+[Route("/privacy")]
+public IActionResult Privacy()
+{
+    ViewData["Title"] = "Privacy Policy";
+    ViewData["MetaDescription"] =
+        "What personal data ShiftingGuru collects, why, who sees it, and your rights under India's DPDP Act.";
+    ViewData["Canonical"] = AbsoluteUrl("/privacy");
+
+    return View();
+}
+// GET /refund-policy
+[Route("/refund-policy")]
+public IActionResult RefundPolicy()
+{
+    ViewData["Title"] = "Cancellation & Refund Policy";
+    ViewData["MetaDescription"] =
+        "How cancellations and refunds work on ShiftingGuru, including the partner registration fee.";
+    ViewData["Canonical"] = AbsoluteUrl("/refund-policy");
+
+    return View();
+}
 
     // GET /how-it-works
     [Route("/how-it-works")]

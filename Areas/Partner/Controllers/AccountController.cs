@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Auth;
 using ShiftingGuru.ViewModels.Partner;
 
 namespace ShiftingGuru.Areas.Partner.Controllers;
@@ -15,17 +16,20 @@ public class AccountController : Controller
     private readonly SignInManager<IdentityUser> _signIn;
     private readonly UserManager<IdentityUser> _users;
     private readonly IPartnerService _partners;
+    private readonly IPartnerPasswordResetService _reset;
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
         SignInManager<IdentityUser> signIn,
         UserManager<IdentityUser> users,
         IPartnerService partners,
+        IPartnerPasswordResetService reset,
         ILogger<AccountController> logger)
     {
         _signIn = signIn;
         _users = users;
         _partners = partners;
+        _reset = reset;
         _logger = logger;
     }
 
@@ -121,5 +125,82 @@ public class AccountController : Controller
     {
         await _signIn.SignOutAsync();
         return Redirect("/partner/login");
+    }
+
+    // -----------------------------------------------------------------
+    // NEW: forgot password. Same rules as the mobile app, from the same
+    // service - a code emailed here works in the app and the other way round.
+    // -----------------------------------------------------------------
+
+    // GET /partner/forgot-password
+    [HttpGet("forgot-password")]
+    [AllowAnonymous]
+    public IActionResult ForgotPassword()
+    {
+        ViewData["Title"] = "Forgot password";
+        ViewData["Robots"] = "noindex, nofollow";
+        return View(new PartnerForgotPasswordViewModel());
+    }
+
+    // POST /partner/forgot-password
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(PartnerForgotPasswordViewModel model, CancellationToken ct)
+    {
+        ViewData["Title"] = "Forgot password";
+        ViewData["Robots"] = "noindex, nofollow";
+
+        if (!ModelState.IsValid) return View(model);
+
+        await _reset.SendCodeAsync(model.Email!, ct);
+
+        // Carried to the next page in TempData, not the URL, so the email
+        // address never lands in browser history or server logs.
+        TempData["ResetEmail"] = model.Email!.Trim();
+
+        return RedirectToAction(nameof(ResetPassword));
+    }
+
+    // GET /partner/reset-password
+    [HttpGet("reset-password")]
+    [AllowAnonymous]
+    public IActionResult ResetPassword()
+    {
+        ViewData["Title"] = "Set a new password";
+        ViewData["Robots"] = "noindex, nofollow";
+
+        // Same message whether or not the email has an account.
+        ViewData["CodeSentMessage"] =
+            "If that email belongs to a partner account, we've sent a 6-digit code to it. It works for 5 minutes.";
+
+        return View(new PartnerResetPasswordViewModel { Email = TempData["ResetEmail"] as string });
+    }
+
+    // POST /partner/reset-password
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(PartnerResetPasswordViewModel model, CancellationToken ct)
+    {
+        ViewData["Title"] = "Set a new password";
+        ViewData["Robots"] = "noindex, nofollow";
+
+        if (!ModelState.IsValid) return View(model);
+
+        var result = await _reset.ResetAsync(model.Email!, model.Code!, model.NewPassword!, ct);
+
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, result.Error!);
+
+            // Passwords are never sent back to the page.
+            model.NewPassword = null;
+            model.ConfirmPassword = null;
+            return View(model);
+        }
+
+        TempData["PartnerLoginMessage"] = "Your password has been changed. Sign in with your new password.";
+        return RedirectToAction(nameof(Login));
     }
 }

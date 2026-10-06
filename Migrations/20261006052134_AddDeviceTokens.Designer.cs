@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ShiftingGuru.Data;
@@ -11,9 +12,11 @@ using ShiftingGuru.Data;
 namespace ShiftingGuru.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261006052134_AddDeviceTokens")]
+    partial class AddDeviceTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -980,32 +983,6 @@ namespace ShiftingGuru.Migrations
                         .IsUnique();
 
                     b.ToTable("NotificationLogs", (string)null);
-                });
-
-            modelBuilder.Entity("ShiftingGuru.Models.NotificationPreference", b =>
-                {
-                    b.Property<string>("IdentityUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
-
-                    b.Property<bool>("Bookings")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Leads")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Quotes")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Reviews")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("IdentityUserId");
-
-                    b.ToTable("NotificationPreferences", (string)null);
                 });
 
             modelBuilder.Entity("ShiftingGuru.Models.Quote", b =>

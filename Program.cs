@@ -1,4 +1,6 @@
 using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -9,10 +11,13 @@ using Microsoft.IdentityModel.Tokens;
 using ShiftingGuru.Controllers;
 using ShiftingGuru.Data;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Api;
 using ShiftingGuru.Services.Auth;
 using ShiftingGuru.Services.Email;
 using ShiftingGuru.Services.Notifications;
 using ShiftingGuru.Services.Payments;
+using ShiftingGuru.Services.Places;
+using ShiftingGuru.Services.Push;
 using ShiftingGuru.Services.Seo;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.Services.Verification;
@@ -99,7 +104,27 @@ builder.Services.AddHttpClient<IEmailService, ResendEmailService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(15);
 });
-builder.Services.AddScoped<INotificationService, NotificationService>();
+// CHANGED (mobile apps): NotificationService still sends every email exactly
+// as before; PushingNotificationService wraps it and also sends the matching
+// push notification to the partner's or customer's phones.
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<INotificationService, PushingNotificationService>();
+
+// NEW (mobile apps): city search with Google Places. The key stays on the
+// server; without one, the app simply lets people type the city.
+builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.SectionName));
+builder.Services.AddHttpClient<IPlacesClient, GooglePlacesClient>(client =>
+{
+    client.BaseAddress = new Uri("https://places.googleapis.com/");
+    client.Timeout = TimeSpan.FromSeconds(8);
+});
+
+// NEW (mobile apps): push notifications through Expo's push service.
+builder.Services.AddHttpClient<IPushSender, ExpoPushSender>(client =>
+{
+    client.BaseAddress = new Uri("https://exp.host/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 // The queue is process-wide; the worker drains it. Notifications are written
 // to the database before being queued, so nothing is lost on a restart.
@@ -139,7 +164,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 
     options.Cookie.HttpOnly = true;                                  // JavaScript can't read it
     options.Cookie.SameSite = SameSiteMode.Lax;                      // survives the login redirect
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;  // change to Always in production
+    // CHANGED: secure-only outside development, so the cookie never travels over plain http.
+    options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always;
     options.ExpireTimeSpan = TimeSpan.FromHours(8);
     options.SlidingExpiration = true;
 
@@ -183,13 +211,22 @@ if (string.IsNullOrWhiteSpace(jwt.SigningKey) || jwt.SigningKey.Length < 32)
         "Set it with user secrets locally and Secret Manager on Cloud Run.");
 }
 
-if (string.IsNullOrWhiteSpace(jwt.Issuer) || string.IsNullOrWhiteSpace(jwt.Audience) || jwt.AccessTokenMinutes <= 0)
+if (string.IsNullOrWhiteSpace(jwt.Issuer) || string.IsNullOrWhiteSpace(jwt.Audience) ||
+    jwt.AccessTokenMinutes <= 0 || jwt.RefreshTokenDays <= 0)
 {
-    throw new InvalidOperationException("Jwt:Issuer, Jwt:Audience and Jwt:AccessTokenMinutes must be set.");
+    throw new InvalidOperationException(
+        "Jwt:Issuer, Jwt:Audience, Jwt:AccessTokenMinutes and Jwt:RefreshTokenDays must be set.");
 }
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.AddSingleton<ITokenService, JwtTokenService>();
+
+// NEW (mobile API): "stay signed in" tokens, stored in Identity's own
+// AspNetUserTokens table - no new table, no migration.
+builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+
+// NEW (mobile API): the partner profile the app shows after sign-in and on /me.
+builder.Services.AddScoped<IPartnerProfileReader, PartnerProfileReader>();
 
 // A second, separate cookie for customers. They have no password and are not
 // Identity users - the access link signs them in and the cookie carries one
@@ -203,7 +240,10 @@ builder.Services.AddAuthentication()
         options.Cookie.Name = "sg_customer";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;  // Always in production
+        // CHANGED: secure-only outside development.
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
         options.LoginPath = "/my-request/request-access";
@@ -235,7 +275,81 @@ builder.Services.AddAuthentication()
         };
     });
 
+// ---------------------------------------------------------------
+// NEW (security): Cloud Run sits behind Google's front end, which passes on
+// the visitor's real address and "https" in X-Forwarded-* headers. Without
+// reading them, every request looks like it came from Google over plain
+// http - so rate limits would lump everyone together, and canonical links
+// and secure cookies would be wrong. ForwardLimit = 1 (the default) trusts
+// only the last entry, the one Google itself adds.
+// ---------------------------------------------------------------
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// ---------------------------------------------------------------
+// NEW (security): limits on the sign-in endpoints, per visitor address.
+//
+// Login already locks an ACCOUNT after 5 wrong passwords; this stops one
+// address hammering many accounts, or the "is this number registered"
+// checks, or flooding inboxes with reset codes. The rest of the API and the
+// website are not limited.
+//
+// Generous on purpose: in India many mobile users share one address through
+// their carrier, so a strict limit would block real people.
+// ---------------------------------------------------------------
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        var address = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+        if (context.Request.Path.StartsWithSegments("/api/v1/auth"))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter("auth:" + address, _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,                    // 30 sign-in calls...
+                Window = TimeSpan.FromMinutes(1),    // ...per minute, per address
+                QueueLimit = 0
+            });
+        }
+
+        // NEW: city search costs money per call to Google, so it's limited too.
+        if (context.Request.Path.StartsWithSegments("/api/v1/places"))
+        {
+            return RateLimitPartition.GetFixedWindowLimiter("places:" + address, _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0
+            });
+        }
+
+        return RateLimitPartition.GetNoLimiter("unlimited");
+    });
+
+    // The same JSON shape as every other API error, so the app shows a clear message.
+    options.OnRejected = async (context, ct) =>
+    {
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            error = "Too many attempts. Please wait a minute and try again.",
+            code = "rateLimited"
+        }, ct);
+    };
+});
+
 var app = builder.Build();
+
+// NEW (security): read the real visitor address and https first, before
+// anything else looks at the request.
+app.UseForwardedHeaders();
 
 // ---------------------------------------------------------------
 // Pipeline. Order matters: each line below runs in sequence for
@@ -260,6 +374,8 @@ app.UseWhen(
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseRateLimiter();      // NEW: limits on the sign-in endpoints (see above)
 
 app.UseAuthentication();   // reads the cookies (and API tokens) and builds User
 app.UseAuthorization();    // checks User against [Authorize]

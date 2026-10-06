@@ -28,10 +28,21 @@ public class LeadAssignment
     public bool IsActive => Status is not (AssignmentStatus.Cancelled or AssignmentStatus.Expired);
 }
 
+/// <summary>
+/// Stored as text in PostgreSQL (HasConversion&lt;string&gt;), so adding a value
+/// needs no migration and can't change the meaning of existing rows.
+/// </summary>
 public enum AssignmentStatus
 {
     Assigned,
     Viewed,
+
+    /// <summary>
+    /// NEW (mobile app): the partner accepted the lead. Unlocks the customer's
+    /// full contact details and the quote form in the partner app.
+    /// </summary>
+    Accepted,
+
     Declined,
     Expired,
     Completed,

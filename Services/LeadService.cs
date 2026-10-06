@@ -75,6 +75,71 @@ public class LeadService : ILeadService
     }
 
     /// <summary>
+    /// NEW (mobile app): a request from the customer app. Uses the same lead
+    /// number sequence, the same double-tap guard and the same starting status
+    /// as CreateLeadAsync, so app and website requests look identical to the
+    /// admin team and to partners.
+    /// </summary>
+    public async Task<Lead> CreateAppLeadAsync(AppLeadInput input, Service service, CancellationToken ct = default)
+    {
+        // Double-tap guard, same window as the website form.
+        var cutoff = DateTime.UtcNow - DuplicateWindow;
+
+        var existing = await _db.Leads
+            .AsNoTracking()
+            .Where(l => l.Phone == input.Phone
+                     && l.ServiceSlug == service.Slug
+                     && l.CreatedAt >= cutoff)
+            .OrderByDescending(l => l.CreatedAt)
+            .FirstOrDefaultAsync(ct);
+
+        if (existing is not null) return existing;
+
+        var lead = new Lead
+        {
+            LeadNumber = await NextLeadNumberAsync(ct),
+            ServiceSlug = service.Slug,
+            ServiceName = service.Name,
+
+            // From the customer's account, never from what the app sent.
+            CustomerId = input.CustomerId,
+            CustomerName = input.CustomerName,
+            Phone = input.Phone,
+            Email = input.Email,
+
+            MovingFrom = input.MovingFrom,
+            MovingTo = input.MovingTo,
+            StorageLocation = input.StorageLocation,
+            MovingDate = input.MovingDate,
+
+            PropertyType = input.PropertyType,
+            MoveSize = input.MoveSize,
+            OfficeSize = input.OfficeSize,
+            DeskCount = input.DeskCount,
+            VehicleType = input.VehicleType,
+            VehicleModel = input.VehicleModel,
+            VehicleCondition = input.VehicleCondition,
+            GoodsType = input.GoodsType,
+            LoadDetails = input.LoadDetails,
+            VehicleRequirement = input.VehicleRequirement,
+            StorageType = input.StorageType,
+            StorageSize = input.StorageSize,
+            StorageDuration = input.StorageDuration,
+
+            AdditionalRequirements = input.AdditionalRequirements,
+
+            // Server-controlled, exactly like the website form.
+            Status = LeadStatus.New,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _db.Leads.Add(lead);
+        await _db.SaveChangesAsync(ct);
+
+        return lead;
+    }
+
+    /// <summary>
     /// SG-yyyyMMdd-#####. The counter comes from a PostgreSQL sequence, which
     /// is atomic - two simultaneous submissions cannot produce the same number.
     /// </summary>

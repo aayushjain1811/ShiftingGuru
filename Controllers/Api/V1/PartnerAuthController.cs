@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftingGuru.Data;
 using ShiftingGuru.Models;
 using ShiftingGuru.Services;
+using ShiftingGuru.Services.Api;
 using ShiftingGuru.Services.Auth;
 
 namespace ShiftingGuru.Controllers.Api.V1;
@@ -26,20 +27,26 @@ public class PartnerAuthController : ControllerBase
     private readonly UserManager<IdentityUser> _users;
     private readonly SignInManager<IdentityUser> _signIn;
     private readonly IPartnerService _partners;
+    private readonly IPartnerProfileReader _profiles;
     private readonly ITokenService _tokens;
+    private readonly IRefreshTokenService _refreshTokens;
     private readonly ILogger<PartnerAuthController> _logger;
 
     public PartnerAuthController(
         UserManager<IdentityUser> users,
         SignInManager<IdentityUser> signIn,
         IPartnerService partners,
+        IPartnerProfileReader profiles,
         ITokenService tokens,
+        IRefreshTokenService refreshTokens,
         ILogger<PartnerAuthController> logger)
     {
         _users = users;
         _signIn = signIn;
         _partners = partners;
+        _profiles = profiles;
         _tokens = tokens;
+        _refreshTokens = refreshTokens;
         _logger = logger;
     }
 
@@ -91,9 +98,12 @@ public class PartnerAuthController : ControllerBase
 
         var token = _tokens.CreateAccessToken(user, AdminSeeder.VendorRole);
 
+        // NEW: the long-lived token that keeps this phone signed in.
+        var refresh = await _refreshTokens.IssueAsync(user);
+
+        var profile = await _profiles.ReadAsync(vendor, ct);
+
         return Ok(new PartnerLoginResponse(
-            token.AccessToken,
-            token.ExpiresAt,
-            PartnerProfileDto.From(vendor)));
+            token.AccessToken, token.ExpiresAt, refresh.Token, refresh.ExpiresAt, profile));
     }
 }
