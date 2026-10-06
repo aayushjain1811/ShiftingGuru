@@ -319,7 +319,7 @@ builder.Services.AddRateLimiter(options =>
             });
         }
 
-        // NEW: city search costs money per call to Google, so it's limited too.
+        
         if (context.Request.Path.StartsWithSegments("/api/v1/places"))
         {
             return RateLimitPartition.GetFixedWindowLimiter("places:" + address, _ => new FixedWindowRateLimiterOptions
