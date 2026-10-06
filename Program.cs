@@ -315,7 +315,7 @@ builder.Services.AddRateLimiter(options =>
             {
                 PermitLimit = 30,                    // 30 sign-in calls...
                 Window = TimeSpan.FromMinutes(1),    // ...per minute, per address
-                QueueLimit = 0
+                QueueLimit = 0 
             });
         }
 
