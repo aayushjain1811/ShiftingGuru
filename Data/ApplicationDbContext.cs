@@ -31,6 +31,9 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
 
     // NEW (mobile apps): which kinds of push notification each person wants.
     public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
+
+    // NEW: partner marks a job done, customer confirms (or reports a problem).
+    public DbSet<JobCompletion> JobCompletions => Set<JobCompletion>();
     public DbSet<VendorDocument> VendorDocuments => Set<VendorDocument>();
     public DbSet<RegistrationPayment> RegistrationPayments => Set<RegistrationPayment>();
     public DbSet<VendorService> VendorServices => Set<VendorService>();
@@ -152,6 +155,33 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>, IDataProtec
             device.Property(d => d.Platform).IsRequired().HasMaxLength(10);
             device.Property(d => d.CreatedAt).IsRequired().HasColumnType("timestamp with time zone");
             device.Property(d => d.LastSeenAt).IsRequired().HasColumnType("timestamp with time zone");
+        });
+
+        // NEW: job completion - one row per booking, removed with the booking.
+        builder.Entity<JobCompletion>(job =>
+        {
+            job.ToTable("JobCompletions");
+            job.HasKey(j => j.LeadId);
+
+            job.HasOne(j => j.Lead)
+               .WithOne()
+               .HasForeignKey<JobCompletion>(j => j.LeadId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            job.Property(j => j.PartnerMarkedAt).IsRequired().HasColumnType("timestamp with time zone");
+            job.Property(j => j.PartnerNote).HasMaxLength(500);
+
+            job.Property(j => j.CustomerAnswer).IsRequired().HasMaxLength(20).HasConversion<string>();
+            job.Property(j => j.CustomerAnsweredAt).HasColumnType("timestamp with time zone");
+            job.Property(j => j.ProblemText).HasMaxLength(1000);
+
+            job.Property(j => j.ResolvedAt).HasColumnType("timestamp with time zone");
+            job.Property(j => j.ResolvedBy).HasMaxLength(180);
+            job.Property(j => j.ResolutionNote).HasMaxLength(500);
+
+            job.HasIndex(j => j.CustomerAnswer);
+            job.HasIndex(j => j.PartnerMarkedAt);
+            job.HasIndex(j => j.VendorId);
         });
 
         // NEW (mobile apps): notification switches, one row per person.

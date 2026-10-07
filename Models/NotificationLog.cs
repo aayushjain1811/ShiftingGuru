@@ -67,5 +67,10 @@ public enum NotificationType
     AdminNewReview,
     AdminNewVendor,
     AdminNewQuote,
-    AdminLeadConverted
+    AdminLeadConverted,
+
+    // NEW: job completion (partner marks done, customer confirms)
+    CustomerJobMarkedComplete,
+    AdminJobProblem,
+    AdminJobsDigest
 }

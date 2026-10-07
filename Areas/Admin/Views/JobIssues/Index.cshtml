@@ -1,0 +1,163 @@
+@model ShiftingGuru.Areas.Admin.Controllers.JobIssuesViewModel
+@{
+    ViewData["Title"] = "Job issues";
+    string When(DateTime? utc) => utc is null ? "-" : utc.Value.AddHours(5.5).ToString("d MMM yyyy, h:mm tt");
+    string Day(DateOnly? d) => d is null ? "Flexible" : d.Value.ToString("d MMM yyyy");
+}
+
+<div class="ji">
+    <div class="ji-head">
+        <div>
+            <h1>Job issues</h1>
+            <p>Finished jobs that need a person: problems customers reported, and bookings nobody marked complete.</p>
+        </div>
+        <form method="post" action="/admin/job-issues/run-checks">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="ji-btn ji-btn-light">Run checks now</button>
+        </form>
+    </div>
+
+    @if (TempData["AdminMessage"] is string ok) { <div class="ji-flash ji-ok">@ok</div> }
+    @if (TempData["AdminError"] is string err) { <div class="ji-flash ji-err">@err</div> }
+
+    @* ---------- 1. Problems ---------- *@
+    <h2><span class="ji-dot ji-red"></span> Problems reported (@Model.Problems.Count)</h2>
+    @if (!Model.Problems.Any())
+    {
+        <p class="ji-empty">No open problem reports.</p>
+    }
+    @foreach (var p in Model.Problems)
+    {
+        <div class="ji-card ji-card-red">
+            <div class="ji-top">
+                <a href="/admin/leads/@p.LeadId" class="ji-num">@p.LeadNumber</a>
+                <span class="ji-muted">@p.ServiceName · @p.Route · move @Day(p.MovingDate)</span>
+            </div>
+
+            <div class="ji-quote">
+                <div class="ji-label">What the customer wrote (@When(p.AnsweredAt))</div>
+                <p>@p.ProblemText</p>
+            </div>
+
+            <div class="ji-grid">
+                <div><div class="ji-label">Customer</div>@p.CustomerName · <a href="tel:@p.CustomerPhone">@p.CustomerPhone</a></div>
+                <div><div class="ji-label">Partner</div>@p.VendorName · <a href="tel:@p.VendorPhone">@p.VendorPhone</a></div>
+                <div><div class="ji-label">Partner marked done</div>@When(p.PartnerMarkedAt)</div>
+                <div><div class="ji-label">Partner's note</div>@(p.PartnerNote ?? "None")</div>
+            </div>
+
+            <form method="post" action="/admin/job-issues/@p.LeadId/resolve" class="ji-resolve">
+                @Html.AntiForgeryToken()
+                <input type="text" name="note" maxlength="500" placeholder="What did you do? (optional, for your records)" />
+                <button type="submit" name="completeJob" value="true" class="ji-btn"
+                        onclick="return confirm('Mark this job complete? The customer will be asked for a review.');">
+                    Resolve &amp; mark job complete
+                </button>
+                <button type="submit" name="completeJob" value="false" class="ji-btn ji-btn-light"
+                        onclick="return confirm('Keep this job open? The partner can mark it complete again later.');">
+                    Resolve &amp; keep job open
+                </button>
+            </form>
+        </div>
+    }
+
+    @* ---------- 2. Overdue ---------- *@
+    <h2><span class="ji-dot ji-orange"></span> Not marked complete (@Model.Overdue.Count)</h2>
+    <p class="ji-hint">Move date passed 2+ days ago (or Flexible, booked 14+ days ago), and the partner hasn't marked it. Call the partner.</p>
+    @if (!Model.Overdue.Any())
+    {
+        <p class="ji-empty">Nothing overdue.</p>
+    }
+    else
+    {
+        <div class="ji-table-wrap">
+            <table class="ji-table">
+                <thead><tr><th>Booking</th><th>Move date</th><th>Route</th><th>Partner</th><th>Customer</th></tr></thead>
+                <tbody>
+                @foreach (var o in Model.Overdue)
+                {
+                    <tr>
+                        <td><a href="/admin/leads/@o.LeadId">@o.LeadNumber</a></td>
+                        <td>@Day(o.MovingDate)</td>
+                        <td>@o.Route</td>
+                        <td>@o.VendorName<br /><a href="tel:@o.VendorPhone">@o.VendorPhone</a></td>
+                        <td>@o.CustomerName<br /><a href="tel:@o.CustomerPhone">@o.CustomerPhone</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @* ---------- 3. Waiting ---------- *@
+    <h2><span class="ji-dot ji-blue"></span> Waiting for the customer (@Model.Waiting.Count)</h2>
+    <p class="ji-hint">Marked done by the partner. Completes by itself 3 days after marking if the customer doesn't answer. Nothing to do.</p>
+    @if (Model.Waiting.Any())
+    {
+        <div class="ji-table-wrap">
+            <table class="ji-table">
+                <thead><tr><th>Booking</th><th>Partner</th><th>Marked done</th><th>Completes by itself</th></tr></thead>
+                <tbody>
+                @foreach (var w in Model.Waiting)
+                {
+                    <tr>
+                        <td><a href="/admin/leads/@w.LeadId">@w.LeadNumber</a></td>
+                        <td>@w.VendorName</td>
+                        <td>@When(w.PartnerMarkedAt)</td>
+                        <td>@When(w.PartnerMarkedAt?.AddDays(3))</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @* ---------- 4. Resolved ---------- *@
+    <h2><span class="ji-dot ji-green"></span> Resolved in the last 30 days (@Model.RecentlyResolved.Count)</h2>
+    @foreach (var r in Model.RecentlyResolved)
+    {
+        <div class="ji-card">
+            <div class="ji-top">
+                <a href="/admin/leads/@r.LeadId" class="ji-num">@r.LeadNumber</a>
+                <span class="ji-muted">resolved @When(r.ResolvedAt) by @r.ResolvedBy</span>
+            </div>
+            <p class="ji-small"><strong>Customer wrote:</strong> @r.ProblemText</p>
+            @if (!string.IsNullOrWhiteSpace(r.ResolutionNote))
+            {
+                <p class="ji-small"><strong>Note:</strong> @r.ResolutionNote</p>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    /* Scoped to this page. */
+    .ji { max-width: 1100px; padding: 24px; color: #17233D; }
+    .ji-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+    .ji h1 { font-size: 1.6rem; font-weight: 700; margin: 0; }
+    .ji h2 { font-size: 1.1rem; font-weight: 700; margin: 32px 0 8px; display: flex; align-items: center; gap: 8px; }
+    .ji p { margin: 4px 0; }
+    .ji a { color: #315DCE; }
+    .ji-muted, .ji-hint, .ji-empty { color: #64748B; font-size: .9rem; }
+    .ji-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .ji-red { background: #DC2626; } .ji-orange { background: #F59E0B; } .ji-blue { background: #315DCE; } .ji-green { background: #16A34A; }
+    .ji-flash { padding: 10px 14px; border-radius: 10px; margin-top: 16px; }
+    .ji-ok { background: #E8F7EE; color: #166534; } .ji-err { background: #FDECEC; color: #991B1B; }
+    .ji-card { background: #fff; border: 1px solid #E5EAF2; border-radius: 14px; padding: 16px; margin-top: 12px; }
+    .ji-card-red { border: 1.5px solid #DC2626; }
+    .ji-top { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+    .ji-num { font-weight: 700; }
+    .ji-quote { background: #FEF4E2; border-radius: 10px; padding: 12px; margin: 12px 0; }
+    .ji-quote p { white-space: pre-wrap; font-size: 1rem; }
+    .ji-label { font-size: .75rem; font-weight: 600; color: #64748B; text-transform: uppercase; letter-spacing: .04em; }
+    .ji-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; font-size: .9rem; }
+    .ji-resolve { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .ji-resolve input { flex: 1 1 260px; padding: 9px 12px; border: 1px solid #E5EAF2; border-radius: 10px; }
+    .ji-btn { background: #315DCE; color: #fff; border: 0; border-radius: 10px; padding: 9px 14px; font-weight: 600; cursor: pointer; }
+    .ji-btn-light { background: #fff; color: #315DCE; border: 1.5px solid #315DCE; }
+    .ji-table-wrap { overflow-x: auto; }
+    .ji-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #E5EAF2; border-radius: 12px; font-size: .9rem; }
+    .ji-table th, .ji-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E5EAF2; vertical-align: top; }
+    .ji-table th { font-size: .75rem; color: #64748B; text-transform: uppercase; letter-spacing: .04em; }
+    .ji-small { font-size: .9rem; }
+</style>

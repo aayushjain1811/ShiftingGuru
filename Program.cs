@@ -21,6 +21,7 @@ using ShiftingGuru.Services.Push;
 using ShiftingGuru.Services.Seo;
 using ShiftingGuru.Services.Storage;
 using ShiftingGuru.Services.Verification;
+using ShiftingGuru.Services.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,9 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ISeoService, SeoService>();
 builder.Services.AddHttpContextAccessor();       // AuditService needs it
 builder.Services.AddScoped<IAuditService, AuditService>();
-
+// Job completion: partner marks done, customer confirms, daily admin email.
+builder.Services.AddScoped<IJobCompletionService, JobCompletionService>();
+builder.Services.Configure<JobsOptions>(builder.Configuration.GetSection(JobsOptions.SectionName));
 // NEW: email one-time codes for the partner sign-up form.
 builder.Services.AddScoped<IEmailVerificationService, EmailVerificationService>();
 
