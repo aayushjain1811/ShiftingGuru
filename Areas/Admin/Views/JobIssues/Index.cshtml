@@ -17,9 +17,6 @@
         </form>
     </div>
 
-    @if (TempData["AdminMessage"] is string ok) { <div class="ji-flash ji-ok">@ok</div> }
-    @if (TempData["AdminError"] is string err) { <div class="ji-flash ji-err">@err</div> }
-
     @* ---------- 1. Problems ---------- *@
     <h2><span class="ji-dot ji-red"></span> Problems reported (@Model.Problems.Count)</h2>
     @if (!Model.Problems.Any())
